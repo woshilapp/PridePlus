@@ -514,8 +514,8 @@ public class Scaffold extends Module {
             if (blockSlot == -1)
                 return;
 
-          if(autoBlockValue.get().equalsIgnoreCase("Pick"))
-              mc.getNetHandler().addToSendQueue(classProvider.createCPacketHeldItemChange(blockSlot - 36));
+            if(autoBlockValue.get().equalsIgnoreCase("Pick"))
+                mc.getNetHandler().addToSendQueue(classProvider.createCPacketHeldItemChange(blockSlot - 36));
             mc.getPlayerController().updateController();
 
 

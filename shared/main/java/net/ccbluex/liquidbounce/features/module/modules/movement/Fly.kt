@@ -560,6 +560,21 @@ class Fly : Module() {
 
     @EventTarget
     fun onMotion(event: MotionEvent) {
+        if (modeValue.get() == "GPT-GrimACTest") {
+            if (!mc2.player.capabilities.isFlying && !mc2.player.isInWater && !mc2.player.isInLava) {
+                mc2.player.capabilities.isFlying = true
+                mc2.player.sendPlayerAbilities()
+            }
+            if (mc.gameSettings.keyBindJump.isKeyDown) {
+                mc2.player.motionY += 1.0F
+            }
+
+            if (mc.gameSettings.keyBindSneak.isKeyDown) {
+                mc2.player.motionY -= 1.0F
+            }
+            mc2.player.jumpMovementFactor = 1.0F
+            handleVanillaKickBypass()
+        }
         if (modeValue.get().equals("boosthypixel", ignoreCase = true)) {
             when (event.eventState) {
                 EventState.PRE -> {

@@ -148,23 +148,22 @@ class NoSlow : Module() {
         when(modeValue.get().toLowerCase()) {
 
             "fullgrim" -> {
-                val item = mc.thePlayer!!.heldItem?.item
-
+                val item = heldItem?.item
                 if (classProvider.isItemBlock(item)) return
-
-                if (event.eventState == EventState.PRE && classProvider.isItemFood(item) || classProvider.isItemPotion(item) || classProvider.isItemBucketMilk(item)) {
-                    val curSlot = mc.thePlayer!!.inventory.currentItem
-                    val spoof = if (curSlot == 0) 1 else -1
-                    PacketUtils.sendPacketNoEvent(CPacketHeldItemChange(curSlot + spoof))
-                    PacketUtils.sendPacketNoEvent(CPacketHeldItemChange(curSlot))
+                if (event.eventState == EventState.PRE && classProvider.isItemFood(item) ||
+                    classProvider.isItemPotion(item) || classProvider.isItemBucketMilk(item)) {
+                    if (mc.thePlayer!!.isUsingItem && mc.thePlayer!!.itemInUseCount >= 1) {
+                        mc2.connection!!.sendPacket(CPacketHeldItemChange((mc2.player.inventory.currentItem + 1) % 9))
+                        mc2.connection!!.sendPacket(CPacketHeldItemChange(mc2.player.inventory.currentItem))
+                    }
                 }
-                mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerBlockPlacement(mc.thePlayer!!.inventory.getCurrentItemInHand()))
-                mc2.connection!!.sendPacket(
-                    C08PacketPlayerBlockPlacement(
-                        getHytBlockpos(), 255,
-                        EnumHand.MAIN_HAND, 0f, 0f, 0f
-                    )
-                )
+                if (event.eventState == EventState.PRE && classProvider.isItemSword(item)) {
+                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerBlockPlacement(
+                        mc.thePlayer!!.inventory.getCurrentItemInHand()))
+                    mc2.connection!!.sendPacket(C08PacketPlayerBlockPlacement(
+                            getHytBlockpos(), 255,
+                            EnumHand.MAIN_HAND, 0f, 0f, 0f))
+                }
             }
             "custom" -> {
                 sendPacket(event,true,true,true,customDelayValue.get().toLong(),customOnGround.get())

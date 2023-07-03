@@ -24,66 +24,72 @@ import net.ccbluex.liquidbounce.value.ListValue
 class ScaffoldHelper : Module() {
     private val modeValue = ListValue("Mode", arrayOf("State"), "State")
 
-    private val scaffoldModeValue = ListValue("Scaffold Mode", arrayOf("Scaffold", "ScaffoldNew","LBScaffold"), "ScaffoldNew")
+    private val scaffoldModeValue = ListValue("Scaffold Mode", arrayOf("Scaffold", "ScaffoldNew","ScaffoldLB"), "ScaffoldNew")
 
     private val jumpModeValue = ListValue("Jump Mode", arrayOf("mc", "mc2","MotionY","Key", "Parkour", "Off"), "Off")
 
     private val timerValue = BoolValue("On Ground Timer", true)
 
-    val Scaffold = LiquidBounce.moduleManager[Scaffold::class.java] as Scaffold
-    val LBScaffold = LiquidBounce.moduleManager[LBScaffold::class.java] as LBScaffold
-    val ScaffoldNew = LiquidBounce.moduleManager[ScaffoldNew::class.java] as ScaffoldNew
-    val Timer = LiquidBounce.moduleManager[Timer::class.java] as Timer
-    val Parkour = LiquidBounce.moduleManager[Parkour::class.java] as Parkour
+//    val Scaffold = LiquidBounce.moduleManager[Scaffold::class.java]
+//    val LBScaffold = LiquidBounce.moduleManager[LBScaffold::class.java]
+//    val ScaffoldNew = LiquidBounce.moduleManager[ScaffoldNew::class.java]
+//    val Timer = LiquidBounce.moduleManager[Timer::class.java]
+//    val Parkour = LiquidBounce.moduleManager[Parkour::class.java]
 
-    fun Jump(){
+    fun jump(){
         if (mc2.player.onGround || !mc2.player.isAirBorne) {
             when (jumpModeValue.get().toLowerCase()) {
                 "mc" -> mc.thePlayer!!.jump()
                 "mc2" -> mc2.player.jump()
                 "motiony" -> mc.thePlayer!!.motionY = 0.42
-                "key" -> mc.gameSettings.keyBindJump.onTick(mc.gameSettings.keyBindJump.keyCode)
+                "key" -> {
+                    mc2.gameSettings.keyBindJump.pressed = true
+                    mc2.gameSettings.keyBindJump.pressed = false
+                }
             }
         }
     }
 
     override fun onDisable() {
-        Parkour.state = false
-        Scaffold.state = false
-        LBScaffold.state = false
-        ScaffoldNew.state = false
-        Timer.state = false
+        when (scaffoldModeValue.get().toLowerCase()) {
+            "scaffold" -> LiquidBounce.moduleManager[Scaffold::class.java].state = false
+            "scaffoldnew" -> LiquidBounce.moduleManager[ScaffoldNew::class.java].state = false
+            "scaffoldlb" -> LiquidBounce.moduleManager[ScaffoldLB::class.java].state = false
+        }
+        LiquidBounce.moduleManager[Parkour::class.java].state = false
+        LiquidBounce.moduleManager[Timer::class.java].state = false
+
         mc.gameSettings.keyBindJump.pressed = false
         super.onDisable()
     }
     @EventTarget
     fun onUpdate(event: UpdateEvent){
         if(jumpModeValue.get() == "Parkour") {
-            Parkour.state = true
+            LiquidBounce.moduleManager[Parkour::class.java].state = true
         }else{
-            Parkour.state = false
-            Jump()
+            LiquidBounce.moduleManager[Parkour::class.java].state = false
+            jump()
         }
 
         if (mc.thePlayer!!.onGround){
             if(timerValue.get())
-                Timer.state = true
+                LiquidBounce.moduleManager[Timer::class.java].state = true
 
             if (modeValue.get().toLowerCase() == "state") {
                 when (scaffoldModeValue.get().toLowerCase()) {
-                    "scaffold" -> Scaffold.state = false
-                    "scaffoldnew" -> ScaffoldNew.state = false
-                    "lbscaffold" -> LBScaffold.state = false
+                    "scaffold" -> LiquidBounce.moduleManager[Scaffold::class.java].state = false
+                    "scaffoldnew" -> LiquidBounce.moduleManager[ScaffoldNew::class.java].state = false
+                    "scaffoldlb" -> LiquidBounce.moduleManager[ScaffoldLB::class.java].state = false
                 }
             }
         }else {
             if (timerValue.get())
-                Timer.state = false
+                LiquidBounce.moduleManager[Timer::class.java].state = false
             if (modeValue.get().toLowerCase() == "state") {
                 when (scaffoldModeValue.get().toLowerCase()) {
-                    "scaffold" -> Scaffold.state = true
-                    "scaffoldnew" -> ScaffoldNew.state = true
-                    "lbscaffold" -> LBScaffold.state = true
+                    "scaffold" -> LiquidBounce.moduleManager[Scaffold::class.java].state = true
+                    "scaffoldnew" -> LiquidBounce.moduleManager[ScaffoldNew::class.java].state = true
+                    "scaffoldlb" -> LiquidBounce.moduleManager[ScaffoldLB::class.java].state = true
                 }
             }
         }

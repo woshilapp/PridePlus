@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.ui.cnfont.FontLoaders
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
@@ -43,6 +44,7 @@ class HUD : Module() {
     val redValue = IntegerValue("NovolineRed", 255, 0, 255)
     val greenValue = IntegerValue("NovolineGreen", 255, 0, 255)
     val blueValue = IntegerValue("NovolineBlue", 255, 0, 255)
+    val prideBack = ListValue("PrideLogoBackMode", arrayOf("FPS","miHoYo","Pro","114514","idan"),"FPS")
 
     val customColor = Color(redValue.get(), greenValue.get(), blueValue.get())
 
@@ -59,7 +61,16 @@ class HUD : Module() {
         i = "ide"
         p2 = "Pl"
         u = "us"
-        Fonts.fontSFUI35.drawString("Using "+p+i+p2+u+" B"+LiquidBounce.CLIENT_VERSION+", FPS:"+ mc.debugFPS,7.0F,height - (Fonts.fontSFUI35.fontHeight + 5.0F),Color.WHITE.rgb,true)
+        var back:String = "FPS:" + mc.debugFPS
+
+        when(prideBack.get().toLowerCase()){
+            "fps" -> back = "FPS:" + mc.debugFPS
+            "mihoyo" -> back = "miHoYo-Team"
+            "pro" -> back = "WaWa我给你跪下了"
+            "114514" -> back = "哼啊啊啊啊啊啊啊啊"
+            "idan" -> back = "idan正义集团为你保驾护航"
+        }
+        FontLoaders.F16.drawString("Using "+p+i+p2+u+" B"+LiquidBounce.CLIENT_VERSION+", "+ back,7.0F,height - (FontLoaders.F16.height + 5.0F),Color.WHITE.rgb,true)
         when (logValue.get().toLowerCase()) {
 
             "novoline" -> {

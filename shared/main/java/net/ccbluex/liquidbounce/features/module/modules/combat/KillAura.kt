@@ -51,6 +51,7 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.effect.EntityLightningBolt
 import net.minecraft.item.ItemSword
 import net.minecraft.network.play.client.CPacketPlayerDigging
+import net.minecraft.network.play.client.CPacketPlayerTryUseItem
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock
 import net.minecraft.network.play.server.SPacketSpawnGlobalEntity
 import net.minecraft.util.EnumFacing
@@ -474,7 +475,7 @@ class KillAura : Module() {
                 if (mc2.player.swingProgressInt === -1) {
                     PacketUtils.sendPacketNoEvent(CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos(-1, -1, -1), EnumFacing.DOWN))
                 } else if (mc2.player.swingProgressInt < 0.5 && mc2.player.swingProgressInt !== -1) {
-                    PacketUtils.sendPacketNoEvent(CPacketPlayerTryUseItemOnBlock(BlockPos(-1, -1, -1), EnumFacing.WEST, EnumHand.MAIN_HAND, 0F, 0F, 0F))
+                    PacketUtils.sendPacketNoEvent(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))
                     mc.thePlayer!!.sendQueue.addToSendQueue(createUseItemPacket(mc.thePlayer!!.inventory.getCurrentItemInHand(), WEnumHand.MAIN_HAND))
                     mc.thePlayer!!.sendQueue.addToSendQueue(createUseItemPacket(mc.thePlayer!!.inventory.getCurrentItemInHand(), WEnumHand.OFF_HAND))
                 }
@@ -1491,13 +1492,11 @@ class KillAura : Module() {
 
             }
             if (vanillamode.get().equals("CPacketPlayerBlockPlacement", true)){
-                mc2.connection!!.sendPacket(CPacketPlayerTryUseItemOnBlock(
-                    BlockPos(-0.5534147541, -0.5534147541, -0.5534147541),
-                    EnumFacing.WEST, EnumHand.OFF_HAND, 0F,0F,0F)
+                mc2.connection!!.sendPacket(CPacketPlayerTryUseItem(
+                    EnumHand.OFF_HAND)
                 )
-                mc2.connection!!.sendPacket(CPacketPlayerTryUseItemOnBlock(
-                    BlockPos(-0.5534147541, -0.5534147541, -0.5534147541),
-                    EnumFacing.WEST, EnumHand.MAIN_HAND, 0F,0F,0F)
+                mc2.connection!!.sendPacket(CPacketPlayerTryUseItem(
+                    EnumHand.OFF_HAND)
                 )
 //                        mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerBlockPlacement(mc.thePlayer!!.inventory.getCurrentItemInHand()))
             }

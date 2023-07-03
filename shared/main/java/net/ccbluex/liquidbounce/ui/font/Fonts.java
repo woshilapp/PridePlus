@@ -85,6 +85,23 @@ public class Fonts extends MinecraftInstance {
     @FontDetails(fontName = "Roboto Bold", fontSize = 180)
     public static IFontRenderer fontBold180;
 
+
+    @FontDetails(fontName = "Product Sans", fontSize = 30)
+    public static IFontRenderer pro30;
+    @FontDetails(fontName = "Product Sans", fontSize = 35)
+    public static IFontRenderer pro35;
+    @FontDetails(fontName = "Product Sans", fontSize = 40)
+    public static IFontRenderer pro40;
+    @FontDetails(fontName = "Product Sans", fontSize = 72)
+    public static IFontRenderer pro72;
+    @FontDetails(fontName = "Product Sans", fontSize = 80)
+    public static IFontRenderer pro80;
+    @FontDetails(fontName = "Product Sans", fontSize = 120)
+    public static IFontRenderer pro120;
+    @FontDetails(fontName = "Product Sans", fontSize = 180)
+    public static IFontRenderer pro180;
+
+
     @FontDetails(fontName = "jellom", fontSize = 20)
     public static GameFontRenderer jellom;
     @FontDetails(fontName = "jello", fontSize = 20)
@@ -146,6 +163,15 @@ public class Fonts extends MinecraftInstance {
         //downloadFonts();
         flux = classProvider.wrapFontRenderer(new GameFontRenderer(getFlux(30)));
 
+        pro30 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("productsans.ttf", 30)));
+        pro35 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("productsans.ttf", 35)));
+        pro40 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("productsans.ttf", 40)));
+        pro72 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("productsans.ttf", 72)));
+        pro80 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("productsans.ttf", 80)));
+        pro120 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("productsans.ttf", 120)));
+        pro180 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("productsans.ttf", 180)));
+
+
         Light35 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("Roboto-Light.ttf", 35)));
         Light45= classProvider.wrapFontRenderer(new GameFontRenderer(getFont("Roboto-Light.ttf", 45)));
         Light60 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("Roboto-Light.ttf", 60)));
@@ -174,14 +200,14 @@ public class Fonts extends MinecraftInstance {
 
         jello = new GameFontRenderer(getFont("jelloSB.ttf", 20));
         jellom = new GameFontRenderer(getFont("jellom.ttf", 20));
-        jello40 =classProvider.wrapFontRenderer(new GameFontRenderer(getFont("jello.ttf", 40)));
-        jello120 =classProvider.wrapFontRenderer(new GameFontRenderer(getFont("jello.ttf", 120)));
-        jello35 =classProvider.wrapFontRenderer(new GameFontRenderer(getFont("jello.ttf", 35)));
-        jello60=classProvider.wrapFontRenderer(new GameFontRenderer(getFont("jello.ttf", 60)));
-        jello37=classProvider.wrapFontRenderer(new GameFontRenderer(getFont("jello.ttf", 37)));
-        jello30=classProvider.wrapFontRenderer(new GameFontRenderer(getFont("jello.ttf", 30)));
-        jello45=classProvider.wrapFontRenderer(new GameFontRenderer(getFont("jello.ttf", 45)));
-        jello72 =classProvider.wrapFontRenderer(new GameFontRenderer(getFont("jello.ttf", 72)));
+        jello40 =classProvider.wrapFontRenderer(new GameFontRenderer(getJello( 40)));
+        jello120 =classProvider.wrapFontRenderer(new GameFontRenderer(getJello(120)));
+        jello35 =classProvider.wrapFontRenderer(new GameFontRenderer(getJello( 35)));
+        jello60=classProvider.wrapFontRenderer(new GameFontRenderer(getJello(60)));
+        jello37=classProvider.wrapFontRenderer(new GameFontRenderer(getJello( 37)));
+        jello30=classProvider.wrapFontRenderer(new GameFontRenderer(getJello(30)));
+        jello45=classProvider.wrapFontRenderer(new GameFontRenderer(getJello( 45)));
+        jello72 =classProvider.wrapFontRenderer(new GameFontRenderer(getJello( 72)));
 
         bold35 = classProvider.wrapFontRenderer(new GameFontRenderer(getBold(35)));
         bold40 = classProvider.wrapFontRenderer(new GameFontRenderer(getBold(40)));
@@ -257,7 +283,7 @@ public class Fonts extends MinecraftInstance {
     private static Font getJello(int size) {
         Font font;
         try {
-            InputStream is = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("pride/font/jello.ttf")).getInputStream();
+            InputStream is = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("pride/font/Jello.ttf")).getInputStream();
             font = Font.createFont(0, is);
             font = font.deriveFont(0, size);
         } catch (Exception ex) {

@@ -43,7 +43,8 @@ open class HUD : MinecraftInstance() {
             KeyStrokes::class.java,
             NewEffects::class.java,
             Target2::class.java,
-            Text2::class.java
+            Text2::class.java,
+            Target3::class.java
 
         )
 

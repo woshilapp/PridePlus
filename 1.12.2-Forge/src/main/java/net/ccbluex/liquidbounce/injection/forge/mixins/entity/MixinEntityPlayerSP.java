@@ -15,8 +15,8 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow;
 import net.ccbluex.liquidbounce.features.module.modules.movement.Sneak;
 import net.ccbluex.liquidbounce.features.module.modules.movement.Sprint;
 import net.ccbluex.liquidbounce.features.module.modules.render.NoSwing;
-import net.ccbluex.liquidbounce.features.module.modules.world.LBScaffold;
 import net.ccbluex.liquidbounce.features.module.modules.world.Scaffold;
+import net.ccbluex.liquidbounce.features.module.modules.world.ScaffoldLB;
 import net.ccbluex.liquidbounce.features.module.modules.world.ScaffoldNew;
 import net.ccbluex.liquidbounce.utils.MovementUtils;
 import net.ccbluex.liquidbounce.utils.Rotation;
@@ -380,9 +380,9 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
         final Scaffold scaffold = (Scaffold) LiquidBounce.moduleManager.getModule(Scaffold.class);
 
-        final LBScaffold lbscaffold = (LBScaffold) LiquidBounce.moduleManager.getModule(LBScaffold.class);
-
         final ScaffoldNew scaffoldnew = (ScaffoldNew) LiquidBounce.moduleManager.getModule(ScaffoldNew.class);
+
+        final ScaffoldLB scaffoldlb = (ScaffoldLB) LiquidBounce.moduleManager.getModule(ScaffoldLB.class);
 
         if ((scaffold.getState() && !scaffold.sprintValue.get()) || (sprint.getState() && sprint.checkServerSide.get() && (onGround || !sprint.checkServerSideGround.get()) && !sprint.allDirectionsValue.get() && RotationUtils.targetRotation != null && RotationUtils.getRotationDifference(new Rotation(mc.player.rotationYaw, mc.player.rotationPitch)) > 30))
             this.setSprinting(false);
@@ -390,8 +390,9 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         if (scaffoldnew.getState() && !scaffoldnew.getSprintValue().get())
             this.setSprinting(false);
 
-        if (lbscaffold.getState() && !lbscaffold.sprintValue.get())
+        if (scaffoldlb.getState() && !scaffoldlb.sprintValue.get())
             this.setSprinting(false);
+
 
         if (this.isSprinting() && (this.movementInput.moveForward < 0.8F || this.collidedHorizontally || !flag4)) {
             this.setSprinting(false);

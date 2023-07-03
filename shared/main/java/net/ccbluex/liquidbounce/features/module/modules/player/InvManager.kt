@@ -5,45 +5,42 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-
-import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.api.enums.BlockType
 import net.ccbluex.liquidbounce.api.enums.EnchantmentType
+import net.ccbluex.liquidbounce.api.enums.WEnumHand
 import net.ccbluex.liquidbounce.api.minecraft.item.IItem
 import net.ccbluex.liquidbounce.api.minecraft.item.IItemStack
 import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.combat.AutoArmor
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.InventoryUtils
-import net.ccbluex.liquidbounce.utils.MovementUtils
+import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.createOpenInventoryPacket
+import net.ccbluex.liquidbounce.utils.createUseItemPacket
+import net.ccbluex.liquidbounce.utils.item.ArmorComparator
 import net.ccbluex.liquidbounce.utils.item.ArmorPiece
 import net.ccbluex.liquidbounce.utils.item.ItemUtils
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
 import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.IntegerValue
 import net.ccbluex.liquidbounce.value.ListValue
-
+import java.util.stream.Collectors
+import java.util.stream.IntStream
 
 @ModuleInfo(
-    name = "InvCleaner",
-    description = "Automatically throws away useless items.",
+    name = "InvManager",
+    description = "Automatically equips the best armor in your inventory.",
     category = ModuleCategory.PLAYER
 )
-class InventoryCleaner : Module() {
-
-    /**
-     * OPTIONS
-     */
-
+class InvManager : Module() {
     private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 600, 0, 1000) {
         override fun onChanged(oldValue: Int, newValue: Int) {
-            val minCPS = minDelayValue.get()
-            if (minCPS > newValue) set(minCPS)
+            val minDelay = minDelayValue.get()
+            if (minDelay > newValue) set(minDelay)
         }
     }
 
@@ -57,8 +54,8 @@ class InventoryCleaner : Module() {
     private val invOpenValue = BoolValue("InvOpen", false)
     private val simulateInventory = BoolValue("SimulateInventory", true)
     private val noMoveValue = BoolValue("NoMove", false)
+    private val swingValue = BoolValue("SwingItem", false)
     private val ignoreVehiclesValue = BoolValue("IgnoreVehicles", false)
-    private val hotbarValue = BoolValue("Hotbar", true)
     private val randomSlotValue = BoolValue("RandomSlot", false)
     private val sortValue = BoolValue("Sort", true)
     private val itemDelayValue = IntegerValue("ItemDelay", 0, 0, 5000)
@@ -66,32 +63,72 @@ class InventoryCleaner : Module() {
     private val items =
         arrayOf("None", "Ignore", "Sword", "Bow", "Pickaxe", "Axe", "Food", "Block", "Water", "Gapple", "Pearl")
     private val sortSlot1Value = ListValue("SortSlot-1", items, "Sword")
-    private val sortSlot2Value = ListValue("SortSlot-2", items, "Bow")
-    private val sortSlot3Value = ListValue("SortSlot-3", items, "Pickaxe")
-    private val sortSlot4Value = ListValue("SortSlot-4", items, "Axe")
-    private val sortSlot5Value = ListValue("SortSlot-5", items, "None")
+    private val sortSlot2Value = ListValue("SortSlot-2", items, "Pickaxe")
+    private val sortSlot3Value = ListValue("SortSlot-3", items, "Gapple")
+    private val sortSlot4Value = ListValue("SortSlot-4", items, "Block")
+    private val sortSlot5Value = ListValue("SortSlot-5", items, "Food")
     private val sortSlot6Value = ListValue("SortSlot-6", items, "None")
-    private val sortSlot7Value = ListValue("SortSlot-7", items, "Food")
-    private val sortSlot8Value = ListValue("SortSlot-8", items, "Block")
-    private val sortSlot9Value = ListValue("SortSlot-9", items, "Block")
+    private val sortSlot7Value = ListValue("SortSlot-7", items, "Bow")
+    private val sortSlot8Value = ListValue("SortSlot-8", items, "Axe")
+    private val sortSlot9Value = ListValue("SortSlot-9", items, "Pearl")
+    private var delay: Long = 0
+    private var locked = false
 
-    /**
-     * VALUES
-     */
-
-    private var delay = 0L
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         val thePlayer = mc.thePlayer ?: return
 
-        if (!InventoryUtils.CLICK_TIMER.hasTimePassed(delay) || !classProvider.isGuiInventory(mc.currentScreen) && invOpenValue.get() || noMoveValue.get() && MovementUtils.isMoving || thePlayer.openContainer != null && thePlayer.openContainer!!.windowId != 0 || (LiquidBounce.moduleManager[AutoArmor::class.java] as AutoArmor).isLocked) return
-
-        if (sortValue.get()) sortHotbar()
+        if (!InventoryUtils.CLICK_TIMER.hasTimePassed(delay) || !classProvider.isGuiInventory(mc.currentScreen) && invOpenValue.get() || noMoveValue.get() && isMoving || thePlayer.openContainer != null && thePlayer.openContainer!!.windowId != 0) return
 
         while (InventoryUtils.CLICK_TIMER.hasTimePassed(delay)) {
+
+            // Find best armor
+            val armorPieces = IntStream.range(0, 36).filter { i: Int ->
+                val itemStack = mc.thePlayer!!.inventory.getStackInSlot(i)
+                itemStack != null && classProvider.isItemArmor(itemStack.item) && (i < 9 || System.currentTimeMillis() - itemStack.itemDelay >= itemDelayValue.get())
+            }.mapToObj { i: Int ->
+                ArmorPiece(
+                    mc.thePlayer!!.inventory.getStackInSlot(
+                        i
+                    ), i
+                )
+            }.collect(Collectors.groupingBy<ArmorPiece?, Int> { obj: ArmorPiece? -> obj!!.armorType })
+            val bestArmor = arrayOfNulls<ArmorPiece>(4)
+            for ((key, value) in armorPieces) {
+                bestArmor[key] = value.stream().max(ARMOR_COMPARATOR).orElse(null)
+            }
+
+            // Swap armor
+            for (i in 0..3) {
+                val armorPiece = bestArmor[i] ?: continue
+                val armorSlot = 3 - i
+                val oldArmor = ArmorPiece(mc.thePlayer!!.inventory.armorItemInSlot(armorSlot), -1)
+                if (ItemUtils.isStackEmpty(oldArmor.itemStack) || !classProvider.isItemArmor(oldArmor.itemStack.item) || ARMOR_COMPARATOR.compare(
+                        oldArmor,
+                        armorPiece
+                    ) < 0
+                ) {
+                    if (!ItemUtils.isStackEmpty(oldArmor.itemStack) && move(8 - (3 - armorSlot), true)) {
+                        locked = true
+                        return
+                    }
+                    if (ItemUtils.isStackEmpty(mc.thePlayer!!.inventory.armorItemInSlot(armorSlot)) && move(
+                            armorPiece.slot,
+                            false
+                        )
+                    ) {
+                        locked = true
+                        return
+                    }
+                }
+            }
+            locked = false
+
+            if (sortValue.get()) sortHotbar()
+
             val garbageItems =
-                items(9, if (hotbarValue.get()) 45 else 36).filter { !isUseful(it.value, it.key) }.keys.toMutableList()
+                items(9, 45).filter { !isUseful(it.value, it.key) }.keys.toMutableList()
 
             // Shuffle items
             if (randomSlotValue.get()) garbageItems.shuffle()
@@ -102,6 +139,8 @@ class InventoryCleaner : Module() {
             val openInventory = !classProvider.isGuiInventory(mc.currentScreen) && simulateInventory.get()
 
             if (openInventory) mc.netHandler.addToSendQueue(createOpenInventoryPacket())
+
+            if (swingValue.get()) mc.thePlayer!!.swingItem()
 
             mc.playerController.windowClick(thePlayer.openContainer!!.windowId, garbageItem, 1, 4, thePlayer)
 
@@ -171,7 +210,7 @@ class InventoryCleaner : Module() {
                         val armor = ArmorPiece(stack, slot)
 
                         if (armor.armorType != currArmor.armorType) false
-                        else AutoArmor.ARMOR_COMPARATOR.compare(currArmor, armor) <= 0
+                        else ARMOR_COMPARATOR.compare(currArmor, armor) <= 0
                     } else false
                 }
             } else if (itemStack.unlocalizedName == "item.compass") {
@@ -184,9 +223,9 @@ class InventoryCleaner : Module() {
                 item
             ) || classProvider.isItemBucket(item) || itemStack.unlocalizedName == "item.stick" || ignoreVehiclesValue.get() && (classProvider.isItemBoat(
                 item
-            ) || classProvider.isItemMinecart(item))
+            ) || classProvider.isItemMinecart(item) || itemStack.unlocalizedName == "item.slimeball" || itemStack.unlocalizedName == "item.slimeBall")
         } catch (ex: Exception) {
-            ClientUtils.getLogger().error("(InventoryCleaner) Failed to check item: ${itemStack.unlocalizedName}.", ex)
+            ClientUtils.getLogger().error("(InvManager) Failed to check item: ${itemStack.unlocalizedName}.", ex)
 
             true
         }
@@ -420,4 +459,74 @@ class InventoryCleaner : Module() {
         8 -> sortSlot9Value.get()
         else -> ""
     }
+    @EventTarget
+    fun onRender3D(event: Render3DEvent?) {
+        if (!InventoryUtils.CLICK_TIMER.hasTimePassed(delay) || mc.thePlayer == null || mc.thePlayer!!.openContainer != null && mc.thePlayer!!.openContainer!!.windowId != 0) return
+
+    }
+
+
+    fun isLocked(): Boolean {
+        return state && locked
+    }
+
+    /**
+     * Shift+Left clicks the specified item
+     *
+     * @param item        Slot of the item to click
+     * @param isArmorSlot
+     * @return True if it is unable to move the item
+     */
+    private fun move(item: Int, isArmorSlot: Boolean): Boolean {
+        if (!isArmorSlot && item < 9 && !classProvider.isGuiInventory(mc.currentScreen)) {
+            mc.netHandler.addToSendQueue(classProvider.createCPacketHeldItemChange(item))
+            mc.netHandler.addToSendQueue(
+                createUseItemPacket(
+                    mc.thePlayer!!.inventoryContainer.getSlot(item).stack,
+                    WEnumHand.MAIN_HAND
+                )
+            )
+            mc.netHandler.addToSendQueue(
+                classProvider.createCPacketHeldItemChange(
+                    mc.thePlayer!!.inventory.currentItem
+                )
+            )
+            delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+            return true
+        } else if (!(noMoveValue.get() && isMoving) && (!invOpenValue.get() || classProvider.isGuiInventory(mc.currentScreen)) && item != -1) {
+            val openInventory = simulateInventory.get() && !classProvider.isGuiInventory(mc.currentScreen)
+            if (openInventory) mc.netHandler.addToSendQueue(createOpenInventoryPacket())
+            var full = isArmorSlot
+            if (full) {
+                for (iItemStack in mc.thePlayer!!.inventory.mainInventory) {
+                    if (ItemUtils.isStackEmpty(iItemStack)) {
+                        full = false
+                        break
+                    }
+                }
+            }
+            if (full) {
+                mc.playerController.windowClick(
+                    mc.thePlayer!!.inventoryContainer.windowId, item, 1, 4,
+                    mc.thePlayer!!
+                )
+            } else {
+                mc.playerController.windowClick(
+                    mc.thePlayer!!.inventoryContainer.windowId,
+                    if (isArmorSlot) item else if (item < 9) item + 36 else item, 0, 1,
+                    mc.thePlayer!!
+                )
+            }
+            delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+            if (openInventory) mc.netHandler.addToSendQueue(classProvider.createCPacketCloseWindow())
+            return true
+        }
+        return false
+
+    }
+
+    companion object {
+        val ARMOR_COMPARATOR = ArmorComparator()
+    }
 }
+

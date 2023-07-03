@@ -24,6 +24,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -237,10 +238,7 @@ public abstract class MixinItemRenderer {
 
                         }
                         if (Animations.Sword.get().equals("Exhibition")) {
-                            transformSideFirstPersonBlock(enumhandside, p_187457_7_, 0.0f);
-                            float f4 = MathHelper.sin(MathHelper.sqrt(p_187457_5_) * 3.83F);
-                            GlStateManager.rotate(-f4 * 0.0F, 0.0F, 0.0F, 0.0F);
-                            GlStateManager.rotate(-f4 * 43.0F, 58.0F, 23.0F, 45.0F);
+                            Exhi(enumhandside, SP, p_187457_5_, p_187457_7_);
                         }
                         if (Animations.Sword.get().equals("SigmaNew")) {
                             transformSideFirstPersonBlock(enumhandside,p_187457_7_, p_187457_5_);
@@ -617,5 +615,31 @@ public abstract class MixinItemRenderer {
         if (this.equippedProgressOffHand < 0.1F) {
             this.itemStackOffHand = itemstack1;
         }
+    }
+    private void Exhi(EnumHandSide p_187459_1_, float equippedProg, float swingProgress, float sb) {
+        float f1 = swingProgress;
+        float f = 1.0F - (this.prevEquippedProgressMainHand + (this.equippedProgressMainHand - this.prevEquippedProgressMainHand) * sb);
+        this.transformFirstPersonItem(f / 2.0F, 0.0F);
+        GL11.glTranslated(-0.07D, 0.58D, 0.0D);
+        float var9 = MathHelper.sin(MathHelper.sqrt(f1) * 3.1415927F);
+//                                GL11.glRotated(-var9 * 60.0F / 2.0F, -var9 / 2.0F, -0.0F, 9.0F);
+//                                GL11.glRotated(-var9 * 53.0F, 1.0F, var9 / 2.0F, -0.0F);
+        GlStateManager.rotate(f * -20.0F, 0.0F, 1.0F, 0.0F);
+        GlStateManager.rotate(f1 * -20.0F, 0.0F, 0.0F, 1.0F);
+        GlStateManager.rotate(f1 * -80.0F, 1.0F, 0.0F, 0.0F);
+//        GlStateManager.scale(OldHitting.Scale.get(), OldHitting.Scale.get(), OldHitting.Scale.get());
+        this.func_178103_d();
+
+    }
+    private void transformFirstPersonItem(float equipProgress, float swingProgress) {
+        GlStateManager.translate(0.56F, -0.52F, -0.71999997F);
+        GlStateManager.translate(0.0F, equipProgress * -0.6F, 0.0F);
+        GlStateManager.rotate(45.0F, 0.0F, 1.0F, 0.0F);
+        float f = MathHelper.sin(swingProgress * swingProgress * (float) Math.PI);
+        float f1 = MathHelper.sin(MathHelper.sqrt(swingProgress) * (float) Math.PI);
+        GlStateManager.rotate(f * -20.0F, 0.0F, 1.0F, 0.0F);
+        GlStateManager.rotate(f1 * -20.0F, 0.0F, 0.0F, 1.0F);
+        GlStateManager.rotate(f1 * -80.0F, 1.0F, 0.0F, 0.0F);
+        GlStateManager.scale(0.4F, 0.4F, 0.4F);
     }
 }

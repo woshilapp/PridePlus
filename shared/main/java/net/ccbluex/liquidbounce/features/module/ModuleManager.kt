@@ -30,6 +30,7 @@ class ModuleManager : Listenable {
     init {
         LiquidBounce.eventManager.registerListener(this)
     }
+    //你刚刚有没有写什么mixin或者模块忘注册了
 
     /**
      * Register all modules
@@ -89,6 +90,7 @@ class ModuleManager : Listenable {
                 Step::class.java,
                 NoFucker::class.java,
                 AutoRespawn::class.java,
+
                 AutoTool::class.java,
                 AntiFireBall::class.java,
                 NoWeb::class.java,
@@ -187,11 +189,9 @@ class ModuleManager : Listenable {
                 Title::class.java,
                 NoSlowBreak::class.java,
                 PortalMenu::class.java,
-            LBScaffold::class.java,
             ScaffoldNew::class.java,
             AutoLFix::class.java,
             AutoGG::class.java,
-            ScaffoldHelper::class.java,
             BanChecker::class.java,
             Disabler::class.java,
             AntiFakePlayer::class.java,
@@ -205,15 +205,22 @@ class ModuleManager : Listenable {
             HytDisabler::class.java,
             NoLagHYT::class.java,
             JumpCircle::class.java,
-            FollowTargetHud::class.java
-
+            InvManager::class.java,
+            CancelC03::class.java,
+            PotionChecker::class.java,
+            ScaffoldHelper::class.java,
+            ScaffoldLB::class.java,//我傻了
+                    //WaWaDisabler::class.java,
+            GrimNoSlow::class.java
             // 下次一定优化重复啰嗦的功能
         )
+
 
         registerModule(NoScoreboard)
         registerModule(Fucker)
         registerModule(ChestAura)
         registerModule(AntiBot)
+        registerModule(FollowTargetHud)
 
         ClientUtils.getLogger().info("[ModuleManager] Loaded ${modules.size} modules.")
     }

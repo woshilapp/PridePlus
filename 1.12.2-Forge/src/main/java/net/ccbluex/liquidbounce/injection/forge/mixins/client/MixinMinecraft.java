@@ -110,7 +110,7 @@ public abstract class MixinMinecraft {
 
     @Inject(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;setTitle(Ljava/lang/String;)V", shift = At.Shift.AFTER))
     private void createDisplay(CallbackInfo callbackInfo) {
-        Display.setTitle("\uD835\uDC77\uD835\uDC93\uD835\uDC8A\uD835\uDC85\uD835\uDC86\uD835\uDC77\uD835\uDC8D\uD835\uDC96\uD835\uDC94 \uD835\uDC69\uD835\uDFF1\uD835\uDFF2 | \uD835\uDC69\uD835\uDC86\uD835\uDC94\uD835\uDC95 \uD835\uDC6A\uD835\uDC8D\uD835\uDC8A\uD835\uDC86\uD835\uDC8F\uD835\uDC95");
+        Display.setTitle(LiquidBounce.INSTANCE.getCLIENT_NAME()+" Build"+LiquidBounce.CLIENT_VERSION+" | Best Client For HuaYuTing");
     }
 
     @Inject(method = "displayGuiScreen", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;currentScreen:Lnet/minecraft/client/gui/GuiScreen;", shift = At.Shift.AFTER))

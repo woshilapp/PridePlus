@@ -30,6 +30,7 @@ import org.lwjgl.input.Keyboard;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.*;
 import java.util.List;
@@ -146,6 +147,7 @@ public class GuiAltManager extends WrappedGuiScreen {
         representedScreen.getButtonList().add(randomButton = classProvider.createGuiButton(4, 5, j + 24 * 2, 90, 20, "Random"));
         representedScreen.getButtonList().add(classProvider.createGuiButton(6, 5, j + 24 * 3, 90, 20, "Direct Login"));
         representedScreen.getButtonList().add(classProvider.createGuiButton(88, 5, j + 24 * 4, 90, 20, "Change Name"));
+        representedScreen.getButtonList().add(classProvider.createGuiButton(1001, 5, j + 24 * 5, 90, 20, "163Cookie"));
 
         if (GENERATORS.getOrDefault("mcleaks", true))
             representedScreen.getButtonList().add(classProvider.createGuiButton(5, 5, j + 24 * 5 + 5, 90, 20, "MCLeaks"));
@@ -292,6 +294,13 @@ public class GuiAltManager extends WrappedGuiScreen {
                 break;
             case 9:
                 mc.displayGuiScreen(classProvider.wrapGuiScreen(new GuiTheAltening(this)));
+                break;
+            case 1001:
+                String a = HttpUtils.get("http://123.xn--xhqp98cc2nfor.cn/xiaohao/cookies/cookies1.php");
+                Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
+                StringSelection strSel = new StringSelection(a);
+                cb.setContents(strSel, null);
+                LiquidBounce.INSTANCE.displayTray("PridePlus","已复制Cookies到你的剪切板", TrayIcon.MessageType.INFO);
                 break;
             case 10:
                 mc.displayGuiScreen(classProvider.wrapGuiScreen(new GuiSessionLogin(this)));

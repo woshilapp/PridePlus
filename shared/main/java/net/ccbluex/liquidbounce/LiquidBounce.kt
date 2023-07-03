@@ -46,7 +46,7 @@ import kotlin.system.exitProcess
 object LiquidBounce {
 
 
-    const val CLIENT_VERSION = 57
+    const val CLIENT_VERSION = 58
     const val IN_DEV = true
     const val CLIENT_CREATOR = "WaWa"
     lateinit var mainMenu: GuiScreen
