@@ -49,7 +49,7 @@ class ScoreboardElement(
     private val shadowShaderValue = BoolValue("Shadow", false)
     private val shadowStrength = FloatValue("Shadow-Strength", 0F, 0F, 30F)
 
-    private val radius = IntegerValue("Radius",0,0,10)
+    private val radius = IntegerValue("Radius",15,0,10)
     private val domainrainbow = BoolValue("Domain-Rainbow",false)
     private val dred = IntegerValue("Domain-R", 0, 0, 255)
     private val dgreen = IntegerValue("Domain-G", 111, 0, 255)
