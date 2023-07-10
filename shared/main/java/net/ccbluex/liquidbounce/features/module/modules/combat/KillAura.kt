@@ -118,7 +118,7 @@ class KillAura : Module() {
 
     // AutoBlock
 
-    private val autoBlockValue = ListValue("AutoBlock", arrayOf("HuaYuTing","AllTime","Range","Off"),"Off")
+    private val autoBlockValue = ListValue("AutoBlock", arrayOf("HuaYuTing","Right","AllTime","Range","Off"),"Off")
     private val BlockRangeValue = FloatValue("BlockRange", 3f, 0f, 8f)
 
     private val autoBlockPacketValue = ListValue("AutoBlockPacket", arrayOf("Vanilla",  "Fake", "Mouse", "GameSettings", "UseItem"),"Vanilla")
@@ -303,7 +303,9 @@ class KillAura : Module() {
             updateHitable()
 
             // AutoBlock
-            if (!autoBlockValue.get().equals("off",true) && delayedBlockValue.get()  && canBlock())
+            if (autoBlockValue.get().equals("Right", true))
+                Robot().mousePress(InputEvent.BUTTON3_DOWN_MASK)
+            else if (!autoBlockValue.get().equals("off",true) && delayedBlockValue.get()  && canBlock())
                 startBlocking(currentTarget!!, interactAutoBlockValue.get())
 
             return
@@ -419,7 +421,7 @@ class KillAura : Module() {
         }
 
         if (hyt180fovfixValue.get()) {
-            if (RotationUtils.getRotationDifference(target) > 90.0) {
+            if (RotationUtils.getRotationDifference(target) > 55.0) {
                 if(rotationStrafeValue.get() != "Strict") rotationStrafeValue.set("Strict")
             } else {
                 if(rotationStrafeValue.get() != "Silent") rotationStrafeValue.set("Silent")

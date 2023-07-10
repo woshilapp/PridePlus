@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module
 
+import ad.utils.Color.modules.CustomUI
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.KeyEvent
@@ -198,12 +199,8 @@ class ModuleManager : Listenable {
             LegitAura::class.java,
             GrimVelocity::class.java,
             HytJump::class.java,
-            OldVelocity::class.java,
             Velocity2::class.java,
             NewGUI::class.java,
-            EndDisabler::class.java,
-            HytDisabler::class.java,
-            NoLagHYT::class.java,
             JumpCircle::class.java,
             InvManager::class.java,
             CancelC03::class.java,
@@ -211,6 +208,7 @@ class ModuleManager : Listenable {
             ScaffoldHelper::class.java,
             ScaffoldLB::class.java,//我傻了
                     //WaWaDisabler::class.java,
+            CustomUI::class.java,
             GrimNoSlow::class.java
             // 下次一定优化重复啰嗦的功能
         )

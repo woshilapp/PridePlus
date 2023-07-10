@@ -8,35 +8,36 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.api.minecraft.client.block.IBlock
+import net.ccbluex.liquidbounce.api.minecraft.network.play.client.ICPacketEntityAction
+import net.ccbluex.liquidbounce.api.minecraft.network.play.client.ICPacketUseEntity
 import net.ccbluex.liquidbounce.api.minecraft.potion.PotionType
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
+import net.ccbluex.liquidbounce.injection.backend.unwrap
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.IntegerValue
 import net.ccbluex.liquidbounce.value.ListValue
-import net.minecraft.network.play.server.SPacketConfirmTransaction
 import net.minecraft.network.play.server.SPacketEntityVelocity
 import kotlin.math.cos
 import kotlin.math.sin
-
-
-@ModuleInfo(name = "Velocity", description = "不应该出现的功能 PridePlus终究还是Velocity123了",category = ModuleCategory.COMBAT)
+//@NativeClass
+@ModuleInfo(name = "Velocity", description = "我不该打滑这个功能的",category = ModuleCategory.COMBAT)
 class Velocity2 : Module() {
-    //我去 打滑我
+
 
     /**
      * OPTIONS
      */
     private val horizontalValue = FloatValue("Horizontal", 0F, 0F, 1F)
     private val verticalValue = FloatValue("Vertical", 0F, 0F, 1F)
-    private val modeValue = ListValue("Mode", arrayOf("JumpFix","NewHyt","Jump-MotionY","GrimAC-FDP","GrimAC-C03","NewGrimAC","Custom","Simple","AACPush", "AACZero",
-        "Reverse", "SmoothReverse", "Jump", "AAC5Reduce", "HytPacketA" ,"Glitch","HytTick","Vanilla","HytTest","HytNewTest","HytPacket","NewAAC4","FeiLe","HytMotion","NewHytMotion","HytPacketB","HytMotionB","HytPacketFix","LatestTestHyt","Grim-Motion","GrimReduce"), "Vanilla")
+    public val modeValue = ListValue("Mode", arrayOf("GrimReduce","Grim-Motion","HytFwNmslCnm","test", "Hytjump1", "vanilla","test1","test2", "Jumping","TestAAC5","HytTestAAC4","HytBest","HuaYuTingJump","Custom","AAC4","Simple", "SimpleFix","AAC", "AACPush", "AACZero",
+        "Reverse", "SmoothReverse", "Jump", "AAC5Reduce", "HytPacketA" ,"Glitch","HytCancel","HytTick","Vanilla","HytTest","HytNewTest","HytPacket","NewAAC4","Hyt","FeiLe","HytMotion","NewHytMotion","HytPacketB","HytMotionB","HytPacketFix","NoXZ"), "Vanilla")
     private val aac4XZReducerValue = FloatValue("AAC4XZReducer", 1.36F, 1F, 3F)
     private val newaac4XZReducerValue = FloatValue("NewAAC4XZReducer", 0.45F, 0F, 1F)
 
@@ -55,7 +56,9 @@ class Velocity2 : Module() {
     private val noFireValue = BoolValue("noFire", false)
     private val cobwebValue = BoolValue("NoCobweb", true)
 
-    private val hytGround = BoolValue("HytOnlyGround", true)
+    private val onlyCombatValue = BoolValue("OnlyCombat", false)
+    private val onlyGroundValue = BoolValue("OnlyGround", false)
+    private val hytGround = BoolValue("HytGround", true)
 
     //Custom
     private val customX = FloatValue("CustomX",0F,0F,1F)
@@ -64,16 +67,11 @@ class Velocity2 : Module() {
     private val customZ = FloatValue("CustomZ",0F,0F,1F)
     private val customC06FakeLag = BoolValue("CustomC06FakeLag",false)
 
+    private var huayutingjumpflag = false
 
     /**
      * VALUES
      */
-    var cancelPacket = 6
-    var resetPersec = 8
-    var grimTCancel = 0
-    var updates = 0
-
-
     private var velocityTimer = MSTimer()
     private var
             velocityInput = false
@@ -82,86 +80,32 @@ class Velocity2 : Module() {
     // SmoothReverse
     private var reverseHurt = false
 
+    private var jumpingflag = false
     // AACPush
     private var jump = false
     private var canCancelJump = false
     override val tag: String
-        get() = modeValue.get()
+        get() = if(modeValue.get().toLowerCase() == "testaac5") "Simple" else modeValue.get()
 
     override fun onDisable() {
         mc.thePlayer?.speedInAir = 0.02F
     }
 
-    override fun onEnable() {
-        updates = 0
-        super.onEnable()
-    }
-
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        updates++
-
-        if (resetPersec > 0) {
-            if (updates >= 0 || updates >= resetPersec) {
-                updates = 0
-                if (grimTCancel > 0){
-                    grimTCancel--
-                }
-            }
-        }
-
         val thePlayer = mc.thePlayer ?: return
 
-        if (thePlayer.isInWater || thePlayer.isInLava || thePlayer.isInWeb)
+        if (thePlayer.isInWater || thePlayer.isInLava || thePlayer.isInWeb )
             return
-
+        if ((onlyGroundValue.get() && !mc.thePlayer!!.onGround) || (onlyCombatValue.get() && !LiquidBounce.combatManager.inCombat)) {
+            return
+        }
         if (noFireValue.get() && mc.thePlayer!!.burning) return
         when (modeValue.get().toLowerCase()) {
-            "jumpfix" -> {
-                if (mc.thePlayer!!.onGround) {
-                    if (mc.thePlayer!!.hurtTime > 0) {
-                        mc.gameSettings.keyBindJump.onTick(mc.gameSettings.keyBindJump.keyCode)
-                    }
-                }
-            }
-            "jump-motiony" -> {
-                if (mc.thePlayer!!.onGround) {
-                    if (mc.thePlayer!!.hurtTime > 0) {
-                        mc.thePlayer!!.motionY = 0.42
-                    }
-                }
-            }
-            "newhyt"->{
-                if (mc.thePlayer!!.onGround) {
-                    if (mc.thePlayer!!.hurtTime > 0) {
-                        if (mc.thePlayer!!.motionX != 0.0) {
-                            if (mc.thePlayer!!.motionZ != 0.0) {
-                                mc.thePlayer!!.onGround = true
-                            }
-                        }
-                    }
-                    if (mc.thePlayer!!.hurtResistantTime > 0) {
-                        mc.thePlayer!!.motionY = mc.thePlayer!!.motionY * 0.98
-                    }
-                    if (mc.thePlayer!!.hurtResistantTime >= 19) {
-                        mc.thePlayer!!.motionX = mc.thePlayer!!.motionX / 1.5f
-                        mc.thePlayer!!.motionZ = mc.thePlayer!!.motionZ / 1.6f
-                    }
-                }
-            }
-            "newgrimac"->{
-                if (thePlayer.hurtTime > 0){
-                    thePlayer.motionX += -1.0E-7
-                    thePlayer.motionZ += -1.0E-7
-                }
-                if (thePlayer.hurtTime > 5){
-                    thePlayer.motionX += -1.5E-7
-                    thePlayer.motionZ += -1.5E-7
-                }
-            }
             "grimreduce"->{
                 if (thePlayer.hurtTime > 0){
                     thePlayer.motionX += -1.0E-7
+                    thePlayer.motionY += -1.0E-7
                     thePlayer.motionZ += -1.0E-7
                     thePlayer.isAirBorne = true
                 }
@@ -169,19 +113,86 @@ class Velocity2 : Module() {
             "grim-motion" -> {
                 if ( thePlayer.hurtTime > 0) {
                     thePlayer.motionX += -1.1E-7
+                    thePlayer.motionY += -1.1E-7
                     thePlayer.motionZ += -1.2E-7
                     thePlayer.isAirBorne = true
                 }
             }
-            "jump" -> if (thePlayer.hurtTime > 0 && thePlayer.onGround) {
+            "test" -> {
+                if(mc.thePlayer!!.hurtTime > 0 && jumpingflag) {
+                    if(mc.thePlayer!!.onGround){
+                        mc.thePlayer!!!!.hurtTime <= 2
+                        mc.thePlayer!!.motionX *= 0.1
+                        mc.thePlayer!!.motionZ *= 0.1
+                        mc.thePlayer!!.hurtTime <= 4
+                        mc.thePlayer!!.motionX *= 0.2
+                        mc.thePlayer!!.motionZ *= 0.2
+                    }else if(mc.thePlayer!!.hurtTime <= 2) {
+                        mc.thePlayer!!.motionX *= 0.1
+                        mc.thePlayer!!.motionZ *= 0.1
+                    }
+                    mc.netHandler.addToSendQueue(classProvider.createCPacketEntityAction(mc.thePlayer!!, ICPacketEntityAction.WAction.START_SNEAKING))
+                    jumpingflag = false
+                }
+            }
+            "test1" -> {
+                if(mc.thePlayer!!.hurtTime > 0 && jumpingflag) {
+                    mc.thePlayer!!!!.hurtTime <= 2
+                    mc.thePlayer!!.motionX *= 0.4
+                    mc.thePlayer!!.motionZ *= 0.4
+                    mc.thePlayer!!.hurtTime <= 4
+                    mc.thePlayer!!.motionX *= 0.5
+                    mc.thePlayer!!.motionZ *= 0.5
+                }else if(mc.thePlayer!!.hurtTime <= 9) {
+                    mc.thePlayer!!.motionX *= 0.6
+                    mc.thePlayer!!.motionZ *= 0.6
+                }
+                mc.netHandler.addToSendQueue(classProvider.createCPacketEntityAction(mc.thePlayer!!, ICPacketEntityAction.WAction.START_SNEAKING))
+                jumpingflag = false
+            }
+            "test2" -> {
+                if(mc.thePlayer!!.hurtTime > 0 && jumpingflag) {
+                    mc.thePlayer!!!!.hurtTime <= 6
+                    mc.thePlayer!!.motionX *= 0.3
+                    mc.thePlayer!!.motionZ *= 0.3
+                    mc.thePlayer!!.hurtTime <= 4
+                    mc.thePlayer!!.motionX *= 0.5
+                    mc.thePlayer!!.motionZ *= 0.5
+                }else{
+                    mc.thePlayer!!.motionX *= 0.3
+                    mc.thePlayer!!.motionZ *= 0.3
+                }
+                mc.netHandler.addToSendQueue(classProvider.createCPacketEntityAction(mc.thePlayer!!, ICPacketEntityAction.WAction.START_SNEAKING))
+                jumpingflag = false
+            }
+            "Hytjump1" -> {
+                thePlayer.noClip = velocityInput
+
+                if (thePlayer.hurtTime == 7)
+                    thePlayer.motionX *= 0
+                thePlayer.motionZ *= 0
                 thePlayer.motionY = 0.42
 
-                val yaw = thePlayer.rotationYaw * 0.017453292F
-
-                thePlayer.motionX -= sin(yaw) * 0.2
-                thePlayer.motionZ += cos(yaw) * 0.2
+                mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(mc.thePlayer!!.posX, mc.thePlayer!!.posY, mc.thePlayer!!.posZ, true))
             }
-            "latesttesthyt"->{
+            "hytfwnmslcnm"->{
+                if(mc.thePlayer!!.hurtTime > 0 && jumpingflag) {
+                    if(mc.thePlayer!!.onGround){
+                        mc.thePlayer!!!!.hurtTime <= 6
+                        mc.thePlayer!!.motionX *= 0.326934583
+                        mc.thePlayer!!.motionZ *= 0.326934583
+                        mc.thePlayer!!.hurtTime <= 4
+                        mc.thePlayer!!.motionX *= 0.428534723
+                        mc.thePlayer!!.motionZ *= 0.428534723
+                    }else if(mc.thePlayer!!.hurtTime <= 9) {
+                        mc.thePlayer!!.motionX *= 0.326934583
+                        mc.thePlayer!!.motionZ *= 0.326934583
+                    }
+                    mc.netHandler.addToSendQueue(classProvider.createCPacketEntityAction(mc.thePlayer!!, ICPacketEntityAction.WAction.START_SNEAKING))
+                    jumpingflag = false
+                }
+            }
+            "testaac5"->{
                 if(hytGround.get()){
                     if (thePlayer.hurtTime > 0 && !thePlayer.isDead && thePlayer.hurtTime <=5 && thePlayer.onGround) {
                         thePlayer.motionX *= 0.35
@@ -198,6 +209,16 @@ class Velocity2 : Module() {
                     }
                 }
             }
+
+            "jump" -> if (thePlayer.hurtTime > 0 && thePlayer.onGround) {
+                thePlayer.motionY = 0.42
+
+                val yaw = thePlayer.rotationYaw * 0.017453292F
+
+                thePlayer.motionX -= sin(yaw) * 0.2
+                thePlayer.motionZ += cos(yaw) * 0.2
+            }
+
             "glitch" -> {
                 thePlayer.noClip = velocityInput
 
@@ -227,6 +248,25 @@ class Velocity2 : Module() {
                 }
             }
 
+            "huayutingjump" -> {
+                if(mc.thePlayer!!.hurtTime > 0 && huayutingjumpflag) {
+                    if(mc.thePlayer!!.onGround){
+                        if (mc.thePlayer!!.hurtTime <= 6) {
+                            mc.thePlayer!!.motionX *= 0.600151164
+                            mc.thePlayer!!.motionZ *= 0.600151164
+                        }
+                        if (mc.thePlayer!!.hurtTime <= 4) {
+                            mc.thePlayer!!.motionX *= 0.700151164
+                            mc.thePlayer!!.motionZ *= 0.700151164
+                        }
+                    }else if(mc.thePlayer!!.hurtTime <= 9) {
+                        mc.thePlayer!!.motionX *= 0.6001421204
+                        mc.thePlayer!!.motionZ *= 0.6001421204
+                    }
+                    mc.netHandler.addToSendQueue(classProvider.createCPacketEntityAction(mc.thePlayer!!, ICPacketEntityAction.WAction.START_SNEAKING))
+                    huayutingjumpflag = false
+                }
+            }
             "hyttick" -> {
                 if(velocityTick > velocityTickValue.get()) {
                     if(thePlayer.motionY > 0) thePlayer.motionY = 0.0
@@ -249,15 +289,48 @@ class Velocity2 : Module() {
                     velocityInput = false
             }
 
+            "aac4" -> {
+                if (!thePlayer.onGround) {
+                    if (velocityInput) {
+                        thePlayer.speedInAir = 0.02f
+                        thePlayer.motionX *= 0.6
+                        thePlayer.motionZ *= 0.6
+                    }
+                } else if (velocityTimer.hasTimePassed(80L)) {
+                    velocityInput = false
+                    thePlayer.speedInAir = 0.02f
+                }
+            }
             "newaac4"->{
                 if (thePlayer.hurtTime > 0 && !thePlayer.onGround){
                     val reduce = newaac4XZReducerValue.get()
                     thePlayer.motionX *= reduce
                     thePlayer.motionZ *= reduce
                 }
-
             }
 
+
+            "hyttestaac4"->{
+                if (thePlayer.isInWater || thePlayer.isInLava || thePlayer.isInWeb){
+                    return
+                }
+                if (!thePlayer.onGround) {
+                    if (velocityInput) {
+                        thePlayer.speedInAir = 0.02f
+                        thePlayer.motionX *= 0.6
+                        thePlayer.motionZ *= 0.6
+                    }
+                } else if (velocityTimer.hasTimePassed(80L)) {
+                    velocityInput = false
+                    thePlayer.speedInAir = 0.02f
+                }
+            }
+            "hytbest"->{
+                if (thePlayer.hurtTime > 0){
+                    thePlayer.motionX /= 1
+                    thePlayer.motionZ /= 1
+                }
+            }
             "smoothreverse" -> {
                 if (!velocityInput) {
                     thePlayer.speedInAir = 0.02F
@@ -276,7 +349,18 @@ class Velocity2 : Module() {
                 }
             }
 
-
+            "aac" -> if (velocityInput && velocityTimer.hasTimePassed(80L)) {
+                thePlayer.motionX *= horizontalValue.get()
+                thePlayer.motionZ *= horizontalValue.get()
+                //mc.thePlayer.motionY *= verticalValue.get() ?
+                velocityInput = false
+            }
+            "hyt" -> {
+                if (thePlayer.hurtTime > 0 && !thePlayer.onGround) {
+                    thePlayer.motionX *= 0.45f
+                    thePlayer.motionZ *= 0.65f
+                }
+            }
 
             "hytpacket" ->{
                 if(hytGround.get()){
@@ -363,6 +447,7 @@ class Velocity2 : Module() {
                     thePlayer.motionZ /= reduce
                 }
             }
+
             "custom" -> {
                 if (thePlayer.hurtTime > 0 && !thePlayer.isDead && !mc.thePlayer!!.isPotionActive(classProvider.getPotionEnum(PotionType.MOVE_SPEED)) && !mc.thePlayer!!.isInWater) {
                     thePlayer.motionX *= customX.get()
@@ -389,7 +474,8 @@ class Velocity2 : Module() {
     fun onBlockBB(event: BlockBBEvent) {
         block = event.block
     }
-
+//    @NativeMethod
+var hytCount = 24
     @EventTarget
     fun onPacket(event: PacketEvent) {
         val thePlayer = mc.thePlayer ?: return
@@ -407,37 +493,47 @@ class Velocity2 : Module() {
             velocityTimer.reset()
 
             when (modeValue.get().toLowerCase()) {
-                "grimac-c03" -> {
-                    if(thePlayer.hurtTime > 0 && !thePlayer.isDead && !mc.thePlayer!!.isPotionActive(classProvider.getPotionEnum(PotionType.MOVE_SPEED)) && !mc.thePlayer!!.isInWater) {
-                        if(classProvider.isCPacketPlayer((packet))) {
-                            event.cancelEvent()
-                        }
-                        packetEntityVelocity.motionX *= 0
-                        packetEntityVelocity.motionY *= 0
-                        packetEntityVelocity.motionZ *= 0
+                "noxz" -> {
+                    if (packetEntityVelocity.motionX == 0 && packetEntityVelocity.motionZ == 0) {
+                        return
                     }
+                    val ka = LiquidBounce.moduleManager[KillAura::class.java] as KillAura
+                    val target = LiquidBounce.combatManager.getNearByEntity(ka.rangeValue.get() + 1) ?: return
+                    mc.thePlayer!!.motionX = 0.0
+                    mc.thePlayer!!.motionZ = 0.0
+                    packetEntityVelocity.motionX = 0
+                    packetEntityVelocity.motionZ = 0
+                    for (i in 0..hytCount) {
+                        mc.thePlayer!!.sendQueue.addToSendQueue(classProvider.createCPacketUseEntity(target,ICPacketUseEntity.WAction.ATTACK))
+                        mc.thePlayer!!.sendQueue.addToSendQueue(classProvider.createCPacketAnimation())
+                    }
+                    if (hytCount > 12) hytCount -= 5
                 }
-                "grimac-fdp" -> {
-                    val packetentityvelocity = packet.asSPacketEntityVelocity()
-                    if(thePlayer.hurtTime > 0 &&
-                        !thePlayer.isDead &&
-                        !mc.thePlayer!!.isPotionActive(classProvider.getPotionEnum(PotionType.MOVE_SPEED)) &&
-                        !mc.thePlayer!!.isInWater &&
-                        mc.thePlayer!!.onGround
-                        ) {
+                "jumping" -> {
+                    if(packet.unwrap() is SPacketEntityVelocity) {
+                        jumpingflag = true
 
-                        if(packet is SPacketConfirmTransaction && grimTCancel > 0) {
+                        if(mc.thePlayer!!.hurtTime != 0) {
                             event.cancelEvent()
-                            grimTCancel = cancelPacket
-                        }
-                        if(packetentityvelocity.entityID == mc.thePlayer!!.entityId) {
-                            event.cancelEvent()
-                            grimTCancel--
+                            packet.asSPacketEntityVelocity().motionX = 0
+                            packet.asSPacketEntityVelocity().motionY = 0
+                            packet.asSPacketEntityVelocity().motionZ = 0
                         }
                     }
                 }
                 "vanilla" -> {
                     event.cancelEvent()
+                }
+
+                "huayutingjump" -> {
+                    huayutingjumpflag = true
+
+                    if(mc.thePlayer!!.hurtTime != 0) {
+                        event.cancelEvent()
+                        packetEntityVelocity.motionX = 0
+                        packetEntityVelocity.motionY = 0
+                        packetEntityVelocity.motionZ = 0
+                    }
                 }
                 "simple" -> {
                     val horizontal = horizontalValue.get()
@@ -456,10 +552,10 @@ class Velocity2 : Module() {
                         thePlayer.motionZ *= 0.4
                         thePlayer.motionY /= 1.45F
                     }
-                    if (thePlayer.hurtTime < 2) {
+                    if (thePlayer.hurtTime < 1) {
                         packetEntityVelocity.motionY = 0
                     }
-                    if (thePlayer.hurtTime < 6) {
+                    if (thePlayer.hurtTime < 5) {
                         packetEntityVelocity.motionX = 0
                         packetEntityVelocity.motionZ = 0
                     }
@@ -474,6 +570,7 @@ class Velocity2 : Module() {
                         thePlayer.motionZ /= 1.75
                     }
                 }
+
 
                 "hytnewtest" -> {
                     if (thePlayer.onGround) {
@@ -503,7 +600,11 @@ class Velocity2 : Module() {
                     packetEntityVelocity.motionZ =
                         (packetEntityVelocity.motionZ * hytpacketbset.get() / 2.5).toInt()
                 }
-
+                "hyttestaac4"->{
+                    if (mc.thePlayer == null || (mc.theWorld?.getEntityByID(packetEntityVelocity.entityID) ?: return) != mc.thePlayer)return
+                    velocityTimer.reset()
+                    velocityInput = true
+                }
 
                 "aac", "aac4", "reverse", "smoothreverse", "aac5reduce","aaczero" -> velocityInput = true
 
@@ -523,23 +624,12 @@ class Velocity2 : Module() {
                     velocityInput = true
                     event.cancelEvent()
                 }
-            }
 
-        }
-    }
-
-    @EventTarget
-    fun onMove(event: MoveEvent) {
-        when (modeValue.get().toLowerCase()){
-            "grimac-fdp" -> {
-                if(mc.thePlayer!!.hurtTime > 0 &&
-                    !mc.thePlayer!!.isDead &&
-                    !mc.thePlayer!!.isPotionActive(classProvider.getPotionEnum(PotionType.MOVE_SPEED)) &&
-                    !mc.thePlayer!!.isInWater &&
-                    mc.thePlayer!!.onGround) {
-                    event.zero()
+                "hytcancel" -> {
+                    event.cancelEvent()
                 }
             }
+
         }
     }
 

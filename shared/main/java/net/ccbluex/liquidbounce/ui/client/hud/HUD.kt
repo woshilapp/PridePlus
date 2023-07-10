@@ -10,7 +10,6 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.*
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Target
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import org.lwjgl.opengl.GL11
 import kotlin.math.max
 import kotlin.math.min
@@ -26,7 +25,6 @@ open class HUD : MinecraftInstance() {
                 Inventory::class.java,
                 Armor::class.java,
                 Arraylist::class.java,
-                GameInfo2::class.java,
                 Effects::class.java,
                 Image::class.java,
                 Model::class.java,
@@ -44,7 +42,7 @@ open class HUD : MinecraftInstance() {
             NewEffects::class.java,
             Target2::class.java,
             Text2::class.java,
-            Target3::class.java
+            Logo::class.java
 
         )
 

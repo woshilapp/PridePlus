@@ -5,6 +5,9 @@
  */
 package net.ccbluex.liquidbounce.utils.render;
 
+import ad.utils.Color.modules.CustomUI;
+import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.api.enums.EnchantmentType;
 import net.ccbluex.liquidbounce.api.enums.WDefaultVertexFormats;
 import net.ccbluex.liquidbounce.api.minecraft.client.block.IBlock;
 import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntity;
@@ -12,19 +15,25 @@ import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntityLivingBase;
 import net.ccbluex.liquidbounce.api.minecraft.client.entity.player.IEntityPlayer;
 import net.ccbluex.liquidbounce.api.minecraft.client.render.ITessellator;
 import net.ccbluex.liquidbounce.api.minecraft.client.render.IWorldRenderer;
+import net.ccbluex.liquidbounce.api.minecraft.item.IItemStack;
 import net.ccbluex.liquidbounce.api.minecraft.renderer.entity.IRenderManager;
 import net.ccbluex.liquidbounce.api.minecraft.util.*;
+import net.ccbluex.liquidbounce.features.module.modules.render.HUD;
 import net.ccbluex.liquidbounce.injection.backend.Backend;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.ImageUtils;
 import net.ccbluex.liquidbounce.utils.MinecraftInstance;
 import net.ccbluex.liquidbounce.utils.block.BlockUtils;
+import net.ccbluex.liquidbounce.utils.item.ItemUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.shader.Framebuffer;
+import net.minecraft.item.ItemArmor;
+import net.minecraft.item.ItemBow;
+import net.minecraft.item.ItemSword;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
@@ -35,6 +44,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Math.*;
+import static me.utils.render.ScaleUtils.fadeBetween;
 import static net.ccbluex.liquidbounce.utils.MathUtils.interpolateFloat;
 import static org.lwjgl.opengl.GL11.*;
 
@@ -504,6 +514,73 @@ public final class RenderUtils extends MinecraftInstance {
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
     }
+    private static float drawExhiOutlined(String text, float x, float y, float borderWidth, int borderColor, int mainColor, boolean drawText) {
+        Fonts.font30.drawString(text, x, y - borderWidth, borderColor);
+        Fonts.font30.drawString(text, x, y + borderWidth, borderColor);
+        Fonts.font30.drawString(text, x - borderWidth, y, borderColor);
+        Fonts.font30.drawString(text, x + borderWidth, y, borderColor);
+        if (drawText)
+            Fonts.font30.drawString(text, x, y, mainColor);
+        return x + Fonts.font30.getStringWidth(text) - 2F;
+    }
+    public static void drawExhiEnchants(IItemStack stack, float x, float y) {
+        RenderHelper.disableStandardItemLighting();
+        GlStateManager.disableDepth();
+        GlStateManager.disableBlend();
+        GlStateManager.resetColor();
+        final int darkBorder = 0xFF000000;
+        if (stack.getItem() instanceof ItemArmor) {
+            int prot = ItemUtils.getEnchantment(stack,classProvider.getEnchantmentEnum(EnchantmentType.PROTECTION));
+            int unb =  ItemUtils.getEnchantment(stack,classProvider.getEnchantmentEnum(EnchantmentType.UNBREAKING));
+            int thorn = ItemUtils.getEnchantment(stack,classProvider.getEnchantmentEnum(EnchantmentType.THORNS));
+            if (prot > 0) {
+                drawExhiOutlined(prot + "", drawExhiOutlined("P", x, y, 0.35F, darkBorder, -1, true), y, 0.35F, getBorderColor(prot), getMainColor(prot), true);
+                y += 4;
+            }
+            if (unb > 0) {
+                drawExhiOutlined(unb + "", drawExhiOutlined("U", x, y, 0.35F, darkBorder, -1, true), y, 0.35F, getBorderColor(unb),getMainColor(unb), true);
+                y += 4;
+            }
+            if (thorn > 0) {
+                drawExhiOutlined(thorn + "", drawExhiOutlined("T", x, y, 0.35F, darkBorder, -1, true), y, 0.35F, getBorderColor(thorn), getMainColor(thorn), true);
+                y += 4;
+            }
+        }
+        if (stack.getItem() instanceof ItemBow) {
+            int power =  ItemUtils.getEnchantment(stack,classProvider.getEnchantmentEnum(EnchantmentType.POWER));
+            int unb =  ItemUtils.getEnchantment(stack,classProvider.getEnchantmentEnum(EnchantmentType.UNBREAKING));
+            if (power > 0) {
+                drawExhiOutlined(power + "", drawExhiOutlined("Pow", x, y, 0.35F, darkBorder, -1, true), y, 0.35F, getBorderColor(power), getMainColor(power), true);
+                y += 4;
+            }
+
+
+            if (unb > 0) {
+                drawExhiOutlined(unb + "", drawExhiOutlined("U", x, y, 0.35F, darkBorder, -1, true), y, 0.35F, getBorderColor(unb), getMainColor(unb), true);
+                y += 4;
+            }
+        }
+        if (stack.getItem() instanceof ItemSword) {
+            int sharp =  ItemUtils.getEnchantment(stack,classProvider.getEnchantmentEnum(EnchantmentType.SHARPNESS));
+            int fire = ItemUtils.getEnchantment(stack,classProvider.getEnchantmentEnum(EnchantmentType.FIRE_PROTECTION));
+            int unb = ItemUtils.getEnchantment(stack,classProvider.getEnchantmentEnum(EnchantmentType.UNBREAKING));
+            if (sharp > 0) {
+                drawExhiOutlined(sharp + "", drawExhiOutlined("S", x, y, 0.35F, darkBorder, -1, true), y, 0.35F, getBorderColor(sharp), getMainColor(sharp), true);
+                y += 4;
+            }
+
+            if (fire > 0) {
+                drawExhiOutlined(fire + "", drawExhiOutlined("F", x, y, 0.35F, darkBorder, -1, true), y, 0.35F, getBorderColor(fire), getMainColor(fire), true);
+                y += 4;
+            }
+            if (unb > 0) {
+                drawExhiOutlined(unb + "", drawExhiOutlined("U", x, y, 0.35F, darkBorder, -1, true), y, 0.35F, getBorderColor(unb), getMainColor(unb), true);
+                y += 4;
+            }
+        }
+        GlStateManager.enableDepth();
+        RenderHelper.enableGUIStandardItemLighting();
+    }
     public static void drawExhiRect(float x, float y, float x2, float y2) {
         drawRect(x - 3.5F, y - 3.5F, x2 + 3.5F, y2 + 3.5F, Color.black.getRGB());
         drawRect(x - 3F, y - 3F, x2 + 3F, y2 + 3F, new Color(50, 50, 50).getRGB());
@@ -512,8 +589,44 @@ public final class RenderUtils extends MinecraftInstance {
         drawRect(x - 0.5F, y - 0.5F, x2 + 0.5F, y2 + 0.5F, new Color(50, 50, 50).getRGB());
         drawRect(x, y, x2, y2, new Color(18, 18, 18).getRGB());
     }
+    public static void drawExhiRect(float x, float y, float x2, float y2, float alpha) {
+        drawRect(x - 3.5F, y - 3.5F, x2 + 3.5F, y2 + 3.5F, new Color(0, 0, 0, alpha).getRGB());
+        drawRect(x - 3F, y - 3F, x2 + 3F, y2 + 3F, new Color(50F / 255F, 50F / 255F, 50F / 255F, alpha).getRGB());
+        drawRect(x - 2.5F, y - 2.5F, x2 + 2.5F, y2 + 2.5F, new Color(26F / 255F, 26F / 255F, 26F / 255F, alpha).getRGB());
+        drawRect(x - 0.5F, y - 0.5F, x2 + 0.5F, y2 + 0.5F, new Color(50F / 255F, 50F / 255F, 50F / 255F, alpha).getRGB());
+        drawRect(x, y, x2, y2, new Color(18F / 255F, 18 / 255F, 18F / 255F, alpha).getRGB());
+    }
 
+    public static void drawRectBasedBorder(float x, float y, float x2, float y2, float width, int color1) {
+        drawRect(x - width / 2F, y - width / 2F, x2 + width / 2F, y + width / 2F, color1);
+        drawRect(x - width / 2F, y + width / 2F, x + width / 2F, y2 + width / 2F, color1);
+        drawRect(x2 - width / 2F, y + width / 2F, x2 + width / 2F, y2 + width / 2F, color1);
+        drawRect(x + width / 2F, y2 - width / 2F, x2 - width / 2F, y2 + width / 2F, color1);
+    }
 
+    public static void drawRectBasedBorder(double x, double y, double x2, double y2, double width, int color1) {
+        newDrawRect((float) (x - width / 2F), (float) ((float)y - width / 2F), (float) ((float)x2 + width / 2F), (float) ((float)y + width / 2F), color1);
+        newDrawRect((float) (x - width / 2F), (float) (y + width / 2F), (float) ((float)x + width / 2F), (float) ((float)y2 + width / 2F), color1);
+        newDrawRect((float) (x2 - width / 2F), (float) ((float)y + width / 2F), (float) ((float)x2 + width / 2F), (float) ((float)y2 + width / 2F), color1);
+        newDrawRect((float) (x + width / 2F), (float) ((float)y2 - width / 2F), (float) ((float)x2 - width / 2F), (float) ((float)y2 + width / 2F), color1);
+    }
+
+    private static int getMainColor(int level) {
+        if (level == 4)
+            return 0xFFAA0000;
+        return -1;
+    }
+    private static int getBorderColor(int level) {
+        if (level == 2)
+            return 0x7055FF55;
+        if (level == 3)
+            return 0x7000AAAA;
+        if (level == 4)
+            return 0x70AA0000;
+        if (level >= 5)
+            return 0x70FFAA00;
+        return 0x70FFFFFF;
+    }
 
 
     public static void drawScaledCustomSizeModalCircle(int x, int y, float u, float v, int uWidth, int vHeight, int width, int height, float tileWidth, float tileHeight) {
@@ -565,6 +678,40 @@ public final class RenderUtils extends MinecraftInstance {
         for (float[] c : corners) {
             for (int i = 0; i <= points; i++) {
                 double anglerad = (Math.PI * (c[2] + i * 90.0F / points) / 180.0f);
+                renderer.pos(c[0] + (Math.sin(anglerad) * radius), c[1] + (Math.cos(anglerad) * radius), 0).endVertex();
+            }
+        }
+
+        tessellator.draw();
+        GlStateManager.disableBlend();
+        GlStateManager.enableTexture2D();
+    }
+    public static void drawRoundedRect2(float left, float top, float right, float bottom, float radius, int color) {
+        float f3 = (float) (color >> 24 & 255) / 255.0F;
+        float f = (float) (color >> 16 & 255) / 255.0F;
+        float f1 = (float) (color >> 8 & 255) / 255.0F;
+        float f2 = (float) (color & 255) / 255.0F;
+
+        if (left < right) left = left + right - (right = left);
+        if (top < bottom) top = top + bottom - (bottom = top);
+
+        float[][] corners = {
+                {right + radius, top - radius, 270},
+                {left - radius, top - radius, 360},
+                {left - radius, bottom + radius, 90},
+                {right + radius, bottom + radius, 180}};
+
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.alphaFunc(516, 0.003921569F);
+        GlStateManager.color(f, f1, f2, f3);
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder renderer = tessellator.getBuffer();
+        renderer.begin(GL_POLYGON, DefaultVertexFormats.POSITION);
+        for (float[] c : corners) {
+            for (int i = 0; i <= 6; i++) {
+                double anglerad = (Math.PI * (c[2] + i * 90.0F / 6) / 180.0f);
                 renderer.pos(c[0] + (Math.sin(anglerad) * radius), c[1] + (Math.cos(anglerad) * radius), 0).endVertex();
             }
         }
@@ -1124,6 +1271,155 @@ public final class RenderUtils extends MinecraftInstance {
         glDisable(GL_BLEND);
         glDisable(GL_LINE_SMOOTH);
         glPopMatrix();
+    }
+
+    public static void drawGidentOutlinedRoundedRect(double x, double y, double width, double height, double radius, float linewidth) {
+        HUD hud = (HUD) LiquidBounce.moduleManager.getModule(HUD.class);
+        //大神渐变方向
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        double x1 = x + width;
+        double y1 = y + height;
+        int colorI = 0;
+        GL11.glPushAttrib(0);
+        GL11.glScaled(0.5, 0.5, 0.5);
+
+        x *= 2;
+        y *= 2;
+        x1 *= 2;
+        y1 *= 2;
+        GL11.glLineWidth(linewidth);
+
+        glDisable(GL11.GL_TEXTURE_2D);
+        glEnable(GL11.GL_LINE_SMOOTH);
+        GL11.glBegin(2);
+
+        //one
+        for (int i = 0; i <= 90; i += 3) {
+            RenderUtils.setColor(fadeBetween(new Color(CustomUI.r.get(),CustomUI.g.get(),CustomUI.b.get()).getRGB(),new Color(CustomUI.r2.get(),CustomUI.g2.get(),CustomUI.b2.get()).getRGB(),20L * colorI));
+            GL11.glVertex2d(x + radius + +(Math.sin((i * Math.PI / 180)) * (radius * -1)), y + radius + (Math.cos((i * Math.PI / 180)) * (radius * -1)));
+            colorI++;
+        }
+        for (int i = 0; i <= y; i += 3) {
+            RenderUtils.setColor(fadeBetween(new Color(CustomUI.r.get(),CustomUI.g.get(),CustomUI.b.get()).getRGB(),new Color(CustomUI.r2.get(),CustomUI.g2.get(),CustomUI.b2.get()).getRGB(),20L * colorI));
+            GL11.glVertex2d(x,y1 - radius -i);
+            colorI++;
+        }
+        //two
+        for (int i = 90; i <= 180; i += 3) {
+            RenderUtils.setColor(fadeBetween(new Color(CustomUI.r.get(),CustomUI.g.get(),CustomUI.b.get()).getRGB(),new Color(CustomUI.r2.get(),CustomUI.g2.get(),CustomUI.b2.get()).getRGB(),20L * colorI));
+            GL11.glVertex2d(x + radius + (Math.sin((i * Math.PI / 180)) * (radius * -1)), y1 - radius + (Math.cos((i * Math.PI / 180)) * (radius * -1)));
+            colorI++;
+        }
+        for (int i = 90; i <= 180; i += 3) {
+            RenderUtils.setColor(fadeBetween(new Color(CustomUI.r.get(),CustomUI.g.get(),CustomUI.b.get()).getRGB(),new Color(CustomUI.r2.get(),CustomUI.g2.get(),CustomUI.b2.get()).getRGB(),20L * colorI));
+            GL11.glVertex2d(x + radius + i,y1);
+            colorI++;
+        }
+        //three
+        for (int i = 0; i <= 90; i += 3) {
+            RenderUtils.setColor(fadeBetween(new Color(CustomUI.r.get(),CustomUI.g.get(),CustomUI.b.get()).getRGB(),new Color(CustomUI.r2.get(),CustomUI.g2.get(),CustomUI.b2.get()).getRGB(),20L * colorI));
+            GL11.glVertex2d(x1 - radius + (Math.sin((i * Math.PI / 180)) * radius), y1 - radius + (Math.cos((i * Math.PI / 180)) * radius));
+            colorI++;
+        }
+        for (int i = 0; i <= 90; i += 3) {
+            RenderUtils.setColor(fadeBetween(new Color(CustomUI.r.get(),CustomUI.g.get(),CustomUI.b.get()).getRGB(),new Color(CustomUI.r2.get(),CustomUI.g2.get(),CustomUI.b2.get()).getRGB(),20L * colorI));
+            GL11.glVertex2d(x1,y1 - radius - i);
+            colorI++;
+        }
+        //four
+        for (int i = 90; i <= 180; i += 3) {
+            RenderUtils.setColor(fadeBetween(new Color(CustomUI.r.get(),CustomUI.g.get(),CustomUI.b.get()).getRGB(),new Color(CustomUI.r2.get(),CustomUI.g2.get(),CustomUI.b2.get()).getRGB(),20L * colorI));
+            GL11.glVertex2d(x1 - radius + (Math.sin((i * Math.PI / 180)) * radius), y + radius + (Math.cos((i * Math.PI / 180)) * radius));
+            colorI++;
+        }
+        //第四个结束继续
+        for (int i = 90; i <= 180; i += 3) {
+            RenderUtils.setColor(fadeBetween(new Color(CustomUI.r.get(), CustomUI.g.get(),CustomUI.b.get()).getRGB(),new Color(CustomUI.r2.get(),CustomUI.g2.get(),CustomUI.b2.get()).getRGB(),20L * colorI));
+            GL11.glVertex2d(x1 - radius - i,y);
+            colorI++;
+        }
+
+        GL11.glEnd();
+
+        glEnable(GL11.GL_TEXTURE_2D);
+        glDisable(GL11.GL_LINE_SMOOTH);
+        glEnable(GL11.GL_TEXTURE_2D);
+
+        GL11.glScaled(2, 2, 2);
+
+        GL11.glPopAttrib();
+        GL11.glColor4f(1, 1, 1, 1);
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+
+    }
+    public static void drawTexturedModalRect(int x, int y, int textureX, int textureY, int width, int height, float zLevel)
+    {
+        float f = 0.00390625F;
+        float f1 = 0.00390625F;
+        ITessellator tessellator = classProvider.getTessellatorInstance();
+        IWorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        worldrenderer.begin(7, classProvider.getVertexFormatEnum(WDefaultVertexFormats.POSITION_TEX));
+        worldrenderer.pos((double)(x + 0), (double)(y + height), (double)zLevel).tex((double)((float)(textureX + 0) * f), (double)((float)(textureY + height) * f1)).endVertex();
+        worldrenderer.pos((double)(x + width), (double)(y + height), (double)zLevel).tex((double)((float)(textureX + width) * f), (double)((float)(textureY + height) * f1)).endVertex();
+        worldrenderer.pos((double)(x + width), (double)(y + 0), (double)zLevel).tex((double)((float)(textureX + width) * f), (double)((float)(textureY + 0) * f1)).endVertex();
+        worldrenderer.pos((double)(x + 0), (double)(y + 0), (double)zLevel).tex((double)((float)(textureX + 0) * f), (double)((float)(textureY + 0) * f1)).endVertex();
+        tessellator.draw();
+    }
+
+    public static void drawRoundGradientSideways2(final float left, final float top, final float right, final float bottom, final float radius,final int col1, final int col2) {
+        Stencil.write(false);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        RenderUtils.fastRoundedRect((float) left, (float) top, (float) right, (float) bottom, radius);
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        Stencil.erase(true);
+        drawGradientRect2(left,top,right,bottom,col1,col2);
+        Stencil.dispose();
+
+    }
+    public static void drawGradientRect2(float x, float y, float x1, float y1, int topColor, int bottomColor) {
+        enableGL2D();
+        GL11.glShadeModel(7425);
+        GL11.glBegin(7);
+        glColor(topColor);
+        GL11.glVertex2f(x, y1);
+        GL11.glVertex2f(x1, y1);
+        glColor(bottomColor);
+        GL11.glVertex2f(x1, y);
+        GL11.glVertex2f(x, y);
+        GL11.glEnd();
+        GL11.glShadeModel(7424);
+        disableGL2D();
+    }
+    public static void setColor(int color) {
+        GL11.glColor4ub((byte) (color >> 16 & 0xFF), (byte) (color >> 8 & 0xFF), (byte) (color & 0xFF), (byte) (color >> 24 & 0xFF));
+    }
+    public static void setColor(Color color) {
+        float alpha = (color.getRGB() >> 24 & 0xFF) / 255.0F;
+        float red = (color.getRGB() >> 16 & 0xFF) / 255.0F;
+        float green = (color.getRGB() >> 8 & 0xFF) / 255.0F;
+        float blue = (color.getRGB() & 0xFF) / 255.0F;
+        GL11.glColor4f(red, green, blue, alpha);
+    }
+    public static Color getGradientOffset3(Color color1, Color color2, double offset) {
+        double inverse_percent;
+        int redPart;
+        if (offset > 1.0) {
+            inverse_percent = offset % 1.0;
+            redPart = (int)offset;
+            offset = redPart % 2 == 0 ? inverse_percent : 1.0 - inverse_percent;
+        }
+
+        inverse_percent = 1.0 - offset;
+        redPart = (int)((double)color1.getRed() * inverse_percent + (double)color2.getRed() * offset);
+        int greenPart = (int)((double)color1.getGreen() * inverse_percent + (double)color2.getGreen() * offset);
+        int bluePart = (int)((double)color1.getBlue() * inverse_percent + (double)color2.getBlue() * offset);
+        return new Color(redPart, greenPart, bluePart);
     }
     public static void drawCustomImage(final int x, final int y, final int width, final int height,
                                        final ResourceLocation image) {
@@ -1870,6 +2166,42 @@ public final class RenderUtils extends MinecraftInstance {
         classProvider.getGlStateManager().disableTexture2D();
         classProvider.getGlStateManager().tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
         glColor(Color.WHITE);
+
+        glEnable(GL_LINE_SMOOTH);
+        glLineWidth(2F);
+        glBegin(GL_LINE_STRIP);
+        for (float i = end; i >= start; i -= (360 / 90.0f)) {
+            glVertex2f((float) (x + (cos(i * PI / 180) * (radius * 1.001F))), (float) (y + (sin(i * PI / 180) * (radius * 1.001F))));
+        }
+        glEnd();
+        glDisable(GL_LINE_SMOOTH);
+
+        classProvider.getGlStateManager().enableTexture2D();
+        classProvider.getGlStateManager().disableBlend();
+    }
+
+    public static void drawCircle(float x, float y, float radius, int color) {
+        glColor(color);
+        glEnable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_LINE_SMOOTH);
+        glPushMatrix();
+        glLineWidth(1F);
+        glBegin(GL_POLYGON);
+        for(int i = 0; i <= 360; i++)
+            glVertex2d(x + Math.sin(i * Math.PI / 180.0D) * radius, y + Math.cos(i * Math.PI / 180.0D) * radius);
+        glEnd();
+        glPopMatrix();
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_LINE_SMOOTH);
+        glColor4f(1F, 1F, 1F, 1F);
+    }
+    public static void drawCircle(float x, float y, float radius, int start, int end,final Color color) {
+        classProvider.getGlStateManager().enableBlend();
+        classProvider.getGlStateManager().disableTexture2D();
+        classProvider.getGlStateManager().tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+        glColor4f(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F);
 
         glEnable(GL_LINE_SMOOTH);
         glLineWidth(2F);

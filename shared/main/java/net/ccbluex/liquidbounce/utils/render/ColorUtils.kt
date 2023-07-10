@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.utils.render
 
+import net.ccbluex.liquidbounce.features.module.modules.render.HUD
 import net.minecraft.client.Minecraft
 import java.awt.Color
 import java.util.*
@@ -14,6 +15,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 object ColorUtils {
+
     /** Array of the special characters that are allowed in any text drawing of Minecraft.  */
     val allowedCharactersArray = charArrayOf('/', '\n', '\r', '\t', '\u0000', '', '`', '?', '*', '\\', '<', '>', '|', '\"', ':')
 

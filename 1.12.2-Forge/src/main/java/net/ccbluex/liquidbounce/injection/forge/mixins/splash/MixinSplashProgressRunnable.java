@@ -40,7 +40,7 @@ public abstract class MixinSplashProgressRunnable {
         int tex;
 
         try {
-            tex = RenderUtils.loadGlTexture(ImageIO.read(Objects.requireNonNull(this.getClass().getResourceAsStream("/assets/minecraft/pride/splash.png"))));
+            tex = RenderUtils.loadGlTexture(ImageIO.read(Objects.requireNonNull(this.getClass().getResourceAsStream("/assets/minecraft/pride/splash.jpg"))));
         } catch (IOException ioexception) {
             tex = 0;
         }

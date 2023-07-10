@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.ui.font
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.api.util.IWrappedFontRenderer
 import net.ccbluex.liquidbounce.event.TextEvent
+import net.ccbluex.liquidbounce.features.module.modules.render.HUD
 import net.ccbluex.liquidbounce.injection.backend.WrapperImpl.classProvider
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
@@ -63,7 +64,24 @@ class GameFontRenderer(font: Font) : IWrappedFontRenderer {
         if (shadow) {
             glUseProgram(0)
 
-            drawText(currentText, x + 1f, currY + 1f, Color(0, 0, 0, 150).rgb, true)
+            val HUD = LiquidBounce.moduleManager[HUD::class.java]!! as HUD
+            if (HUD == null) {
+                drawText(currentText, x + 1f, currY + 1f, Color(0, 0, 0, 150).rgb, true)
+            } else {
+                when (HUD.shadowValue.get().toLowerCase()) {
+                    "good" -> drawText(currentText, x + 1f, currY + 1f, Color(0, 0, 0, 150).rgb, true)
+                    "long" -> drawText(currentText, x + 2f, currY + 2f, Color(0, 0, 0, 150).rgb, true)
+                    "d1ck" -> {
+                        drawText(currentText, x + 1f, currY, Color(0, 0, 0, 150).rgb, true)
+                        drawText(currentText, x, currY + 1f, Color(0, 0, 0, 150).rgb, true)
+                        drawText(currentText, x - 1f, currY, Color(0, 0, 0, 150).rgb, true)
+                        drawText(currentText, x, currY - 1f, Color(0, 0, 0, 150).rgb, true)
+
+                    }
+
+                    else -> drawText(currentText, x + 1f, currY + 1f, Color(0, 0, 0, 150).rgb, true)
+                }
+            }
         }
 
         return drawText(currentText, x, currY, color, false, rainbow)

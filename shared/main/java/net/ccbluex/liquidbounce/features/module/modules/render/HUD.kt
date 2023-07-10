@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import ca.weblite.objc.Client
 import com.mojang.realmsclient.gui.ChatFormatting
 import me.utils.render.VisualUtils
 import net.ccbluex.liquidbounce.LiquidBounce
@@ -13,23 +12,17 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.ui.cnfont.FontLoaders
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.render.ColorUtil
 import net.ccbluex.liquidbounce.utils.render.Colors
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
-import net.ccbluex.liquidbounce.value.TextValue
-import net.minecraft.client.Minecraft
+import net.ccbluex.liquidbounce.value.*
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.ScaledResolution
 import java.awt.Color
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.roundToInt
 
 @ModuleInfo(name = "HUD", description = "Toggles visibility of the HUD.", category = ModuleCategory.RENDER, array = false)
 class HUD : Module() {
@@ -38,15 +31,42 @@ class HUD : Module() {
     val inventoryParticle = BoolValue("InventoryParticle", false)
     private val blurValue = BoolValue("Blur", false)
     val fontChatValue = BoolValue("FontChat", false)
+
     val logValue = ListValue("LogMode", arrayOf("idk", "141Sense", "Jello", "PowerX", "None", "Novoline"), "None")
+    val shadowValue = ListValue("TextShadowMode", arrayOf("Good", "Long", "D1ck"), "Good")
     val ClientName = TextValue("ClientName", "PridePlus")
     val DevName = TextValue("DevName", "WaWa")
+
+    val radius = FloatValue("Radius",15F,0F,100F)
+
+    val textRedValue = IntegerValue("Text-Red", 255, 0, 255)
+    val textGreenValue = IntegerValue("Text-Green", 255, 0, 255)
+    val textBlueValue = IntegerValue("Text-Blue", 255, 0, 255)
+
     val redValue = IntegerValue("NovolineRed", 255, 0, 255)
     val greenValue = IntegerValue("NovolineGreen", 255, 0, 255)
     val blueValue = IntegerValue("NovolineBlue", 255, 0, 255)
-    val prideBack = ListValue("PrideLogoBackMode", arrayOf("FPS","miHoYo","Pro","114514","idan"),"FPS")
+    @JvmField
+    val domainValue = TextValue("Scoreboard-Domain", "PridePlus-2K23")
+    val hueInterpolation = BoolValue("DoubleColor-Interpolate", false)
+    val simpleFPS = BoolValue("Simple-FPS-Render", true)
+    val prideBackCN = BoolValue("PrideLogoCN", false)
+    val prideBack = ListValue("PrideLogoBack-Mode", arrayOf("FPS","miHoYo","Pro","114514","idan","Custom","Off"),"Custom")
+    val prideBackValue = TextValue("PrideLogoBack-CustomText", "But Pa1m0n i love u")
 
     val customColor = Color(redValue.get(), greenValue.get(), blueValue.get())
+    val customTextColor = Color(textRedValue.get(), textGreenValue.get(), textBlueValue.get()).rgb
+
+    private fun mixColors(color1: Color, color2: Color): Color {
+        return ColorUtil.interpolateColorsBackAndForth(
+            15,
+            1,
+            color1,
+            color2,
+            hueInterpolation.get()
+        )
+    }
+
 
     @EventTarget
     fun onRender2D(event: Render2DEvent?) {
@@ -64,13 +84,27 @@ class HUD : Module() {
         var back:String = "FPS:" + mc.debugFPS
 
         when(prideBack.get().toLowerCase()){
-            "fps" -> back = "FPS:" + mc.debugFPS
-            "mihoyo" -> back = "miHoYo-Team"
+            "fps" -> back = "FPS:" + mc.debugFPS + "."
+            "mihoyo" -> back = "By miHoYo-Team"
             "pro" -> back = "WaWa我给你跪下了"
             "114514" -> back = "哼啊啊啊啊啊啊啊啊"
             "idan" -> back = "idan正义集团为你保驾护航"
+            "off" -> back = ""
         }
-        FontLoaders.F16.drawString("Using "+p+i+p2+u+" B"+LiquidBounce.CLIENT_VERSION+", "+ back,7.0F,height - (FontLoaders.F16.height + 5.0F),Color.WHITE.rgb,true)
+        var text = ""
+        if (prideBackCN.get()){
+            text = "骄傲加"
+        }else{
+            text = p+i+p2+u
+        }
+        if (prideBack.get().toLowerCase() == "off"){
+            mc.fontRendererObj.drawString(text+" B"+LiquidBounce.CLIENT_VERSION,2F,height - (mc.fontRendererObj.fontHeight + 2F),customTextColor,true)
+        }else{
+            mc.fontRendererObj.drawString(text+" B"+LiquidBounce.CLIENT_VERSION+", "+ back,2F,height - (mc.fontRendererObj.fontHeight + 2F),Color.WHITE.rgb,true)
+        }
+
+        if (simpleFPS.get()) mc.fontRendererObj.drawString("FPS: " + mc.debugFPS,width / 2F - (mc.fontRendererObj.getStringWidth("FPS: " + mc.debugFPS) / 2F),1F,Color.WHITE.rgb,true)
+
         when (logValue.get().toLowerCase()) {
 
             "novoline" -> {

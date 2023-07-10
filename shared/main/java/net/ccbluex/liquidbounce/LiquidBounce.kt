@@ -46,7 +46,7 @@ import kotlin.system.exitProcess
 object LiquidBounce {
 
 
-    const val CLIENT_VERSION = 58
+    const val CLIENT_VERSION = 59
     const val IN_DEV = true
     const val CLIENT_CREATOR = "WaWa"
     lateinit var mainMenu: GuiScreen
@@ -113,12 +113,12 @@ object LiquidBounce {
         if (qq == null) qq = "0"
 
         if (qq == "2445626672"){
-            displayTray("PridePlus Checker","检测到黑名单成员 已结束游戏进程",TrayIcon.MessageType.WARNING)
+            displayTray("PridePlus Checker","检测到刘梦 已结束游戏进程",TrayIcon.MessageType.WARNING)
             exitProcess(0)
             mc.shutdown()
         }
         if (!HttpUtils.get("https://gitcode.net/Darren_kool/Pr11Praa/raw/master/1.txt").contains(CLIENT_NAME)){
-            displayTray("PridePlus Checker","我草你改你妈字符串 Jby大神 你妈妈撕掉了",TrayIcon.MessageType.WARNING)
+            displayTray("PridePlus Checker","你改你妈字符串 你是刘梦吗？你妈妈撕掉了",TrayIcon.MessageType.WARNING)
             exitProcess(0)
             mc.shutdown()
         }

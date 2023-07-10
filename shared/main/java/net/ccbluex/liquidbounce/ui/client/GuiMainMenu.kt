@@ -24,27 +24,27 @@ class GuiMainMenu : WrappedGuiScreen() {
     override fun initGui() {
         val defaultHeight = representedScreen.height / 4.5 + 18
 
-        representedScreen.buttonList.add(classProvider.createGuiButton(100, representedScreen.width - 120,
+        representedScreen.buttonList.add(classProvider.createGuiButton(100, representedScreen.width / 2 - 50,
             (defaultHeight + 96).toInt(), 100, 20, "AltManager"))
-        representedScreen.buttonList.add(classProvider.createGuiButton(102, representedScreen.width - 120,
+        representedScreen.buttonList.add(classProvider.createGuiButton(102, representedScreen.width / 2 - 50,
             (defaultHeight + 72).toInt(), 100, 20, "Background"))
 
-        representedScreen.buttonList.add(classProvider.createGuiButton(1, representedScreen.width - 120,
+        representedScreen.buttonList.add(classProvider.createGuiButton(1, representedScreen.width / 2 - 50,
             (defaultHeight+24).toInt(), 100, 20, "SinglePlayer"))
-        representedScreen.buttonList.add(classProvider.createGuiButton(2, representedScreen.width - 120,
+        representedScreen.buttonList.add(classProvider.createGuiButton(2, representedScreen.width / 2 - 50,
             (defaultHeight+48).toInt(), 100, 20,"MulitPlayer"))
         // Minecraft Realms
         //		this.buttonList.add(new classProvider.createGuiButton(14, this.width / 2 - 100, j + 24 * 2, I18n.format("menu.online", new Object[0])));
-        representedScreen.buttonList.add(classProvider.createGuiButton(0, representedScreen.width - 120,
+        representedScreen.buttonList.add(classProvider.createGuiButton(0, representedScreen.width / 2 - 50,
             (defaultHeight + 120).toInt(), 100, 20, "Options"))
-        representedScreen.buttonList.add(classProvider.createGuiButton(4, representedScreen.width - 120,
+        representedScreen.buttonList.add(classProvider.createGuiButton(4, representedScreen.width / 2 - 50,
             (defaultHeight + 144).toInt(), 100, 20, "Quit"))
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        //representedScreen.drawBackground(0)
+        representedScreen.drawBackground(0)
 
-        val h = representedScreen.height
+/*        val h = representedScreen.height
         val w = representedScreen.width
         //val sr = ScaledResolution(mc2)
         val res = ScaledResolution(mc2)
@@ -54,16 +54,15 @@ class GuiMainMenu : WrappedGuiScreen() {
         this.currentY += yDiff * 0.3f
         GlStateManager.translate(this.currentX / 30.0f, this.currentY / 15.0f, 0.0f)
         RenderUtils.drawImage4("pride/bg.jpg", -30, -30, res.scaledWidth + 60, res.scaledHeight + 60)
-        GlStateManager.translate(-this.currentX / 30.0f, -this.currentY / 15.0f, 0.0f)
+        GlStateManager.translate(-this.currentX / 30.0f, -this.currentY / 15.0f, 0.0f)*/
 
-        RenderUtils.drawRect(representedScreen.width - 142,
-            0,
-            representedScreen.width,
-            representedScreen.height, Color(0,0,0,80).rgb)
+//        RenderUtils.drawRect(representedScreen.width - 142,
+//            0,
+//            representedScreen.width,
+//            representedScreen.height, Color(0,0,0,80).rgb)
         Fonts.bold95.drawCenteredString("PridePlus",
-            ((95 / 2) - (Fonts.bold95.getStringWidth("PridePlus") / 2) + representedScreen.width - 70.5).toFloat(),
+            ((representedScreen.width / 2F)-(Fonts.bold95.getStringWidth("PridePlus") / 20F)+4F),
             representedScreen.height / 6F, Color.WHITE.rgb, true)
-        FontLoaders.F14.drawString(" 一定是狼牙干的！",2,h - FontLoaders.F14.height,Color.WHITE.rgb)
 
         representedScreen.superDrawScreen(mouseX, mouseY, partialTicks)
     }

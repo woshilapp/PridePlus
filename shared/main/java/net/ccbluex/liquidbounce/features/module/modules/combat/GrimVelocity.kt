@@ -36,6 +36,7 @@ class GrimVelocity : Module() {
     private val NoMoveFix = BoolValue("NoMoveFix",false)
     private val OnlyMove = BoolValue("OnlyMove",false)
     private val OnlyGround = BoolValue("OnlyGround",false)
+    private val BlinkOnHurt = BoolValue("BlinkOnHurt",false)
     private val AutoDisableMode = ListValue("AutoDisableMode",arrayOf("Safe", "Silent"),"slient")
     private val AutoSilent = IntegerValue("AutoSilentTicks",8,0,10)
     var cancelPackets = 0
@@ -53,7 +54,7 @@ class GrimVelocity : Module() {
     }
     override fun onEnable() {
         if(DelayClientPacket.get()){
-            if(bl1nk!!.state == true) {
+            if(bl1nk!!.state && BlinkOnHurt.get()) {
                 bl1nk!!.state = false
             }
         }
@@ -64,7 +65,7 @@ class GrimVelocity : Module() {
     }
     override fun onDisable(){
         if(DelayClientPacket.get()){
-            if(bl1nk!!.state == true) {
+            if(bl1nk!!.state && BlinkOnHurt.get()) {
                 bl1nk!!.state = false
             }
         }
@@ -129,7 +130,7 @@ class GrimVelocity : Module() {
         }
         if(cancelPackets > 0){
             if(DelayClientPacket.get() && (MovementUtils.isMoving||!OnlyMove.get())){
-                if(bl1nk!!.state == false) {
+                if(!bl1nk!!.state && BlinkOnHurt.get()) {
                     bl1nk!!.state = true
                 }
             }
@@ -162,7 +163,7 @@ class GrimVelocity : Module() {
 
         if(cancelPackets == 0){
             if(DelayClientPacket.get()){
-                if(bl1nk!!.state == true) {
+                if(bl1nk!!.state && BlinkOnHurt.get()) {
                     bl1nk!!.state = false
                 }
             }

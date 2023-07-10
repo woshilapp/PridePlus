@@ -32,7 +32,7 @@ import java.awt.Color
 @ModuleInfo(name = "ESP", description = "Allows you to see targets through walls.", category = ModuleCategory.RENDER)
 class ESP : Module() {
     @JvmField
-    val modeValue = ListValue("Mode", arrayOf("Box", "OtherBox", "WireFrame", "2D", "Real2D", "Outline", "ShaderOutline", "ShaderGlow","yaoer"), "Box")
+    val modeValue = ListValue("Mode", arrayOf("Box", "OtherBox", "WireFrame", "2D", "Real2D", "Outline", "ShaderOutline", "ShaderGlow","yaoer","Rikka"), "Box")
 
     @JvmField
     val outlineWidth = FloatValue("Outline-Width", 3f, 0.5f, 5f)
@@ -116,6 +116,36 @@ class ESP : Module() {
                         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F)
 
                         RenderUtils.drawImage2("pride/custom_hud_icon.png", -8, -14, 16, 16)
+                        GL11.glPopMatrix()
+                        GL11.glPopMatrix()
+                    }
+                    "rikka" -> {
+                        val pX = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * mc.timer.renderPartialTicks -
+                                mc.renderManager.renderPosX
+                        val  pY = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * mc.timer.renderPartialTicks -
+                                mc.renderManager.renderPosY
+                        val pZ = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * mc.timer.renderPartialTicks -
+                                mc.renderManager.renderPosZ
+
+                        GL11.glPushMatrix()
+                        GL11.glTranslatef(pX.toFloat(), (pY + if(entity.sneaking)0.8F else 1.3F).toFloat(),
+                            pZ.toFloat()
+                        )
+                        GL11.glNormal3f(1.0F, 1.0F, 1.0F)
+                        mc2.renderManager; GL11.glRotatef(-mc.renderManager.playerViewY, 0.0F, 1.0F, 0.0F)
+                        mc2.renderManager; GL11.glRotatef(mc.renderManager.playerViewX, 1.0F, 0.0F, 0.0F)
+                        val scale = 0.06F
+                        GL11.glScalef(-scale, -scale, scale)
+
+                        GL11.glDisable(2896)
+                        GL11.glDisable(2929)
+                        GL11.glEnable(3042)
+                        GL11.glBlendFunc(770, 771)
+
+                        GL11.glPushMatrix()
+                        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F)
+
+                        RenderUtils.drawImage2("pride/rikka.png", -8, -14, 16, 16)
                         GL11.glPopMatrix()
                         GL11.glPopMatrix()
                     }

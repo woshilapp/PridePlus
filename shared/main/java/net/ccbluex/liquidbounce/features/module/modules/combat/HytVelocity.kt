@@ -29,48 +29,28 @@ class HytVelocity:Module() {
     fun onPacket(event: PacketEvent) {
         val player = mc.thePlayer!!
         val packet = event.packet
-        val packetEntityVelocity = packet.asSPacketEntityVelocity()
         if ((onlyGround.get() && !mc2.player.onGround) || (onlyHurt.get() && mc2.player.hurtTime == 0) || mc2.player.isDead || mc2.player.isInWater)
             return
 
         if (classProvider.isSPacketEntityVelocity(packet)) {
+            val packetEntityVelocity = packet.asSPacketEntityVelocity()
             if (mc2.world.getEntityByID(packetEntityVelocity.entityID) != mc.thePlayer)
                 return
 
-            event.cancelEvent()
             packetEntityVelocity.motionX = 0
             packetEntityVelocity.motionY = 0
             packetEntityVelocity.motionZ = 0
             mc2.connection!!.sendPacket(CPacketEntityAction(mc2.player, CPacketEntityAction.Action.START_SNEAKING))
+            mc2.connection!!.sendPacket(CPacketEntityAction(mc2.player, CPacketEntityAction.Action.STOP_SNEAKING))
             PacketUtils.sendPacketNoEvent(
                 CPacketPlayer.PositionRotation(
                     player.posX, player.posY, player.posZ,
                     player.rotationYaw, player.rotationPitch, player.onGround
                 )
             )
-            canCancel = true
-        }else if (canCancel){
-            mc2.connection!!.sendPacket(CPacketEntityAction(mc2.player, CPacketEntityAction.Action.STOP_SNEAKING))
         }
 
-        if (packet is SPacketPlayerPosLook){
-            val x = packet.x - mc.thePlayer?.posX!!
-            val y = packet.y - mc.thePlayer?.posY!!
-            val z = packet.z - mc.thePlayer?.posZ!!
-            val diff = sqrt(x * x + y * y + z * z)
-            if (diff <= 10) {
-                PacketUtils.sendPacketNoEvent(
-                    CPacketPlayer.PositionRotation(
-                        player.posX,
-                        player.posY,
-                        player.posZ,
-                        player.rotationYaw,
-                        player.rotationPitch,
-                        player.onGround
-                    )
-                )
-            }
-        }
+
 
 /*        if (classProvider.isSPacketPlayerPosLook(event.packet) && canCancel) {
             val packet = event.packet.asSPacketPosLook()

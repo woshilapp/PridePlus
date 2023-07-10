@@ -8,6 +8,8 @@ package net.ccbluex.liquidbounce.ui.client.hud.element
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.value.Value
+import net.minecraft.client.renderer.GlStateManager
+import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
 
@@ -198,4 +200,16 @@ data class Border(val x: Float, val y: Float, val x2: Float, val y2: Float) {
 
     fun draw() = RenderUtils.drawBorderedRect(x, y, x2, y2, 3F, Int.MIN_VALUE, 0)
 
+}
+
+data class Border2(val x: Float, val y: Float, val x2: Float, val y2: Float,val radius : Float) {
+    fun draw2() = RenderUtils.drawBorderedRect(x, y, x2, y2, 3F, Int.MIN_VALUE, 0)
+    fun draw(x: Double,y: Double,mouseX: Int, mouseY: Int){
+        GlStateManager.resetColor()
+        if (RenderUtils.isHovered(x.toFloat(), y.toFloat(), x2, y2,mouseX, mouseY)){
+            RenderUtils.drawOutlinedRoundedRect(this.x.toDouble(),this.y.toDouble(),x2.toDouble(),y2.toDouble(),radius.toDouble(),.5F,
+                Color.WHITE.rgb)
+            GlStateManager.resetColor()
+        }
+    }
 }
