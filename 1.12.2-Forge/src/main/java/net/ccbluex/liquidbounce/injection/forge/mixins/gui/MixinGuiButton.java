@@ -5,9 +5,12 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
+import co.uk.hexeption.utils.OutlineUtils;
+import net.ccbluex.liquidbounce.api.minecraft.util.IResourceLocation;
 import net.ccbluex.liquidbounce.injection.backend.FontRendererImpl;
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
+import net.ccbluex.liquidbounce.utils.MinecraftInstance;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -50,6 +53,8 @@ public abstract class MixinGuiButton extends Gui {
     private float cut;
     private float alpha;
 
+    private static final IResourceLocation rs = MinecraftInstance.classProvider.createResourceLocation("pride/menu/menu-rect.png");
+
     @Shadow
     protected abstract void mouseDragged(Minecraft mc, int mouseX, int mouseY);
 
@@ -84,10 +89,18 @@ public abstract class MixinGuiButton extends Gui {
                 if (alpha <= 120) alpha = 120;
             }
 
-            RenderUtils.drawRoundRect(this.x + (int) this.cut, this.y,
+
+
+            RenderUtils.drawOutlinedRoundedRect(this.x + (int) this.cut,this.y,(this.width - (int) (this.cut * 2)),this.height,14F,0.9F,this.enabled ? new Color(255, 255, 255, 255).getRGB() :
+                    new Color(0.5F, 0.5F, 0.5F, 0.5F).getRGB());
+
+            /*RenderUtils.drawRoundRect(this.x + (int) this.cut, this.y,
                     this.x + this.width - (int) this.cut, this.y + this.height, 3,
                     this.enabled ? new Color(0F, 0F, 0F, this.alpha / 255F).getRGB() :
-                            new Color(0.5F, 0.5F, 0.5F, 0.5F).getRGB());
+                            new Color(0.5F, 0.5F, 0.5F, 0.5F).getRGB());*/
+
+
+
 
 //            Gui.drawRect(this.x + (int) this.cut, this.y,
 //                    this.x + this.width - (int) this.cut, this.y + this.height,

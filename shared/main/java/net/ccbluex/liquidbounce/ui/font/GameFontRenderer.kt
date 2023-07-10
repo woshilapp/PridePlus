@@ -70,7 +70,7 @@ class GameFontRenderer(font: Font) : IWrappedFontRenderer {
             } else {
                 when (HUD.shadowValue.get().toLowerCase()) {
                     "good" -> drawText(currentText, x + 1f, currY + 1f, Color(0, 0, 0, 150).rgb, true)
-                    "long" -> drawText(currentText, x + 2f, currY + 2f, Color(0, 0, 0, 150).rgb, true)
+                    "long" -> drawText(currentText, x + 1.5f, currY + 1.5f, Color(0, 0, 0, 150).rgb, true)
                     "d1ck" -> {
                         drawText(currentText, x + 1f, currY, Color(0, 0, 0, 150).rgb, true)
                         drawText(currentText, x, currY + 1f, Color(0, 0, 0, 150).rgb, true)
