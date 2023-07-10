@@ -37,7 +37,6 @@ open class HUD : MinecraftInstance() {
                 Radar::class.java,
                 SpeedGraph::class.java,
             KeyBinds::class.java,
-            KeyBinds2::class.java,
             KeyStrokes::class.java,
             NewEffects::class.java,
             Target2::class.java,

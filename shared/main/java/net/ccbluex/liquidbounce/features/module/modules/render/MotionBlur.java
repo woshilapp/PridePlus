@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.features.module.ModuleInfo;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
+import net.ccbluex.liquidbounce.value.FloatValue;
 import net.ccbluex.liquidbounce.value.IntegerValue;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraft.client.settings.GameSettings;
@@ -20,8 +21,8 @@ import net.minecraft.util.ResourceLocation;
         category = ModuleCategory.RENDER
 )
 public class MotionBlur extends Module {
-    public static IntegerValue MOTION_BLUR_AMOUNT = new IntegerValue("BlurAmount", 2, 1, 10);
-    int lastValue = 0;
+    public static FloatValue MOTION_BLUR_AMOUNT = new FloatValue("BlurAmount", 2F, 0.01F, 10F);
+    float lastValue = 0F;
     private Map<String, MotionBlurResourceManager> domainResourceManagers;
     @Override
     public void onDisable() {

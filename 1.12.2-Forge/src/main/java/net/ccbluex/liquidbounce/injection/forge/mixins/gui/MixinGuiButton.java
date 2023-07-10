@@ -91,7 +91,7 @@ public abstract class MixinGuiButton extends Gui {
 
 
 
-            RenderUtils.drawOutlinedRoundedRect(this.x + (int) this.cut,this.y,(this.width - (int) (this.cut * 2)),this.height,14F,0.9F,this.enabled ? new Color(255, 255, 255, 255).getRGB() :
+            RenderUtils.drawOutlinedRoundedRect(this.x + (int) this.cut,this.y,(this.width - (int) (this.cut * 2)),this.height,14F,1.1F,this.enabled ? new Color(255, 255, 255, 255).getRGB() :
                     new Color(0.5F, 0.5F, 0.5F, 0.5F).getRGB());
 
             /*RenderUtils.drawRoundRect(this.x + (int) this.cut, this.y,

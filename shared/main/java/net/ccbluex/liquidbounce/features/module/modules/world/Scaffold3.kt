@@ -48,7 +48,7 @@ import kotlin.math.*
     description = "Sk1d by LemonHaikea 2997570499.", //别他妈改掉  马戈乐碧的 1.8实在难转 //wawa：感觉有点死号啊
     category = ModuleCategory.WORLD
 )
-class ScaffoldNew : Module() {
+class Scaffold3 : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("Normal", "Rewinside", "Expand"), "Normal")
 

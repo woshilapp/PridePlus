@@ -54,8 +54,8 @@ class ScoreboardElement(
     private val dred = IntegerValue("Domain-R", 0, 0, 255)
     private val dgreen = IntegerValue("Domain-G", 111, 0, 255)
     private val dblue = IntegerValue("Domain-B", 255, 0, 255)
-    private val blur = BoolValue("Blur", true)
-    private val blurStrength = FloatValue("Blur-Strength", 2F, 0F, 50F)
+    //private val blur = BoolValue("Blur", true)
+    //private val blurStrength = FloatValue("Blur-Strength", 2F, 0F, 50F)
     private val outline = BoolValue("Novo-Outline",false)
     private val linewidth = FloatValue("OutlineWidth",2f,0f,5f)
     private val rectValue = BoolValue("Rect", false)
@@ -164,7 +164,7 @@ class ScoreboardElement(
             radius.get().toInt(),backColor)
 
         //Blur
-        if (blur.get()) {
+/*        if (blur.get()) {
             GL11.glTranslated(-renderX, -renderY, 0.0)
             BlurBuffer.CustomBlurRoundArea(
                 renderX.toFloat() + l1 - 7f,
@@ -175,7 +175,7 @@ class ScoreboardElement(
                 blurStrength.get()
             )
             GL11.glTranslated(renderX, renderY, 0.0)
-        }
+        }*/
         if (outline.get()){
             net.ccbluex.liquidbounce.utils.render.RenderUtils.drawGidentOutlinedRoundedRect(l1 - 7.0, -5.0, 8.0 - (l1 - 7.0), (maxHeight + fontRenderer.fontHeight + 5).toDouble() - (-5.0), radius.get().toDouble(),linewidth.get())
         }

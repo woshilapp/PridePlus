@@ -32,21 +32,21 @@ import java.util.*
 class GameInfo(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F) : Element(x, y, scale) {
     private val radiusValue = FloatValue("Radius", 4.25f, 0f, 10f)
     private val shadowValue = FloatValue("shadow-Value", 10F, 0f, 20f)
-    private val blurValue = BoolValue("Blur-Value", true)
-    private val blurStrength = FloatValue("BlurStrength-Value", 10f, 0f, 40f)
+    //private val blurValue = BoolValue("Blur-Value", true)
+    //private val blurStrength = FloatValue("BlurStrength-Value", 10f, 0f, 40f)
 
     private val shadowColorMode = ListValue("Shadow-Color", arrayOf("Background", "Custom"), "Background")
     private val shadowColorRedValue = IntegerValue("Shadow-Red", 0, 0, 255)
     private val shadowColorGreenValue = IntegerValue("Shadow-Green", 111, 0, 255)
     private val shadowColorBlueValue = IntegerValue("Shadow-Blue", 255, 0, 255)
 
-    val lineValue = BoolValue("Line", true)
+    /*val lineValue = BoolValue("Line", true)
     private val redValue = IntegerValue("Line-R", 255, 0, 255)
     private val greenValue = IntegerValue("Line-G", 255, 0, 255)
     private val blueValue = IntegerValue("Line-B", 255, 0, 255)
     private val colorRedValue2 = IntegerValue("Line-R2", 0, 0, 255)
     private val colorGreenValue2 = IntegerValue("Line-G2", 111, 0, 255)
-    private val colorBlueValue2 = IntegerValue("Line-B2", 255, 0, 255)
+    private val colorBlueValue2 = IntegerValue("Line-B2", 255, 0, 255)*/
     var minute = 0L
     var second = 0L
     val timer = MSTimer()

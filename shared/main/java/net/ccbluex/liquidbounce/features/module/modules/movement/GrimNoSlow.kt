@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.value.FloatValue
 import net.minecraft.network.play.server.SPacketWindowItems
 import net.minecraft.util.EnumHand
 
-@ModuleInfo(name = "GrimNoSlow", description = "Noslow", category = ModuleCategory.MOVEMENT)
+@ModuleInfo(name = "GrimNoSlow", description = "Fixed", category = ModuleCategory.MOVEMENT)
 class GrimNoSlow : Module() {
 
     private val blockForwardMultiplier = FloatValue("Block Forward Multiplier", 1.0F, 0.2F, 1.0F)
@@ -53,7 +53,7 @@ class GrimNoSlow : Module() {
 
     @EventTarget
     fun onMotion(event: MotionEvent) {
-        if (!MovementUtils.isMoving)
+        if (!MovementUtils.isMoving || classProvider.isItemBlock(mc.thePlayer!!.itemInUse?.item))
             return
 
         if (this.packet.get()) {
@@ -69,7 +69,7 @@ class GrimNoSlow : Module() {
                 mc.netHandler.addToSendQueue(classProvider.createCPacketHeldItemChange(curSlot))
             }
 
-            if (event.eventState == EventState.PRE && (classProvider.isItemSword(mc.thePlayer!!.heldItem?.item) || mc.gameSettings.keyBindUseItem.isKeyDown)) {
+            if (event.eventState == EventState.PRE && classProvider.isItemSword(mc.thePlayer!!.heldItem?.item)) {
                 if (test.get()) {
                     mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerBlockPlacement(mc.thePlayer!!.inventory.getCurrentItemInHand()))
                     mc2.connection!!.sendPacket(

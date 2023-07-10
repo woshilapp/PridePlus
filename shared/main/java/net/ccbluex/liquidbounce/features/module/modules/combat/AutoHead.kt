@@ -1,27 +1,20 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.api.minecraft.client.settings.IKeyBinding
-import net.ccbluex.liquidbounce.api.minecraft.item.IItem
 import net.ccbluex.liquidbounce.api.minecraft.item.IItemStack
-import net.ccbluex.liquidbounce.api.minecraft.network.play.client.ICPacketHeldItemChange
-import net.ccbluex.liquidbounce.api.minecraft.network.play.client.ICPacketPlayerBlockPlacement
-import net.ccbluex.liquidbounce.api.minecraft.potion.IPotion
 import net.ccbluex.liquidbounce.api.minecraft.potion.PotionType
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.injection.backend.WrapperImpl
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
 import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.IntegerValue
-import net.minecraft.item.Item
-import net.minecraft.network.play.client.CPacketHeldItemChange
 import org.lwjgl.input.Mouse
 
-@ModuleInfo(name = "AutoHead", description = "faq", category = ModuleCategory.COMBAT)
+@ModuleInfo(name = "AutoHead", description = "a?", category = ModuleCategory.COMBAT)
 class AutoHead : Module() {
     private var eatingApple = false
     private var switched = -1
@@ -59,7 +52,7 @@ class AutoHead : Module() {
     @EventTarget
     fun onUpdate(event: MotionEvent?) {
         if (mc.thePlayer == null) return
-        val inventory = mc.thePlayer!!.inventory ?: return
+        val inventory = mc.thePlayer!!.inventory
         doingStuff = false
         if (!Mouse.isButtonDown(0) && !Mouse.isButtonDown(1)) {
             val useItem: IKeyBinding = mc.gameSettings.keyBindUseItem
@@ -69,7 +62,12 @@ class AutoHead : Module() {
                 repairItemSwitch()
                 return
             }
-            if (mc.thePlayer!!.capabilities.isCreativeMode || mc.thePlayer!!.isPotionActive(classProvider.getPotionEnum(PotionType.REGENERATION)) || mc.thePlayer!!.health >= health.get()) {
+            if (mc.thePlayer!!.capabilities.isCreativeMode || mc.thePlayer!!.isPotionActive(
+                    classProvider.getPotionEnum(
+                        PotionType.REGENERATION
+                    )
+                ) || mc.thePlayer!!.health >= health.get()
+            ) {
                 timer.reset()
                 if (eatingApple) {
                     eatingApple = false
@@ -117,7 +115,7 @@ class AutoHead : Module() {
 
     private fun repairItemSwitch() {
         val p = mc.thePlayer ?: return
-        val inventory = p.inventory ?: return
+        val inventory = p.inventory
         var switched = switched
         if (switched == -1) return
         inventory.currentItem = switched

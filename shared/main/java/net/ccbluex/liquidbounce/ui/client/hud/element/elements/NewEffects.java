@@ -23,7 +23,7 @@ import java.util.Map;
 public class NewEffects extends Element {
 
     private final Map<IPotion, PotionData> potionMap = new HashMap<>();
-    private static final BoolValue blur = new BoolValue("Blur", true);
+    //private static final BoolValue blur = new BoolValue("Blur", true);
     /**
      * Draw the entity.
      */

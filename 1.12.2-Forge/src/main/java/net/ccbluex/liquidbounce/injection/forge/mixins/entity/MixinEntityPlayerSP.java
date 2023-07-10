@@ -16,8 +16,8 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.Sneak;
 import net.ccbluex.liquidbounce.features.module.modules.movement.Sprint;
 import net.ccbluex.liquidbounce.features.module.modules.render.NoSwing;
 import net.ccbluex.liquidbounce.features.module.modules.world.Scaffold;
-import net.ccbluex.liquidbounce.features.module.modules.world.ScaffoldLB;
-import net.ccbluex.liquidbounce.features.module.modules.world.ScaffoldNew;
+import net.ccbluex.liquidbounce.features.module.modules.world.Scaffold2;
+import net.ccbluex.liquidbounce.features.module.modules.world.Scaffold3;
 import net.ccbluex.liquidbounce.utils.MovementUtils;
 import net.ccbluex.liquidbounce.utils.Rotation;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
@@ -380,9 +380,9 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
         final Scaffold scaffold = (Scaffold) LiquidBounce.moduleManager.getModule(Scaffold.class);
 
-        final ScaffoldNew scaffoldnew = (ScaffoldNew) LiquidBounce.moduleManager.getModule(ScaffoldNew.class);
+        final Scaffold3 scaffoldnew = (Scaffold3) LiquidBounce.moduleManager.getModule(Scaffold3.class);
 
-        final ScaffoldLB scaffoldlb = (ScaffoldLB) LiquidBounce.moduleManager.getModule(ScaffoldLB.class);
+        final Scaffold2 scaffoldlb = (Scaffold2) LiquidBounce.moduleManager.getModule(Scaffold2.class);
 
         if ((scaffold.getState() && !scaffold.sprintValue.get()) || (sprint.getState() && sprint.checkServerSide.get() && (onGround || !sprint.checkServerSideGround.get()) && !sprint.allDirectionsValue.get() && RotationUtils.targetRotation != null && RotationUtils.getRotationDifference(new Rotation(mc.player.rotationYaw, mc.player.rotationPitch)) > 30))
             this.setSprinting(false);

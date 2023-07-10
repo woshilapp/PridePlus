@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.value.ListValue
 class ScaffoldHelper : Module() {
     private val modeValue = ListValue("Mode", arrayOf("State"), "State")
 
-    private val scaffoldModeValue = ListValue("Scaffold Mode", arrayOf("Scaffold", "ScaffoldNew","ScaffoldLB"), "ScaffoldNew")
+    private val scaffoldModeValue = ListValue("Scaffold Mode", arrayOf("Scaffold", "Scaffold3","Scaffold2"), "ScaffoldNew")
 
     private val jumpModeValue = ListValue("Jump Mode", arrayOf("mc", "mc2","MotionY","Key", "Parkour", "Off"), "Off")
 
@@ -52,9 +52,9 @@ class ScaffoldHelper : Module() {
 
     override fun onDisable() {
         when (scaffoldModeValue.get().toLowerCase()) {
-            "scaffold" -> LiquidBounce.moduleManager[Scaffold::class.java].state = false
-            "scaffoldnew" -> LiquidBounce.moduleManager[ScaffoldNew::class.java].state = false
-            "scaffoldlb" -> LiquidBounce.moduleManager[ScaffoldLB::class.java].state = false
+            "scaffold" -> LiquidBounce.moduleManager[Scaffold::class.java]!!.state = false
+            "scaffold3" -> LiquidBounce.moduleManager[Scaffold3::class.java]!!.state = false
+            "scaffold2" -> LiquidBounce.moduleManager[Scaffold2::class.java]!!.state = false
         }
         LiquidBounce.moduleManager[Parkour::class.java].state = false
         LiquidBounce.moduleManager[Timer::class.java].state = false
@@ -65,21 +65,21 @@ class ScaffoldHelper : Module() {
     @EventTarget
     fun onUpdate(event: UpdateEvent){
         if(jumpModeValue.get() == "Parkour") {
-            LiquidBounce.moduleManager[Parkour::class.java].state = true
+            LiquidBounce.moduleManager[Parkour::class.java]!!.state = true
         }else{
-            LiquidBounce.moduleManager[Parkour::class.java].state = false
+            LiquidBounce.moduleManager[Parkour::class.java]!!.state = false
             jump()
         }
 
         if (mc.thePlayer!!.onGround){
             if(timerValue.get())
-                LiquidBounce.moduleManager[Timer::class.java].state = true
+                LiquidBounce.moduleManager[Timer::class.java]!!.state = true
 
             if (modeValue.get().toLowerCase() == "state") {
                 when (scaffoldModeValue.get().toLowerCase()) {
-                    "scaffold" -> LiquidBounce.moduleManager[Scaffold::class.java].state = false
-                    "scaffoldnew" -> LiquidBounce.moduleManager[ScaffoldNew::class.java].state = false
-                    "scaffoldlb" -> LiquidBounce.moduleManager[ScaffoldLB::class.java].state = false
+                    "scaffold" -> LiquidBounce.moduleManager[Scaffold::class.java]!!.state = false
+                    "scaffold3" -> LiquidBounce.moduleManager[Scaffold3::class.java]!!.state = false
+                    "scaffold2" -> LiquidBounce.moduleManager[Scaffold2::class.java]!!.state = false
                 }
             }
         }else {
@@ -87,9 +87,9 @@ class ScaffoldHelper : Module() {
                 LiquidBounce.moduleManager[Timer::class.java].state = false
             if (modeValue.get().toLowerCase() == "state") {
                 when (scaffoldModeValue.get().toLowerCase()) {
-                    "scaffold" -> LiquidBounce.moduleManager[Scaffold::class.java].state = true
-                    "scaffoldnew" -> LiquidBounce.moduleManager[ScaffoldNew::class.java].state = true
-                    "scaffoldlb" -> LiquidBounce.moduleManager[ScaffoldLB::class.java].state = true
+                    "scaffold" -> LiquidBounce.moduleManager[Scaffold::class.java]!!.state = true
+                    "scaffold3" -> LiquidBounce.moduleManager[Scaffold3::class.java]!!.state = true
+                    "scaffold2" -> LiquidBounce.moduleManager[Scaffold2::class.java]!!.state = true
                 }
             }
         }

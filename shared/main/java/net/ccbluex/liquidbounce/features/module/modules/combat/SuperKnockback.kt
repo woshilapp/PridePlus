@@ -21,8 +21,8 @@ class SuperKnockback : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("Sprint-Packet","Sneak-Packet","W-Tap"),"Sprint-Packet")
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
-    private val onlyGround = BoolValue("OnlyGround", true)
-    private val onlyMove = BoolValue("OnlyMove", true)
+    val onlyGround = BoolValue("OnlyGround", true)
+    val onlyMove = BoolValue("OnlyMove", true)
 
     @EventTarget
     fun onAttack(event: AttackEvent) {

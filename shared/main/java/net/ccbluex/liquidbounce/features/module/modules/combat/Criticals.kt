@@ -20,7 +20,7 @@ import net.ccbluex.liquidbounce.value.ListValue
 @ModuleInfo(name = "Criticals", description = "Automatically deals critical hits.", category = ModuleCategory.COMBAT)
 class Criticals : Module() {
 
-    val modeValue = ListValue("Mode", arrayOf("GrimAC","Packet", "NcpPacket", "NoGround", "Hop", "TPHop", "Jump", "LowJump", "Visual"), "Packet")
+    val modeValue = ListValue("Mode", arrayOf("GrimAC","Packet", "NcpPacket", "NoGround", "Hop", "TPHop", "Jump","WhenJump", "LowJump", "Visual"), "Packet")
     val delayValue = IntegerValue("Delay", 0, 0, 500)
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
 
@@ -48,6 +48,9 @@ class Criticals : Module() {
             val z = thePlayer.posZ
 
             when (modeValue.get().toLowerCase()) {
+                "whenjump" -> {
+                    if (thePlayer.isAirBorne && !thePlayer.onGround) thePlayer.onCriticalHit(entity)
+                }
                 "grimac" -> {
                     attacks++
                     if (attacks > 6) {

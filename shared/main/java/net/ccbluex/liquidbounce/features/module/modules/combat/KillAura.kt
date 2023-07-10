@@ -106,7 +106,7 @@ class KillAura : Module() {
 
     // Modes
     private val priorityValue = ListValue("Priority", arrayOf("Health", "Distance", "Direction", "LivingTime", "HurtResitanTime"), "Distance")
-    private val targetModeValue = ListValue("TargetMode", arrayOf("Single", "Switch", "Multi"), "Switch")
+    val targetModeValue = ListValue("TargetMode", arrayOf("Single", "Switch", "Multi"), "Switch")
 
     // Bypass
 
@@ -160,7 +160,7 @@ class KillAura : Module() {
     private val outborderValue = BoolValue("Outborder", false)
     private val silentRotationValue = BoolValue("SilentRotation", true)
     private val rotationStrafeValue = ListValue("Strafe", arrayOf("Off", "Strict", "Silent"), "Off")
-    private val fovValue = FloatValue("FOV", 180f, 0f, 180f)
+    val fovValue = FloatValue("FOV", 180f, 0f, 180f)
     private val hitableValue = BoolValue("AlwaysHitable",true)
     // Predict
     private val switchDelayValue = IntegerValue("SwitchDelay",300 ,1, 2000)
@@ -421,7 +421,7 @@ class KillAura : Module() {
         }
 
         if (hyt180fovfixValue.get()) {
-            if (RotationUtils.getRotationDifference(target) > 55.0) {
+            if (RotationUtils.getRotationDifference(target) > 50.0) {
                 if(rotationStrafeValue.get() != "Strict") rotationStrafeValue.set("Strict")
             } else {
                 if(rotationStrafeValue.get() != "Silent") rotationStrafeValue.set("Silent")

@@ -61,7 +61,7 @@ class Rotations : Module() {
         val killAura = LiquidBounce.moduleManager.getModule(KillAura::class.java) as KillAura
         return getState(Scaffold::class.java) || getState(Tower::class.java) ||
                 (getState(KillAura::class.java) && killAura.target != null) ||
-                getState(BowAimbot::class.java) || getState(ScaffoldNew::class.java) ||
+                getState(BowAimbot::class.java) || getState(Scaffold3::class.java) || getState(Scaffold2::class.java) ||
                 getState(Fucker::class.java) || getState(CivBreak::class.java) || getState(Nuker::class.java) ||
                 getState(ChestAura::class.java)
     }

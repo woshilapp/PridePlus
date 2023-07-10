@@ -16,7 +16,7 @@ import org.lwjgl.opengl.GL11
 import java.awt.Color
 
 
-@ElementInfo(name = "KeyBinds-CN")
+@ElementInfo(name = "KeyBinds")
 class KeyBinds : Element() {
     val onlyState = BoolValue("OnlyModuleState", true)
     private var anmitY = 0F

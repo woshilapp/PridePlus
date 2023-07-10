@@ -98,7 +98,6 @@ class ModuleManager : Listenable {
                 Spammer::class.java,
                 IceSpeed::class.java,
                 Zoot::class.java,
-               HytVelocity::class.java,
                 HytGetName::class.java,
                 AutoLobby::class.java,
                 Regen::class.java,
@@ -190,7 +189,7 @@ class ModuleManager : Listenable {
                 Title::class.java,
                 NoSlowBreak::class.java,
                 PortalMenu::class.java,
-            ScaffoldNew::class.java,
+            Scaffold3::class.java,
             AutoLFix::class.java,
             AutoGG::class.java,
             BanChecker::class.java,
@@ -206,10 +205,11 @@ class ModuleManager : Listenable {
             CancelC03::class.java,
             PotionChecker::class.java,
             ScaffoldHelper::class.java,
-            ScaffoldLB::class.java,//我傻了
+            Scaffold2::class.java,//我傻了
                     //WaWaDisabler::class.java,
             CustomUI::class.java,
             GrimNoSlow::class.java,
+            GrimVelocity2::class.java,
             Jamming::class.java
             // 下次一定优化重复啰嗦的功能
         )
