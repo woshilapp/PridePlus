@@ -82,12 +82,12 @@ public abstract class MixinSplashProgressRunnable {
 
             if (progress != 1.0F) {
                 GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.3F);
-                RenderUtils.drawRoundedCornerRect(rectX, (float) (height / 2 + 15), rectX2, (float) (height / 2) + 18.0F, 0.0F, (new Color(49, 51, 53, 255)).getRGB());
+                RenderUtils.drawRoundedCornerRect(0, (float) height, width, (float) (height - 10), 0.0F, (new Color(49, 51, 53, 150)).getRGB());
             }
 
             if (progress != 0.0F) {
                 GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-                RenderUtils.drawRoundedCornerRect(rectX, (float) (height / 2 + 15), rectX + (float) width * 0.6F * progress, (float) (height / 2) + 18.0F, 0.0F, (new Color(255, 255, 255, 190)).getRGB());
+                RenderUtils.drawRoundedCornerRect(0, (float) height, width * progress, (float) (height - 10), 0.0F, (new Color(255, 255, 255, 170)).getRGB());
             }
 
             DecimalFormat decimalFormat = new DecimalFormat("#");
