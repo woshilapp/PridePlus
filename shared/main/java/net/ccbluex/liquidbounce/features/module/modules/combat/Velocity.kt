@@ -41,7 +41,7 @@ class Velocity : Module() {
     private val horizontalValue = FloatValue("Horizontal", 0F, 0F, 1F)
     private val verticalValue = FloatValue("Vertical", 0F, 0F, 1F)
     private val velocityTickValue = IntegerValue("VelocityTick", 1, 0, 10)
-    private val modeValue = ListValue("Mode", arrayOf("Custom","HytJump1","Grim-Reduce","Grim-Motion","HuaYuTing", "HuaYuTingJump", "Legit", "aac5.2.0", "AAC5Reduce", "Cancel", "Vulcan","Simple", "Vanilla", "Tick",  "AAC", "AACPush", "AACZero", "AACv4",
+    private val modeValue = ListValue("Mode", arrayOf("Custom","Grim-D1ck","HytJump1","Grim-Reduce","Grim-Motion","HuaYuTing", "HuaYuTingJump", "Legit", "aac5.2.0", "AAC5Reduce", "Cancel", "Vulcan","Simple", "Vanilla", "Tick",  "AAC", "AACPush", "AACZero", "AACv4",
             "Reverse", "SmoothReverse", "Jump", "Glitch"), "Simple")
 
     private val onlyGroundValue = BoolValue("OnlyGround", false)
@@ -111,6 +111,18 @@ class Velocity : Module() {
                 thePlayer.motionY = 0.42
 
                 mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(mc.thePlayer!!.posX, mc.thePlayer!!.posY, mc.thePlayer!!.posZ, true))
+            }
+            "grim-d1ck"->{
+                if (thePlayer.hurtTime > 0){
+                    thePlayer.motionX += -1.0E-7
+                    thePlayer.motionY += -1.0E-7
+                    thePlayer.motionZ += -1.0E-7
+                    thePlayer.isAirBorne = true
+                    thePlayer.motionY = 0.42
+                    val yaw = thePlayer.rotationYaw * 0.017453292F
+                    thePlayer.motionX -= sin(yaw) * 0.2
+                    thePlayer.motionZ += cos(yaw) * 0.2
+                }
             }
             "grim-reduce"->{
                 if (thePlayer.hurtTime > 0){
