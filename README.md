@@ -1,11 +1,13 @@
 # Pride Plus
 A free mixin-based injection hacked-client for Minecraft using Minecraft Forge, supporting versions 1.12.2
 
+N0w Reb0rn. LOL LOL LOL LOL LOL LOL LOL
+
 ## Based
 Based **LiquidBounce** & **Pride**. Thank **_CCBlueX_** and **_JieMo_**
 
 ## QQ Group
-Group : 519931150
+Group : 921796320
 
 ## Issues
 If you notice any bugs or missing features, you can let us know by opening an issue [here](https://github.com/CCBlueX/LiquidBounce/issues).
