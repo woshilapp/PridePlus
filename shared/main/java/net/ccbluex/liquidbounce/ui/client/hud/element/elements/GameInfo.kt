@@ -35,6 +35,9 @@ class GameInfo(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F) : Element(
     //private val blurValue = BoolValue("Blur-Value", true)
     //private val blurStrength = FloatValue("BlurStrength-Value", 10f, 0f, 40f)
 
+    private val outline = BoolValue("Novo-Outline",false)
+    private val linewidth = FloatValue("OutlineWidth",2f,0f,5f)
+
     private val shadowColorMode = ListValue("Shadow-Color", arrayOf("Background", "Custom"), "Background")
     private val shadowColorRedValue = IntegerValue("Shadow-Red", 0, 0, 255)
     private val shadowColorGreenValue = IntegerValue("Shadow-Green", 111, 0, 255)
@@ -82,6 +85,9 @@ class GameInfo(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F) : Element(
         }
 
 
+        if (outline.get()){
+            net.ccbluex.liquidbounce.utils.render.RenderUtils.drawGidentOutlinedRoundedRect(-4.0, 0.0, x2+4.0 ,y2, radiusValue.get().toDouble(),linewidth.get())
+        }
 
         RenderUtils.drawRoundRect(-4F,0F,x2.toFloat(),y2.toFloat(),radiusValue.get(),Color(32, 30, 30).rgb)
 

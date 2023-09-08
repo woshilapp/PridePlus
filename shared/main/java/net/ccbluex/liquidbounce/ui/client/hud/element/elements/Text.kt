@@ -52,7 +52,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
         fun defaultClient(): Text {
             val text = Text(x = 2.0, y = 2.0, scale = 1F)
 
-            text.displayString.set("PridePlus  #220731")
+            text.displayString.set("PridePlus  #230908")
             text.shadow.set(true)
             text.fontValue.set(Fonts.minecraftFont)
             text.setColor(Color(200, 50, 50))
@@ -80,6 +80,10 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
     private val rainbowX = FloatValue("Rainbow-X", -1000F, -2000F, 2000F)
     private val rainbowY = FloatValue("Rainbow-Y", -1000F, -2000F, 2000F)
     private val shadow = BoolValue("Shadow", false)
+
+    private val outline = BoolValue("Novo-Outline",false)
+    private val linewidth = FloatValue("OutlineWidth",2f,0f,5f)
+
     private var fontValue = FontValue("Font", Fonts.minecraftFont)
 
     private var editMode = false
@@ -200,6 +204,9 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
         val charArray2 = displayText.toCharArray()
         var length2 = 4.5f
 
+        if (outline.get()){
+            net.ccbluex.liquidbounce.utils.render.RenderUtils.drawGidentOutlinedRoundedRect(-0.1, -0.1, fontRenderer.getStringWidth(displayText).toDouble() ,fontRenderer.fontHeight+0.1, 10.0,linewidth.get())
+        }
 
         when (rectMode.get()) {
             "Line" -> {

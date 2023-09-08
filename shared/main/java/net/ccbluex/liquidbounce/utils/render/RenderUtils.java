@@ -98,6 +98,10 @@ public final class RenderUtils extends MinecraftInstance {
         glEndList();
     }
 
+    public static boolean isHovering(int mouseX, int mouseY, float xLeft, float yUp, float xRight, float yBottom) {
+        return mouseX > xLeft && mouseX < xRight && mouseY > yUp && mouseY < yBottom;
+    }
+
     public static void drawArc(float n, float n2, double n3, final int n4, final int n5, final double n6, final int n7) {
         n3 *= 2.0;
         n *= 2.0f;

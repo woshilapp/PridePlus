@@ -84,7 +84,7 @@ class GuiMainMenu : WrappedGuiScreen() {
             Color.WHITE.rgb,true
         )
 
-        Fonts.bold30.drawCenteredString("by WaWa, Recall", width / 2f, height / 2f - 68, Color.WHITE.rgb,true)
+        Fonts.bold30.drawCenteredString("by WaWa", width / 2f, height / 2f - 68, Color.WHITE.rgb,true)
         representedScreen.superDrawScreen(mouseX, mouseY, partialTicks)
     }
 

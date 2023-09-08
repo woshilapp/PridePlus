@@ -196,7 +196,6 @@ class ModuleManager : Listenable {
             Disabler::class.java,
             AntiFakePlayer::class.java,
             LegitAura::class.java,
-            GrimVelocity::class.java,
             HytJump::class.java,
             Velocity2::class.java,
             NewGUI::class.java,
@@ -209,7 +208,6 @@ class ModuleManager : Listenable {
                     //WaWaDisabler::class.java,
             CustomUI::class.java,
             GrimNoSlow::class.java,
-            GrimVelocity2::class.java,
             Jamming::class.java
             // 下次一定优化重复啰嗦的功能
         )

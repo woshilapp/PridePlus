@@ -10,6 +10,8 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
+import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.ListValue
 import org.lwjgl.opengl.GL11
 
@@ -24,6 +26,8 @@ class Armor(x: Double = -8.0, y: Double = 57.0, scale: Float = 1F,
 
     private val modeValue = ListValue("Alignment", arrayOf("Horizontal", "Vertical"), "Horizontal")
 
+    private val outline = BoolValue("Novo-Outline",false)
+    private val linewidth = FloatValue("OutlineWidth",2f,0f,5f)
     /**
      * Draw element
      */
@@ -48,6 +52,10 @@ class Armor(x: Double = -8.0, y: Double = 57.0, scale: Float = 1F,
                     x += 18
                 else if (mode.equals("Vertical", true))
                     y += 18
+            }
+
+            if (outline.get()){
+                net.ccbluex.liquidbounce.utils.render.RenderUtils.drawGidentOutlinedRoundedRect(-1.0, 0.0, 72.0 ,20.0, 10.0,linewidth.get())
             }
 
             classProvider.getGlStateManager().enableAlpha()

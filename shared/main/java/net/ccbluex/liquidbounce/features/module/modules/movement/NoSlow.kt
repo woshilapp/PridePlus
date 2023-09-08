@@ -150,19 +150,11 @@ class NoSlow : Module() {
             "fullgrim" -> {
                 val item = heldItem?.item
                 if (classProvider.isItemBlock(item)) return
-                if (event.eventState == EventState.PRE && classProvider.isItemFood(item) ||
-                    classProvider.isItemPotion(item) || classProvider.isItemBucketMilk(item)) {
-                    if (mc.thePlayer!!.isUsingItem && mc.thePlayer!!.itemInUseCount >= 1) {
-                        mc2.connection!!.sendPacket(CPacketHeldItemChange((mc2.player.inventory.currentItem + 1) % 9))
-                        mc2.connection!!.sendPacket(CPacketHeldItemChange(mc2.player.inventory.currentItem))
-                    }
-                }
-                if (event.eventState == EventState.PRE && classProvider.isItemSword(item)) {
+                if (event.eventState == EventState.PRE && classProvider.isItemSword(item) && isBlocking) {
+                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerDigging(ICPacketPlayerDigging.WAction.RELEASE_USE_ITEM,
+                        WBlockPos.ORIGIN, classProvider.getEnumFacing(EnumFacingType.DOWN)))
                     mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerBlockPlacement(
-                        mc.thePlayer!!.inventory.getCurrentItemInHand()))
-                    mc2.connection!!.sendPacket(C08PacketPlayerBlockPlacement(
-                            getHytBlockpos(), 255,
-                            EnumHand.MAIN_HAND, 0f, 0f, 0f))
+                        WBlockPos(mc2.player.posX, mc2.player.posY, mc2.player.posZ), 255, heldItem, 0f, 0f, 0f))
                 }
             }
             "custom" -> {
@@ -174,13 +166,7 @@ class NoSlow : Module() {
                 mc.thePlayer!!.motionZ= mc.thePlayer!!.motionZ
             }
             "grimac"->{
-                if((event.eventState == EventState.PRE && mc.thePlayer!!.itemInUse != null && mc.thePlayer!!.itemInUse!!.item != null) && !mc.thePlayer!!.isBlocking && classProvider.isItemFood(mc.thePlayer!!.heldItem!!.item) || classProvider.isItemPotion(mc.thePlayer!!.heldItem!!.item)){
-                    if(mc.thePlayer!!.isUsingItem && mc.thePlayer!!.itemInUseCount >= 1){
-                        mc2.connection!!.sendPacket(CPacketHeldItemChange((mc2.player.inventory.currentItem+1)%9))
-                        mc2.connection!!.sendPacket(CPacketHeldItemChange(mc2.player.inventory.currentItem))
-                    }
-                }
-                if (event.eventState == EventState.PRE && classProvider.isItemSword(mc.thePlayer!!.heldItem!!.item)) {
+                if (event.eventState == EventState.PRE && classProvider.isItemSword(mc.thePlayer!!.heldItem!!.item) && isBlocking) {
                     mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerDigging(ICPacketPlayerDigging.WAction.RELEASE_USE_ITEM,
                         WBlockPos.ORIGIN, classProvider.getEnumFacing(EnumFacingType.DOWN)))
                     mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerBlockPlacement(mc.thePlayer!!.inventory.getCurrentItemInHand() as IItemStack))

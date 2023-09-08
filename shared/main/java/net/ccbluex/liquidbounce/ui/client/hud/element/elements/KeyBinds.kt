@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 
 import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.value.FloatValue
 import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.opengl.GL11
 import java.awt.Color
@@ -19,20 +20,25 @@ import java.awt.Color
 @ElementInfo(name = "KeyBinds")
 class KeyBinds : Element() {
     val onlyState = BoolValue("OnlyModuleState", true)
+    private val outline = BoolValue("Novo-Outline",false)
+    private val linewidth = FloatValue("OutlineWidth",2f,0f,5f)
     private var anmitY = 0F
     override fun drawElement(): Border? {
         var y2 = 0
         anmitY = RenderUtils.getAnimationState2(anmitY.toDouble(),(15 + getmoduley()).toFloat().toDouble(), 250.0).toFloat()
         if (true) {
             //draw Background
-            RenderUtils.drawRoundedRect(
+            RenderUtils.drawRoundRect(
                 0f,
                 0f,
                 114f,
                 anmitY,
-                20,
+                20F,
                 Color(0, 0, 0, 110).rgb
             )
+        }
+        if (outline.get()){
+            net.ccbluex.liquidbounce.utils.render.RenderUtils.drawGidentOutlinedRoundedRect(0.0, 0.0, 114.0 ,anmitY.toDouble(), 20.0,linewidth.get())
         }
 
 

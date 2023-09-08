@@ -26,6 +26,8 @@ import net.minecraft.network.play.client.CPacketEntityAction
 import net.minecraft.network.play.client.CPacketPlayer
 import net.minecraft.network.play.server.SPacketEntityVelocity
 import net.ccbluex.liquidbounce.api.minecraft.potion.PotionType
+import net.minecraft.network.play.client.CPacketPlayerDigging
+import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import java.util.concurrent.ThreadLocalRandom
@@ -41,7 +43,7 @@ class Velocity : Module() {
     private val horizontalValue = FloatValue("Horizontal", 0F, 0F, 1F)
     private val verticalValue = FloatValue("Vertical", 0F, 0F, 1F)
     private val velocityTickValue = IntegerValue("VelocityTick", 1, 0, 10)
-    private val modeValue = ListValue("Mode", arrayOf("Custom","Grim-D1ck","HytJump1","Grim-Reduce","Grim-Motion","HuaYuTing", "HuaYuTingJump", "Legit", "aac5.2.0", "AAC5Reduce", "Cancel", "Vulcan","Simple", "Vanilla", "Tick",  "AAC", "AACPush", "AACZero", "AACv4",
+    private val modeValue = ListValue("Mode", arrayOf("Custom","GrimAC", "Legit", "aac5.2.0", "AAC5Reduce", "Cancel", "Vulcan","Simple", "Vanilla", "Tick",  "AAC", "AACPush", "AACZero", "AACv4",
             "Reverse", "SmoothReverse", "Jump", "Glitch"), "Simple")
 
     private val onlyGroundValue = BoolValue("OnlyGround", false)
@@ -102,44 +104,6 @@ class Velocity : Module() {
                     if (customC06FakeLag.get()) mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosLook(thePlayer.posX, thePlayer.posY, thePlayer.posZ, thePlayer.rotationYaw, thePlayer.rotationPitch, thePlayer.onGround))
                 }
             }
-            "hytjump1" -> {
-                thePlayer.noClip = velocityInput
-
-                if (thePlayer.hurtTime == 7)
-                    thePlayer.motionX *= 0
-                thePlayer.motionZ *= 0
-                thePlayer.motionY = 0.42
-
-                mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(mc.thePlayer!!.posX, mc.thePlayer!!.posY, mc.thePlayer!!.posZ, true))
-            }
-            "grim-d1ck"->{
-                if (thePlayer.hurtTime > 0){
-                    thePlayer.motionX += -1.0E-7
-                    thePlayer.motionY += -1.0E-7
-                    thePlayer.motionZ += -1.0E-7
-                    thePlayer.isAirBorne = true
-                    thePlayer.motionY = 0.42
-                    val yaw = thePlayer.rotationYaw * 0.017453292F
-                    thePlayer.motionX -= sin(yaw) * 0.2
-                    thePlayer.motionZ += cos(yaw) * 0.2
-                }
-            }
-            "grim-reduce"->{
-                if (thePlayer.hurtTime > 0){
-                    thePlayer.motionX += -1.0E-7
-                    thePlayer.motionY += -1.0E-7
-                    thePlayer.motionZ += -1.0E-7
-                    thePlayer.isAirBorne = true
-                }
-            }
-            "grim-motion" -> {
-                if ( thePlayer.hurtTime > 0) {
-                    thePlayer.motionX += -1.1E-7
-                    thePlayer.motionY += -1.1E-7
-                    thePlayer.motionZ += -1.2E-7
-                    thePlayer.isAirBorne = true
-                }
-            }
             "jump" -> if (thePlayer.hurtTime > 0 && thePlayer.onGround) {
                 thePlayer.motionY = 0.42
 
@@ -172,22 +136,6 @@ class Velocity : Module() {
                     velocityInput = false
                 }
             }
-            "huayuting" -> {
-                if(mc.thePlayer!!.hurtTime > 0 && velocityInput) {
-                    if(mc.thePlayer!!.onGround) {
-                        mc.thePlayer!!.motionX *= (mc.thePlayer!!.motionX * 0.5651616516)
-                        mc.thePlayer!!.motionY *= (mc.thePlayer!!.motionX * 0.7765822507)
-                        mc.thePlayer!!.motionZ *= (mc.thePlayer!!.motionX * 0.5625582161)
-                        mc.thePlayer!!.onGround = false
-                    } else {
-                        mc.thePlayer!!.motionX *= (mc.thePlayer!!.motionX * 0.775161666)
-                        mc.thePlayer!!.onGround = true
-                        mc.thePlayer!!.motionZ *= (mc.thePlayer!!.motionZ * 0.771561651)
-                    }
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketEntityAction(mc.thePlayer!!, ICPacketEntityAction.WAction.START_SNEAKING))
-                    velocityInput = false
-                }
-            }
             "glitch" -> {
                 thePlayer.noClip = velocityInput
 
@@ -203,23 +151,6 @@ class Velocity : Module() {
                 }
                 if (velocityInput && (mc.thePlayer!!.hurtTime <5 || mc.thePlayer!!.onGround) && velocityTimer.hasTimePassed(120L)) {
                     velocityInput = false
-                }
-            }
-            "huayutingjump" -> {
-                if(mc.thePlayer!!.hurtTime > 0 && huayutingjumpflag) {
-                    if(mc.thePlayer!!.onGround){
-                        mc.thePlayer!!!!.hurtTime <= 6
-                        mc.thePlayer!!.motionX *= 0.600151164
-                        mc.thePlayer!!.motionZ *= 0.600151164
-                        mc.thePlayer!!.hurtTime <= 4
-                        mc.thePlayer!!.motionX *= 0.700151164
-                        mc.thePlayer!!.motionZ *= 0.700151164
-                    }else if(mc.thePlayer!!.hurtTime <= 9) {
-                        mc.thePlayer!!.motionX *= 0.6001421204
-                        mc.thePlayer!!.motionZ *= 0.6001421204
-                    }
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketEntityAction(mc.thePlayer!!, ICPacketEntityAction.WAction.START_SNEAKING))
-                    huayutingjumpflag = false
                 }
             }
             "reverse" -> {
@@ -362,11 +293,9 @@ class Velocity : Module() {
                 }
                 "NikoNiko","aac5reduce","aac",  "reverse", "smoothreverse", "aaczero" -> velocityInput = true
 
-                "cancel" -> {
+                "cancel","vanilla","grimac" -> {
                     event.cancelEvent()
-                }
-                "vanilla" -> {
-                    event.cancelEvent()
+                    velocityInput = true
                 }
                 "tick" -> {
                     velocityInput = true
@@ -471,6 +400,21 @@ class Velocity : Module() {
             }
             "aaczero" -> if (thePlayer.hurtTime > 0)
                 event.cancelEvent()
+        }
+    }
+    @EventTarget
+    fun onMotion(e: MotionEvent){
+        when (modeValue.get().toLowerCase()) {
+            "grimac" -> if (velocityInput){
+                if (e.eventState == EventState.PRE) {
+                    mc2.connection!!.sendPacket(
+                        CPacketPlayerDigging(
+                            CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK , BlockPos(mc.thePlayer!!.posX,
+                            mc.thePlayer!!.posY, mc.thePlayer!!.posZ ), EnumFacing.DOWN)
+                    )
+                    velocityInput = false
+                }
+            }
         }
     }
 }
