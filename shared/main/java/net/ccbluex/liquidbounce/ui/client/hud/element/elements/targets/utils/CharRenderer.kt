@@ -7,10 +7,8 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements.targets.utils
 
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.ccbluex.liquidbounce.utils.render.AnimationUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.minecraft.client.gui.ScaledResolution
-import op.utils.AnimationUtil
+import op.wawa.utils.AnimationUtil
 import org.lwjgl.opengl.GL11
 
 import java.text.DecimalFormat

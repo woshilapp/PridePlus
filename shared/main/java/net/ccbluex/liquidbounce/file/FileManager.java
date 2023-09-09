@@ -27,6 +27,7 @@ public class FileManager extends MinecraftInstance {
     public final File dir = new File(mc.getDataDir(), "PridePlus" + "-" + Backend.MINECRAFT_VERSION_MAJOR + "." + Backend.MINECRAFT_VERSION_MINOR);
     public final File fontsDir = new File(dir, "fonts");
     public final File settingsDir = new File(dir, "settings");
+    public final File configsDir = new File(dir, "configs");
 
     public final FileConfig modulesConfig = new ModulesConfig(new File(dir, "modules.json"));
     public final FileConfig valuesConfig = new ValuesConfig(new File(dir, "values.json"));

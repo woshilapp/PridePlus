@@ -98,9 +98,9 @@ class HUD : Module() {
             text = p+i+p2+u
         }
         if (prideBack.get().toLowerCase() == "off"){
-            mc.fontRendererObj.drawString(text+" B"+LiquidBounce.CLIENT_VERSION,2F,height - (mc.fontRendererObj.fontHeight + 2F),customTextColor,true)
+            mc.fontRendererObj.drawString(text+" "+LiquidBounce.CLIENT_VERSION,2F,height - (mc.fontRendererObj.fontHeight + 2F),customTextColor,true)
         }else{
-            mc.fontRendererObj.drawString(text+" B"+LiquidBounce.CLIENT_VERSION+", "+ back,2F,height - (mc.fontRendererObj.fontHeight + 2F),Color.WHITE.rgb,true)
+            mc.fontRendererObj.drawString(text+" "+LiquidBounce.CLIENT_VERSION+", "+ back,2F,height - (mc.fontRendererObj.fontHeight + 2F),Color.WHITE.rgb,true)
         }
 
         if (simpleFPS.get()) mc.fontRendererObj.drawString("FPS: " + mc.debugFPS,width / 2F - (mc.fontRendererObj.getStringWidth("FPS: " + mc.debugFPS) / 2F),1F,Color.WHITE.rgb,true)

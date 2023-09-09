@@ -33,25 +33,26 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.ClassUtils.hasForge
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.InventoryUtils
-import net.ccbluex.liquidbounce.utils.MinecraftInstance.mc
 import net.ccbluex.liquidbounce.utils.RotationUtils
-import net.ccbluex.liquidbounce.utils.misc.HttpUtils
-import net.minecraft.client.gui.GuiScreen
-import op.utils.QQUtils
+import op.wawa.utils.QQUtils
 import java.awt.SystemTray
 import java.awt.Toolkit
 import java.awt.TrayIcon
-import kotlin.system.exitProcess
 
 object LiquidBounce {
 
-
-    const val CLIENT_VERSION = 60
-    const val IN_DEV = true
+    // Client information
+    var CLIENT_NAME = "PridePlus"
+    const val CLIENT_VERSION = "NextGen1.0.0"
     const val CLIENT_CREATOR = "WaWa"
-    lateinit var mainMenu: GuiScreen
     const val MINECRAFT_VERSION = Backend.MINECRAFT_VERSION
     const val CLIENT_CLOUD = "https://cloud.liquidbounce.net/LiquidBounce"
+    @JvmField
+    val CLIENT_TITLE = listOf(
+        "你玩原神吗？",
+        "RainyFall233",
+        "Reborn"
+    ).random()
 
     var isStarting = false
 
@@ -69,18 +70,7 @@ object LiquidBounce {
     // HUD & ClickGUI
     lateinit var hud: HUD
 
-    var p = "Pr"
-    var i = "id"
-    var p2 = "ePl"
-    var u = "us"
-
-    // Client information
-    var CLIENT_NAME = p + i + p2 + u
-
     lateinit var clickGui: ClickGui
-
-    // Update information
-    var latestVersion = 0
 
     // Menu Background
     var background: IResourceLocation? = null
@@ -90,14 +80,14 @@ object LiquidBounce {
 
     lateinit var wrapper: Wrapper
 
-    fun displayTray(Title: String, Text: String, type: TrayIcon.MessageType?) {
+    fun displayTray(title: String, text: String, type: TrayIcon.MessageType?) {
         val tray = SystemTray.getSystemTray()
         val image = Toolkit.getDefaultToolkit().createImage("icon.png")
         val trayIcon = TrayIcon(image, "Tray Demo")
         trayIcon.isImageAutoSize = true
         trayIcon.toolTip = "System tray icon demo"
         tray.add(trayIcon)
-        trayIcon.displayMessage(Title, Text, type)
+        trayIcon.displayMessage(title, text, type)
     }
 
 
@@ -112,18 +102,7 @@ object LiquidBounce {
         qq = QQUtils.QQNumber
         if (qq == null) qq = "0"
 
-        if (qq == "2445626672"){
-            displayTray("PridePlus Checker","检测到刘梦 已结束游戏进程",TrayIcon.MessageType.WARNING)
-            exitProcess(0)
-            mc.shutdown()
-        }
-        if (!HttpUtils.get("https://gitcode.net/Darren_kool/Pr11Praa/raw/master/1.txt").contains(CLIENT_NAME)){
-            displayTray("PridePlus Checker","你改你妈字符串 你是刘梦吗？你妈妈撕掉了",TrayIcon.MessageType.WARNING)
-            exitProcess(0)
-            mc.shutdown()
-        }
-
-        ClientUtils.getLogger().info("Starting $CLIENT_NAME b$CLIENT_VERSION, by $CLIENT_CREATOR")
+        ClientUtils.getLogger().info("Starting $CLIENT_NAME $CLIENT_VERSION, by $CLIENT_CREATOR")
 
         // Create file manager
         fileManager = FileManager()
@@ -131,9 +110,14 @@ object LiquidBounce {
         // Crate event manager
         eventManager = EventManager()
 
+        // Create Combat Manager
+        combatManager = CombatManager()
+
+        // Create CNFont Loader
         fontLoaders = FontLoaders()
 
         // Register listeners
+        eventManager.registerListener(combatManager)
         eventManager.registerListener(RotationUtils())
         eventManager.registerListener(AntiForge())
         eventManager.registerListener(BungeeCordSpoof())
@@ -195,36 +179,8 @@ object LiquidBounce {
         hud = createDefault()
         fileManager.loadConfig(fileManager.hudConfig)
 
-        // Disable optifine fastrender
-        //ClientUtils.disableFastRender()
-
-/*        try {
-            // Read versions json from cloud
-            val jsonObj = JsonParser()
-                    .parse(HttpUtils.get("$CLIENT_CLOUD/versions.json"))
-
-            // Check json is valid object and has current minecraft version
-            if (jsonObj is JsonObject && jsonObj.has(MINECRAFT_VERSION)) {
-                // Get official latest client version
-                latestVersion = jsonObj[MINECRAFT_VERSION].asInt
-            }
-        } catch (exception: Throwable) { // Print throwable to console
-            ClientUtils.getLogger().error("Failed to check for updates.", exception)
-        }*/
-
         // Load generators
         GuiAltManager.loadGenerators()
-
-        // Setup Discord RPC
-/*        if (clientRichPresence.showRichPresenceValue) {
-            thread {
-                try {
-                    clientRichPresence.setup()
-                } catch (throwable: Throwable) {
-                    ClientUtils.getLogger().error("Failed to setup Discord RPC.", throwable)
-                }
-            }
-        }*/
 
         // Set is starting status
         isStarting = false

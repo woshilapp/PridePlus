@@ -144,7 +144,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
         return when (str) {
             "username" -> mc.session.username
             "clientname" -> LiquidBounce.CLIENT_NAME
-            "clientversion" -> "b${LiquidBounce.CLIENT_VERSION}"
+            "clientversion" -> LiquidBounce.CLIENT_VERSION
             "clientcreator" -> LiquidBounce.CLIENT_CREATOR
             "fps" -> mc.debugFPS.toString()
             "date" -> DATE_FORMAT.format(System.currentTimeMillis())

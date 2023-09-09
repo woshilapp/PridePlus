@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.*
 import net.ccbluex.liquidbounce.value.*
 import net.minecraft.client.renderer.GlStateManager
-import op.utils.AnimationUtil
+import op.wawa.utils.AnimationUtil
 import java.awt.Color
 
 import org.lwjgl.opengl.GL11

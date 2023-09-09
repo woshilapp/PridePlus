@@ -45,7 +45,7 @@ import kotlin.math.*
 
 @ModuleInfo(
     name = "ScaffoldNew",
-    description = "Sk1d by LemonHaikea 2997570499.", //别他妈改掉  马戈乐碧的 1.8实在难转 //wawa：感觉有点死号啊
+    description = "Sk1d by LemonHaikea 2997570499.", //别他妈改掉  马戈乐碧的 1.8实在难转
     category = ModuleCategory.WORLD
 )
 class Scaffold3 : Module() {

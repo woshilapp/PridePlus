@@ -207,7 +207,6 @@ class ModuleManager : Listenable {
             Scaffold2::class.java,//我傻了
                     //WaWaDisabler::class.java,
             CustomUI::class.java,
-            GrimNoSlow::class.java,
             Jamming::class.java
             // 下次一定优化重复啰嗦的功能
         )

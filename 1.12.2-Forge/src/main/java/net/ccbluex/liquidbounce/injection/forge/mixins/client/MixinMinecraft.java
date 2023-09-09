@@ -110,7 +110,7 @@ public abstract class MixinMinecraft {
 
     @Inject(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;setTitle(Ljava/lang/String;)V", shift = At.Shift.AFTER))
     private void createDisplay(CallbackInfo callbackInfo) {
-        Display.setTitle(LiquidBounce.INSTANCE.getCLIENT_NAME()+" Build "+LiquidBounce.CLIENT_VERSION+" | 复活了，但是感觉不如退圈 | RainyFall.Loser");
+        Display.setTitle(LiquidBounce.INSTANCE.getCLIENT_NAME()+" "+LiquidBounce.CLIENT_VERSION+" | "+LiquidBounce.CLIENT_TITLE);
     }
 
     @Inject(method = "displayGuiScreen", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;currentScreen:Lnet/minecraft/client/gui/GuiScreen;", shift = At.Shift.AFTER))

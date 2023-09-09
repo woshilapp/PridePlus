@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.value.BoolValue;
 import net.ccbluex.liquidbounce.value.FloatValue;
 import net.ccbluex.liquidbounce.value.IntegerValue;
 import net.ccbluex.liquidbounce.value.ListValue;
-import op.lbp.newVer.NewUi;
+import op.wawa.lbp.newVer.NewUi;
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;

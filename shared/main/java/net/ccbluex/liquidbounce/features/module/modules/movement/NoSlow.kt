@@ -44,10 +44,11 @@ import java.util.*
 class NoSlow : Module() {
 
     private val modeValue = ListValue("PacketMode", arrayOf("None",
-        "GrimAC",
-        "FullGrim",
         "Vanilla",
+        "GrimAC",
+        "GrimTest",
         "NoPacket",
+        "FakeBlock",
         "AAC",
         "AAC5",
         "Matrix",
@@ -146,15 +147,13 @@ class NoSlow : Module() {
         }
 
         when(modeValue.get().toLowerCase()) {
-
-            "fullgrim" -> {
+            "grimtest" -> {
                 val item = heldItem?.item
                 if (classProvider.isItemBlock(item)) return
                 if (event.eventState == EventState.PRE && classProvider.isItemSword(item) && isBlocking) {
                     mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerDigging(ICPacketPlayerDigging.WAction.RELEASE_USE_ITEM,
                         WBlockPos.ORIGIN, classProvider.getEnumFacing(EnumFacingType.DOWN)))
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerBlockPlacement(
-                        WBlockPos(mc2.player.posX, mc2.player.posY, mc2.player.posZ), 255, heldItem, 0f, 0f, 0f))
+                    mc2.connection!!.sendPacket(CPacketPlayerTryUseItemOnBlock(BlockPos(-1,-1,-1), EnumFacing.DOWN, EnumHand.MAIN_HAND, 0F, 0F, 0F))
                 }
             }
             "custom" -> {
@@ -204,6 +203,11 @@ class NoSlow : Module() {
                 return
             }
             packetBuf.add(packet as Packet<INetHandlerPlayServer>)
+        }
+        if (modeValue.equals("FakeBlock")){
+            if (isBlocking && packet.unwrap() is CPacketPlayerTryUseItemOnBlock){
+                event.cancelEvent()
+            }
         }
         if (event.packet.unwrap() is SPacketWindowItems) {
             if (mc.thePlayer!!.isUsingItem) {

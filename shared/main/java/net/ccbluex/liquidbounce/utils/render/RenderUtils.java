@@ -739,6 +739,9 @@ public final class RenderUtils extends MinecraftInstance {
     public static void drawShadow2(int x, int y, float width, float height) {
         drawImage(classProvider.createResourceLocation("pride/shadow/shadow_250_125.png"), x - 25, y - 25, (int) (width + 50), (int) (height + 50));
     }
+    public static void drawShadow2(int x, int y, float width, float height, float alpha) {
+        drawImage3(new ResourceLocation("pride/shadow/shadow_250_125.png"), x - 25, y - 25, (int) (width + 50), (int) (height + 50),0,0,0, alpha);
+    }
     public static void drawShadowWithCustomAlpha(float x, float y, float width, float height, float alpha) {
         drawTexturedRectWithCustomAlpha(x - 9, y - 9, 9, 9, "paneltopleft", alpha);
         drawTexturedRectWithCustomAlpha(x - 9, y + height, 9, 9, "panelbottomleft", alpha);

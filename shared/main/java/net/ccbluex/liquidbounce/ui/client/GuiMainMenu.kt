@@ -7,7 +7,6 @@ package net.ccbluex.liquidbounce.ui.client
 
 
 import me.utils.render.BlurUtils
-import me.utils.render.GaussianBlur
 import me.utils.render.StencilUtil
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.api.minecraft.client.gui.IGuiButton
@@ -15,76 +14,64 @@ import net.ccbluex.liquidbounce.api.util.WrappedGuiScreen
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.render.RoundedUtil
 import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
 class GuiMainMenu : WrappedGuiScreen() {
 
-    private val backgroundResource = classProvider.createResourceLocation("pride/menu/funny.png")
+    private val backgroundResource = classProvider.createResourceLocation("wawa/mainmenu.png")
 
-    private val blurredRect = classProvider.createResourceLocation("pride/menu/rect-test.png")
+    private val icon = classProvider.createResourceLocation("pride/big.png")
 
+    // Background
     private var currentX = 0f
     private var currentY = 0f
-    var arrayList: ArrayList<me.ui.IGuiButton> = ArrayList<me.ui.IGuiButton>()
+
     override fun initGui() {
         val defaultHeight = representedScreen.height / 2f - 20 / 2f - 57
 
-        representedScreen.buttonList.add(classProvider.createGuiButton(100, representedScreen.width / 2 - 70,
-            (defaultHeight + 96).toInt(), 140, 20, "AltManager"))
-        representedScreen.buttonList.add(classProvider.createGuiButton(102, representedScreen.width / 2 - 70,
-            (defaultHeight + 72).toInt(), 140, 20, "Background"))
+        representedScreen.buttonList.add(classProvider.createGuiButton(100, 20,
+            (defaultHeight + 96).toInt(), 100, 20, "AltManager"))
+        representedScreen.buttonList.add(classProvider.createGuiButton(102, 20,
+            (defaultHeight + 72).toInt(), 100, 20, "Background"))
 
-        representedScreen.buttonList.add(classProvider.createGuiButton(1, representedScreen.width / 2 - 70,
-            (defaultHeight+24).toInt(), 140, 20, "SinglePlayer"))
-        representedScreen.buttonList.add(classProvider.createGuiButton(2, representedScreen.width / 2 - 70,
-            (defaultHeight+48).toInt(), 140, 20,"MulitPlayer"))
-        // Minecraft Realms
-        //		this.buttonList.add(new classProvider.createGuiButton(14, this.width / 2 - 100, j + 24 * 2, I18n.format("menu.online", new Object[0])));
-        representedScreen.buttonList.add(classProvider.createGuiButton(0, representedScreen.width / 2 - 70,
-            (defaultHeight + 120).toInt(), 140, 20, "Options"))
-        representedScreen.buttonList.add(classProvider.createGuiButton(4, representedScreen.width / 2 - 70,
-            (defaultHeight + 144).toInt(), 140, 20, "Quit"))
+        representedScreen.buttonList.add(classProvider.createGuiButton(1, 20,
+            (defaultHeight+24).toInt(), 100, 20, "SinglePlayer"))
+        representedScreen.buttonList.add(classProvider.createGuiButton(2, 20,
+            (defaultHeight+48).toInt(), 100, 20,"MulitPlayer"))
+
+        representedScreen.buttonList.add(classProvider.createGuiButton(0, 20,
+            (defaultHeight + 120).toInt(), 100, 20, "Options"))
+        representedScreen.buttonList.add(classProvider.createGuiButton(4, 20,
+            (defaultHeight + 144).toInt(), 100, 20, "Quit"))
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        val sr = ScaledResolution(mc2)
-        val width = sr.scaledWidth
-        val height = sr.scaledHeight
-        RenderUtils.drawImage(backgroundResource, 0, 0, width, height)
-        val outlineImgWidth = 688 / 2f
-        val outlineImgHeight = 681 / 2f
-        RenderUtils.drawImage(
-            blurredRect, (width / 2f - outlineImgWidth / 2f).toInt(), (height / 2f - outlineImgHeight / 2f).toInt(),
-            outlineImgWidth.toInt(), outlineImgHeight.toInt()
-        )
-/*        if (dev.tenacity.ui.mainmenu.CustomMainMenu.animatedOpen) {
-            //    tenacityFont80.drawCenteredString("Tenacity", width / 2f, height / 2f - 110, Color.WHITE.getRGB());
-            //    tenacityFont32.drawString(Tenacity.VERSION, width / 2f + tenacityFont80.getStringWidth("Tenacity") / 2f - (tenacityFont32.getStringWidth(Tenacity.VERSION) / 2f), height / 2f - 113, Color.WHITE.getRGB());
-        }*/
-        GL11.glEnable(GL11.GL_BLEND)
-        StencilUtil.initStencilToWrite()
-        StencilUtil.readStencilBuffer(1)
-        val circleW = 174 / 2f
-        val circleH = 140 / 2f
-        val rs = classProvider.createResourceLocation("pride/menu/circle-funny.png")
-        mc.textureManager.bindTexture(rs)
-        RenderUtils.drawImage(rs, (mouseX - circleW / 2F).toInt(), (mouseY - circleH / 2f).toInt(),
-            circleW.toInt(), circleH.toInt()
-        )
-        StencilUtil.uninitStencilBuffer()
-        Fonts.fontBold120.drawCenteredString("PridePlus", width / 2f, height / 2f - 110, Color.WHITE.rgb,true)
-        Fonts.bold35.drawString(
-            "B"+LiquidBounce.CLIENT_VERSION,
-            width / 2f + Fonts.fontBold120.getStringWidth("PridePlus") / 2f - Fonts.bold35.getStringWidth("B"+LiquidBounce.CLIENT_VERSION) / 2f,
-            height / 2f - 113,
-            Color.WHITE.rgb,true
-        )
 
-        Fonts.bold30.drawCenteredString("by WaWa", width / 2f, height / 2f - 68, Color.WHITE.rgb,true)
+        val res = ScaledResolution(mc2)
+        val width = representedScreen.width
+        val height = representedScreen.height
+
+        // Background
+        val xDiff: Float = ((mouseX - height / 2).toFloat() - this.currentX) / res.scaleFactor.toFloat()
+        val yDiff: Float = ((mouseY - width / 2).toFloat() - this.currentY) / res.scaleFactor.toFloat()
+        this.currentX += xDiff * 0.2f
+        this.currentY += yDiff * 0.2f
+
+        GlStateManager.translate(this.currentX / 30.0f, this.currentY / 15.0f, 0.0f)
+        RenderUtils.drawImage(backgroundResource, -30, -30, width + 60, height + 60)
+        GlStateManager.translate(-this.currentX / 30.0f, -this.currentY / 15.0f, 0.0f)
+
+        // Rect
+        BlurUtils.blurArea(0F, 0F, 140F, height.toFloat(), 25F)
+        RenderUtils.drawShadow(0, 0, 140, height)
+
+        // Logo
+        RenderUtils.drawImage(icon,35, (height / 2f - 120).toInt(), 70, 70)
+
         representedScreen.superDrawScreen(mouseX, mouseY, partialTicks)
     }
 
