@@ -88,6 +88,7 @@ dependencies {
     compile 'com.jagrosh:DiscordIPC:0.4'
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlin_version
 
+    implementation group: 'org.yaml', name: 'snakeyaml', version: '2.2'
 
     implementation('commons-io:commons-io') {
         version {build
