@@ -3,6 +3,7 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.misc.germ.GermButton
@@ -22,7 +23,7 @@ import org.yaml.snakeyaml.Yaml
  */
 //参考了MinClient
 @ModuleInfo(name = "Germ", category = ModuleCategory.MISC, description = "萌芽引擎代替品 只供学习使用")
-class Germ {
+class Germ : Module() {
     fun onPacket(event: PacketEvent?) {
         val packet = event!!.packet.unwrap()
         if (packet is SPacketCustomPayload) {
