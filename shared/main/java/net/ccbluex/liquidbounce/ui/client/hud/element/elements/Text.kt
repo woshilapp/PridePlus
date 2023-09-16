@@ -10,6 +10,7 @@ import me.utils.render.Palette2
 import me.utils.render.UiUtils2
 import me.utils.render.VisualUtils
 import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
@@ -23,7 +24,6 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawGradientSideways
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowFontShader
-import net.ccbluex.liquidbounce.value.*
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 import java.text.DecimalFormat
@@ -36,7 +36,7 @@ import kotlin.math.sqrt
  * Allows to draw custom text
  */
 @ElementInfo(name = "Text")
-class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
+class Text(x: Double = 87.60, y: Double = 6.80, scale: Float = 1F,
            side: Side = Side.default()) : Element(x, y, scale, side) {
 
     companion object {
@@ -52,7 +52,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
         fun defaultClient(): Text {
             val text = Text(x = 2.0, y = 2.0, scale = 1F)
 
-            text.displayString.set("PridePlus  #230908")
+            text.displayString.set("PridePlus | Name: %username% | Ping: %ping%")
             text.shadow.set(true)
             text.fontValue.set(Fonts.minecraftFont)
             text.setColor(Color(200, 50, 50))
@@ -62,8 +62,8 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
     }
 
     private val displayString = TextValue("DisplayText", "")
-    private val rectMode = ListValue("RectMode", arrayOf("None","Line","Background", "OneTap", "Skeet", "Slide"),"Line")
-    private val colorModeValue = ListValue("Text-Color", arrayOf("Custom" , "Fade", "Gident"), "Fade")
+    private val rectMode = ListValue("RectMode", arrayOf("None","Line","Background", "OneTap", "Skeet", "Slide"),"Background")
+    private val colorModeValue = ListValue("Text-Color", arrayOf("Custom" , "Fade", "Gident"), "Custom")
     private val redValue = IntegerValue("Red", 255, 0, 255)
     private val greenValue = IntegerValue("Green", 255, 0, 255)
     private val blueValue = IntegerValue("Blue", 255, 0, 255)
@@ -73,18 +73,19 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
     private val bgredValue = IntegerValue("Background-Red", 0, 0, 255)
     private val bggreenValue = IntegerValue("Background-Green", 0, 0, 255)
     private val bgblueValue = IntegerValue("Background-Blue", 0, 0, 255)
-    private val bgalphaValue = IntegerValue("Background-Alpha", 120, 0, 255)
+    private val bgalphaValue = IntegerValue("Background-Alpha", 125, 0, 255)
+    private val radiusValue = FloatValue("Background-Radius", 3.00f, 0f, 10f)
     private val amountValue = IntegerValue("Amount", 25, 1, 50)
     private val gidentspeed = IntegerValue("GidentSpeed", 100, 1, 1000)
     private val distanceValue = IntegerValue("Distance", 0, 0, 400)
     private val rainbowX = FloatValue("Rainbow-X", -1000F, -2000F, 2000F)
     private val rainbowY = FloatValue("Rainbow-Y", -1000F, -2000F, 2000F)
-    private val shadow = BoolValue("Shadow", false)
+    private val shadow = BoolValue("Shadow", true)
 
-    private val outline = BoolValue("Novo-Outline",false)
-    private val linewidth = FloatValue("OutlineWidth",2f,0f,5f)
+/*    private val outline = BoolValue("Outline",true)
+    private val linewidth = FloatValue("OutlineWidth",2f,0f,5f)*/
 
-    private var fontValue = FontValue("Font", Fonts.minecraftFont)
+    private var fontValue = FontValue("Font", Fonts.fontSFUI40)
 
     private var editMode = false
     private var editTicks = 0
@@ -95,7 +96,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
     private val display: String
         get() {
             val textContent = if (displayString.get().isEmpty() && !editMode)
-                "Text Element"
+                "PridePlus | Name: %username% | Ping: %ping%"
             else
                 displayString.get()
 
@@ -204,9 +205,9 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
         val charArray2 = displayText.toCharArray()
         var length2 = 4.5f
 
-        if (outline.get()){
-            net.ccbluex.liquidbounce.utils.render.RenderUtils.drawGidentOutlinedRoundedRect(-0.1, -0.1, fontRenderer.getStringWidth(displayText).toDouble() ,fontRenderer.fontHeight+0.1, 10.0,linewidth.get())
-        }
+//        if (outline.get()){
+//            op.wawa.utils.render.RenderUtils.drawGidentOutlinedRoundedRect(-0.1, -0.1, fontRenderer.getStringWidth(displayText).toDouble() ,fontRenderer.fontHeight+0.1, radiusValue.get().toDouble(),linewidth.get())
+//        }
 
         when (rectMode.get()) {
             "Line" -> {
@@ -247,7 +248,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
             }
 
             "Background"-> {
-                RenderUtils.drawRect(-2F, -2F, (length2), fontRenderer.fontHeight + 0F, Color(bgredValue.get(), bggreenValue.get(), bgblueValue.get(), bgalphaValue.get()))
+                RenderUtils.drawRoundRect(-2F, -2F, fontRenderer.getStringWidth(displayText)+2F, fontRenderer.fontHeight + 0F, radiusValue.get(), Color(bgredValue.get(), bggreenValue.get(), bgblueValue.get(), bgalphaValue.get()).rgb)
             }
             "OneTap"-> {
                 RenderUtils.drawRect(-4.0f, -8.0f, (fontRenderer.getStringWidth(displayText) + 3).toFloat(), fontRenderer.fontHeight.toFloat(), Color(43,43,43).rgb)

@@ -78,6 +78,15 @@ public class QQUtils {
         return map;
     }
 
+    /******
+     * getLoginQQList但是返回QQ号
+     * @return map集合
+     */
+    public static String getLoginQQNumber(){
+        getLoginQQList();
+        return QQNumber;
+    }
+
 
     /****
      * 过滤有效qq窗体信息

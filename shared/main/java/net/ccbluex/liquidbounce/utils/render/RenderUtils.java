@@ -44,7 +44,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Math.*;
-import static me.utils.render.ScaleUtils.fadeBetween;
+import static op.wawa.utils.render.ScaleUtils.fadeBetween;
 import static net.ccbluex.liquidbounce.utils.MathUtils.interpolateFloat;
 import static org.lwjgl.opengl.GL11.*;
 

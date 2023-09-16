@@ -14,17 +14,17 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.features.module.ModuleInfo;
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.*;
 import net.ccbluex.liquidbounce.utils.render.ColorUtils;
-import net.ccbluex.liquidbounce.value.BoolValue;
-import net.ccbluex.liquidbounce.value.FloatValue;
-import net.ccbluex.liquidbounce.value.IntegerValue;
-import net.ccbluex.liquidbounce.value.ListValue;
+import net.ccbluex.liquidbounce.features.value.BoolValue;
+import net.ccbluex.liquidbounce.features.value.FloatValue;
+import net.ccbluex.liquidbounce.features.value.IntegerValue;
+import net.ccbluex.liquidbounce.features.value.ListValue;
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
 
 @ModuleInfo(name = "ClickGUI", description = "Opens the ClickGUI.", category = ModuleCategory.RENDER, keyBind = Keyboard.KEY_RSHIFT, canEnable = false)
 public class ClickGUI extends Module {
-    private final ListValue styleValue = new ListValue("Style", new String[] {"LiquidBounce", "Null", "Slowly"}, "Null") {
+    private final ListValue styleValue = new ListValue("Style", new String[] {"LiquidBounce", "Null", "Slowly", "Astolfo", "Jello", "New"}, "Null") {
         @Override
         protected void onChanged(final String oldValue, final String newValue) {
             updateStyle();
@@ -61,6 +61,15 @@ public class ClickGUI extends Module {
                 break;
             case "slowly":
                 LiquidBounce.clickGui.style = new SlowlyStyle();
+                break;
+            case "astolfo" :
+                LiquidBounce.clickGui.style = new AstolfoStyle();
+                break;
+            case "jello" :
+                LiquidBounce.clickGui.style = new JelloStyle();
+                break;
+            case "new" :
+                LiquidBounce.clickGui.style = new NewStyle();
                 break;
         }
     }

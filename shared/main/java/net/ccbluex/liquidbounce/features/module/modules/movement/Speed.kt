@@ -18,9 +18,9 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.vulcan.V
 import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.vulcan.VulcanHop2
 import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.vulcan.VulcanYPort
 import net.ccbluex.liquidbounce.utils.MovementUtils
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.ListValue
 import java.util.*
 
 @ModuleInfo(name = "Speed", description = "Allows you to move faster.", category = ModuleCategory.MOVEMENT)

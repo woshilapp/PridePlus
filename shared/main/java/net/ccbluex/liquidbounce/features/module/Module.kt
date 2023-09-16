@@ -10,15 +10,14 @@ import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.injection.backend.Backend
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
+import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
 import net.ccbluex.liquidbounce.utils.render.Translate
-import net.ccbluex.liquidbounce.value.Value
+import net.ccbluex.liquidbounce.features.value.Value
 import org.lwjgl.input.Keyboard
 
 open class Module() : MinecraftInstance(), Listenable {
-    var isSupported: Boolean
-
     // Module information
     // TODO: Remove ModuleInfo and change to constructor (#Kotlin)
     var animation = 0F
@@ -53,7 +52,6 @@ open class Module() : MinecraftInstance(), Listenable {
         keyBind = moduleInfo.keyBind
         array = moduleInfo.array
         canEnable = moduleInfo.canEnable
-        isSupported = Backend.REPRESENTED_BACKEND_VERSION in moduleInfo.supportedVersions
     }
 
     // Current state of module
@@ -67,17 +65,23 @@ open class Module() : MinecraftInstance(), Listenable {
 
             // Play sound and add notification
             if (!LiquidBounce.isStarting) {
-                mc.soundHandler.playSound("random.click", 1F)
+                //mc.soundHandler.playSound("random.click", 1F)
                 LiquidBounce.hud.addNotification(Notification("Module","${if (value) "Enabled " else "Disabled "}$name", if(value) NotifyType.SUCCESS else NotifyType.ERROR))
             }
 
             // Call on enabled or disabled
             if (value) {
+                // Enable Sound
+                LiquidBounce.tipSoundManager.enableSound.asyncPlay()
+
                 onEnable()
 
                 if (canEnable)
                     field = true
             } else {
+                // Disable Sound
+                LiquidBounce.tipSoundManager.disableSound.asyncPlay()
+
                 onDisable()
                 field = false
             }
@@ -134,10 +138,7 @@ open class Module() : MinecraftInstance(), Listenable {
      * Get all values of module
      */
     open val values: List<Value<*>>
-        get() = javaClass.declaredFields.map { valueField ->
-            valueField.isAccessible = true
-            valueField[this]
-        }.filterIsInstance<Value<*>>().filter { it.isSupported }
+        get() = ClassUtils.getValues(this.javaClass, this)
 
     /**
      * Events should be handled when module is enabled

@@ -1,7 +1,7 @@
 package op.wawa.lbp.newVer.element.module.value
 
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.ccbluex.liquidbounce.value.Value
+import net.ccbluex.liquidbounce.features.value.Value
 
 import java.awt.Color
 

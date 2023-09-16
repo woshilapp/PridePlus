@@ -28,6 +28,7 @@ public class FileManager extends MinecraftInstance {
     public final File fontsDir = new File(dir, "fonts");
     public final File settingsDir = new File(dir, "settings");
     public final File configsDir = new File(dir, "configs");
+    public final File soundsDir = new File(dir, "sounds");
 
     public final FileConfig modulesConfig = new ModulesConfig(new File(dir, "modules.json"));
     public final FileConfig valuesConfig = new ValuesConfig(new File(dir, "values.json"));
@@ -36,9 +37,7 @@ public class FileManager extends MinecraftInstance {
     public final FriendsConfig friendsConfig = new FriendsConfig(new File(dir, "friends.json"));
     public final FileConfig xrayConfig = new XRayConfig(new File(dir, "xray-blocks.json"));
     public final FileConfig hudConfig = new HudConfig(new File(dir, "hud.json"));
-    public final FileConfig shortcutsConfig = new ShortcutsConfig(new File(dir, "shortcuts.json"));
-
-    public final File backgroundFile = new File(dir, "userbackground.png");
+    public final FileConfig shortcutsConfig = new ShortcutsConfig(new File(dir, "shortcuts.json"));public final File backgroundFile = new File(dir, "userbackground.png");
 
     public boolean firstStart =  false;
 
@@ -61,6 +60,9 @@ public class FileManager extends MinecraftInstance {
             dir.mkdir();
             firstStart = true;
         }
+
+        if(!soundsDir.exists())
+            soundsDir.mkdir();
 
         if(!fontsDir.exists())
             fontsDir.mkdir();

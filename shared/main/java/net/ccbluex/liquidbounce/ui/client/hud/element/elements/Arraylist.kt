@@ -7,11 +7,12 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 
 
-import me.utils.render.BlurUtils
+import op.wawa.utils.render.BlurUtils
 import me.utils.render.ShadowUtils
 import me.utils.render.VisualUtils
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
@@ -22,7 +23,6 @@ import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer
 import net.ccbluex.liquidbounce.ui.font.Fonts
 
 import net.ccbluex.liquidbounce.utils.render.*
-import net.ccbluex.liquidbounce.value.*
 import net.minecraft.client.renderer.GlStateManager
 import op.wawa.utils.AnimationUtil
 import java.awt.Color

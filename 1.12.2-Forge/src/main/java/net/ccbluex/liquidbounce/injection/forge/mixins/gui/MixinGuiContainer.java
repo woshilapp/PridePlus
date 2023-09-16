@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
-import me.animation.EaseUtils;
+import op.wawa.utils.animation.EaseUtils;
 import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner;

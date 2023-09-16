@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.world.Fucker
 import net.ccbluex.liquidbounce.utils.block.BlockUtils
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
-import net.ccbluex.liquidbounce.value.BlockValue
+import net.ccbluex.liquidbounce.features.value.BlockValue
 
 @ModuleInfo(name ="NoFucker", description = "CNM", category = ModuleCategory.MISC)
 class NoFucker: Module(){

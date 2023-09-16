@@ -7,8 +7,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.minecraft.entity.EntityLivingBase
 import net.ccbluex.liquidbounce.event.AttackEvent
 import net.ccbluex.liquidbounce.event.MotionEvent
@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.minecraft.util.EnumParticleTypes
 import net.minecraft.init.Blocks
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.block.Block
 import net.minecraft.entity.effect.EntityLightningBolt
 import net.minecraft.network.play.server.SPacketSpawnGlobalEntity

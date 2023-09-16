@@ -1,12 +1,11 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.utils.JammingUtils
-import net.ccbluex.liquidbounce.value.TextValue
+import net.ccbluex.liquidbounce.features.value.TextValue
 
 
 @ModuleInfo(name = "Jamming", description = "woc, esu!", category = ModuleCategory.MISC)

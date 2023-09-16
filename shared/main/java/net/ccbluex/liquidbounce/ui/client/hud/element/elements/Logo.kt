@@ -9,10 +9,11 @@ import com.google.gson.JsonElement
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
+import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.utils.misc.MiscUtils
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.value.TextValue
+import net.ccbluex.liquidbounce.features.value.TextValue
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.nio.file.Files
@@ -26,7 +27,8 @@ import javax.imageio.ImageIO
  * Draw custom image
  */
 @ElementInfo(name = "Logo")
-class Logo : Element() {
+class Logo(x: Double = 20.33, y: Double = 16.00, scale: Float = 0.30F,
+           side: Side = Side.default()) : Element(x, y, scale, side) {
 
     companion object {
 
@@ -44,16 +46,16 @@ class Logo : Element() {
 
     }
 
-    private var width = 64
-    private var height = 64
+    private var width = 256
+    private var height = 256
 
     /**
      * Draw element
      */
     override fun drawElement(): Border {
-        RenderUtils.drawImage4("pride/icon128.png", 0, 0, width / 2, height / 2)
+        RenderUtils.drawImage4("pride/big.png", 0, 0, width, height)
 
-        return Border(0F, 0F, width / 2F, height / 2F)
+        return Border(0F, 0F, width.toFloat(), height.toFloat())
     }
 
 }

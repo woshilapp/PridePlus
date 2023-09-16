@@ -18,7 +18,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import op.wawa.utils.AnimationUtil;
 import op.wawa.utils.ClickEffect;
-import op.wawa.utils.QQUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -115,7 +114,7 @@ public class NewUi extends GuiScreen {
                 try {
                     mc.getTextureManager().loadTexture(
                             (ResourceLocation) new ResourceLocation("sb"),
-                            (AbstractTexture) new DynamicTexture(ImageIO.read(new URL("https://q.qlogo.cn/headimg_dl?dst_uin=" + QQUtils.QQNumber + "&spec=640&img_type=png"))));
+                            (AbstractTexture) new DynamicTexture(ImageIO.read(new URL("https://q.qlogo.cn/headimg_dl?dst_uin=" + LiquidBounce.userQQ + "&spec=640&img_type=png"))));
                             got = true;
 
                 } catch (IOException e) {

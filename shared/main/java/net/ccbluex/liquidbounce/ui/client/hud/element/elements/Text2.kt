@@ -5,21 +5,18 @@
  */
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-import me.utils.render.VisualUtils.skyRainbow
 import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.cnfont.FontLoaders
-import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.CPSCounter
-import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.ServerUtils
 import net.ccbluex.liquidbounce.utils.extensions.getPing
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.value.*
 import net.minecraft.client.Minecraft
 import org.lwjgl.input.Keyboard
 import java.awt.Color
@@ -32,7 +29,7 @@ import kotlin.math.sqrt
  *
  * Allows to draw custom text
  */
-@ElementInfo(name = "Text2")
+@ElementInfo(name = "CNText")
 class Text2(
     x: Double = 10.0,
     y: Double = 10.0,
@@ -73,7 +70,7 @@ class Text2(
     private val display: String
         get() {
             val textContent = if (displayString.get().isEmpty() && !editMode) {
-                "Text Element"
+                "PridePlus"
             } else {
                 displayString.get()
             }

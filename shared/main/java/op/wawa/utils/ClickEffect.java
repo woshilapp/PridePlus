@@ -1,6 +1,7 @@
 package op.wawa.utils;
 
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
+import op.wawa.utils.animation.SimpleAnimation;
 
 import java.awt.*;
 

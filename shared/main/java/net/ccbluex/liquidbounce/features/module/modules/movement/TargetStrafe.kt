@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import me.manager.ColorManager
+import op.wawa.manager.ColorManager
 import me.utils.player.PlayerUtil
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntityLivingBase
@@ -13,10 +13,9 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.ListValue
-import net.minecraft.entity.EntityLivingBase
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.ListValue
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 import kotlin.math.*

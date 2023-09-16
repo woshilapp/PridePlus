@@ -29,6 +29,10 @@ import net.ccbluex.liquidbounce.features.module.modules.misc.Teams
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.features.module.modules.render.FreeCam
 import net.ccbluex.liquidbounce.features.module.modules.render.OldHitting
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.injection.backend.Backend
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer.Companion.getColorIndex
 import net.ccbluex.liquidbounce.utils.*
@@ -42,17 +46,12 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils.LiquidSlowly
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.fade
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.client.settings.KeyBinding
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.effect.EntityLightningBolt
 import net.minecraft.item.ItemSword
 import net.minecraft.network.play.client.CPacketPlayerDigging
 import net.minecraft.network.play.client.CPacketPlayerTryUseItem
-import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock
 import net.minecraft.network.play.server.SPacketSpawnGlobalEntity
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
@@ -113,7 +112,6 @@ class KillAura : Module() {
     val keepSprintValue = BoolValue("KeepSprint", true)
     private val stopSprintAir = BoolValue("StopSprintOnAir",true)
     val AirBypass = BoolValue("AirBypass",true)
-    private val hyt180fovfixValue = BoolValue("Hyt180FovFix",true)
 
 
     // AutoBlock
@@ -159,7 +157,7 @@ class KillAura : Module() {
     private val rotations = ListValue("RotationMode", arrayOf("None", "New", "Liquidbounce","BackTrack", "Test","Test1", "Test2", "HytRotation","Down"), "New")
     private val outborderValue = BoolValue("Outborder", false)
     private val silentRotationValue = BoolValue("SilentRotation", true)
-    private val rotationStrafeValue = ListValue("Strafe", arrayOf("Off", "Strict", "Silent"), "Off")
+    private val rotationStrafeValue = ListValue("Strafe", arrayOf("Off", "Strict", "Silent", "Smart"), "Off")
     val fovValue = FloatValue("FOV", 180f, 0f, 180f)
     private val hitableValue = BoolValue("AlwaysHitable",true)
     // Predict
@@ -210,7 +208,7 @@ class KillAura : Module() {
     private val jelloFadeSpeedValue =
         FloatValue("JelloFadeSpeed", 0.1f, 0.01f, 0.5f)
     private val fakeSharpValue = BoolValue("FakeSharp", true)
-    private val circleValue=BoolValue("Circle",true)
+    private val circleValue= BoolValue("Circle",true)
     private val circleRed = IntegerValue("CircleRed", 255, 0, 255)
     private val circleGreen = IntegerValue("CircleGreen", 255, 0, 255)
     private val circleBlue = IntegerValue("CircleBlue", 255, 0, 255)
@@ -362,6 +360,44 @@ class KillAura : Module() {
                     RotationUtils.targetRotation.applyStrafeToPlayer(event)
                     event.cancelEvent()
                 }
+                "smart" ->{
+                    if (RotationUtils.getRotationDifference(target) > 40.0) {
+                        val (yaw) = RotationUtils.targetRotation ?: return
+                        var strafe = event.strafe
+                        var forward = event.forward
+                        val friction = event.friction
+
+                        var f = strafe * strafe + forward * forward
+
+                        if (f >= 1.0E-4F) {
+                            f = sqrt(f)
+
+                            if (f < 1.0F)
+                                f = 1.0F
+
+                            f = friction / f
+                            strafe *= f
+                            forward *= f
+
+                            val yawSin = sin((yaw * Math.PI / 180F).toFloat())
+                            val yawCos = cos((yaw * Math.PI / 180F).toFloat())
+
+                            val player = mc.thePlayer!!
+
+                            player.motionX += strafe * yawCos - forward * yawSin
+                            player.motionZ += forward * yawCos + strafe * yawSin
+                        }
+                        if (!mc2.player.onGround){
+                            mc2.player.isSprinting = false
+                        }
+                        event.cancelEvent()
+                    } else {
+                        update()
+
+                        RotationUtils.targetRotation.applyStrafeToPlayer(event)
+                        event.cancelEvent()
+                    }
+                }
             }
         }
     }
@@ -417,14 +453,6 @@ class KillAura : Module() {
                 if(rotations.get() != "Down") rotationStrafeValue.set("Down")
             } else {
                 if(rotations.get() != "Test") rotationStrafeValue.set("Test")
-            }
-        }
-
-        if (hyt180fovfixValue.get()) {
-            if (RotationUtils.getRotationDifference(target) > 50.0) {
-                if(rotationStrafeValue.get() != "Strict") rotationStrafeValue.set("Strict")
-            } else {
-                if(rotationStrafeValue.get() != "Silent") rotationStrafeValue.set("Silent")
             }
         }
 

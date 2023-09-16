@@ -19,8 +19,8 @@ import net.ccbluex.liquidbounce.utils.item.ArmorComparator;
 import net.ccbluex.liquidbounce.utils.item.ArmorPiece;
 import net.ccbluex.liquidbounce.utils.item.ItemUtils;
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils;
-import net.ccbluex.liquidbounce.value.BoolValue;
-import net.ccbluex.liquidbounce.value.IntegerValue;
+import net.ccbluex.liquidbounce.features.value.BoolValue;
+import net.ccbluex.liquidbounce.features.value.IntegerValue;
 
 import java.util.List;
 import java.util.Map;

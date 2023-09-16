@@ -5,7 +5,7 @@ import op.wawa.lbp.newVer.MouseUtils
 import op.wawa.lbp.newVer.element.module.value.ValueElement
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
 import op.wawa.lbp.newVer.element.components.Slider
 import java.awt.Color
 import java.math.BigDecimal

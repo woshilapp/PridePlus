@@ -1,10 +1,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.minecraft.network.play.client.ICPacketClientStatus
-import net.ccbluex.liquidbounce.api.minecraft.network.play.client.ICPacketCloseWindow
 import net.ccbluex.liquidbounce.api.minecraft.network.play.client.ICPacketEntityAction
-import net.ccbluex.liquidbounce.api.minecraft.network.play.client.ISPacketCloseWindow
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
@@ -13,20 +10,18 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.features.module.modules.combat.Velocity
 import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.TextValue
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.TextValue
 import net.minecraft.client.gui.inventory.GuiInventory
-import net.minecraft.network.play.client.CPacketClientStatus
 
 @ModuleInfo(name = "AutoLobby", description = "Bypas", category = ModuleCategory.MISC)
 class AutoLobby : Module(){
     var health = FloatValue("Health", 5F, 0F, 20F)
     var canhubchat = BoolValue("CanHubChat",false)
     var randomhub = BoolValue("RandomHub",false)
-    var hubchattext = TextValue("HubChat","[Pride1.12.2] Bypass")
+    var hubchattext = TextValue("HubChat","[PridePlus1.12.2] Bypass")
     var disabler = BoolValue("AutoDisable-KillAura-Velocity-Speed", true)
     var keepArmor = BoolValue("KeepArmor", true)
     var hubDelayTime = MSTimer()

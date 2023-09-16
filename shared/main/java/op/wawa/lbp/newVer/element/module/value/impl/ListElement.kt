@@ -7,7 +7,7 @@ import op.wawa.lbp.newVer.element.module.value.ValueElement
 import op.wawa.lbp.newVer.extensions.animSmooth
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color

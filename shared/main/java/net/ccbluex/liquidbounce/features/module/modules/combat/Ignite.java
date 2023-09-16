@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.utils.InventoryUtils;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
 import net.ccbluex.liquidbounce.utils.block.BlockUtils;
 import net.ccbluex.liquidbounce.utils.timer.MSTimer;
-import net.ccbluex.liquidbounce.value.BoolValue;
+import net.ccbluex.liquidbounce.features.value.BoolValue;
 
 @ModuleInfo(name = "Ignite", description = "Automatically sets targets around you on fire.", category = ModuleCategory.COMBAT)
 public class Ignite extends Module {

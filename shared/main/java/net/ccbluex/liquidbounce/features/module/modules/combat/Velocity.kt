@@ -1,419 +1,237 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * FDPClient Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
+ * https://github.com/SkidderMC/FDPClient/
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.minecraft.network.play.client.ICPacketEntityAction
-import net.ccbluex.liquidbounce.api.minecraft.network.play.client.ICPacketPlayer
-import net.ccbluex.liquidbounce.api.minecraft.util.WBlockPos
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
-import net.ccbluex.liquidbounce.features.module.modules.world.Fucker.pos
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.aac.*
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.grim.GrimVelocity
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.other.HypixelVelocity
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.other.MinemenVelocity
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.vulcan.VulcanVelocity
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.MovementUtils
-import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
-import net.minecraft.network.play.client.CPacketEntityAction
-import net.minecraft.network.play.client.CPacketPlayer
-import net.minecraft.network.play.server.SPacketEntityVelocity
-import net.ccbluex.liquidbounce.api.minecraft.potion.PotionType
-import net.minecraft.network.play.client.CPacketPlayerDigging
-import net.minecraft.util.EnumFacing
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.MathHelper
-import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.math.sqrt
 
-@ModuleInfo(name = "Velocity", description = "Allows you to modify the amount of knockback you take.", category = ModuleCategory.COMBAT)
-class Velocity : Module() {
+@ModuleInfo(name = "Velocity", description = "AntiKB", category = ModuleCategory.COMBAT)
+object Velocity : Module() {
 
-    /**
-     * OPTIONS
-     */
-    private val horizontalValue = FloatValue("Horizontal", 0F, 0F, 1F)
-    private val verticalValue = FloatValue("Vertical", 0F, 0F, 1F)
-    private val velocityTickValue = IntegerValue("VelocityTick", 1, 0, 10)
-    private val modeValue = ListValue("Mode", arrayOf("Custom","GrimAC", "Legit", "aac5.2.0", "AAC5Reduce", "Cancel", "Vulcan","Simple", "Vanilla", "Tick",  "AAC", "AACPush", "AACZero", "AACv4",
-            "Reverse", "SmoothReverse", "Jump", "Glitch"), "Simple")
+    private val modes = listOf(
+        AAC4ReduceVelocity(),
+        AAC5ReduceVelocity(),
+        AAC520CombatVelocity(),
+        AAC520Velocity(),
+        AACPushVelocity(),
+        AACZeroVelocity(),
+        GrimVelocity(),
+        HypixelVelocity(),
+        MinemenVelocity(),
+        VulcanVelocity()
+    )
 
-    private val onlyGroundValue = BoolValue("OnlyGround", false)
-    private val onlyCombatValue = BoolValue("OnlyCombat", false)
+    private val mode: VelocityMode
+        get() = modes.find { modeValue.get() == it.modeName } ?: throw NullPointerException() // this should not happen
 
-    private val customX = FloatValue("CustomX",0F,0F,1F)
-    private val customYStart = BoolValue("CanCustomY",false)
-    private val customY = FloatValue("CustomY",1F,1F,2F)
-    private val customZ = FloatValue("CustomZ",0F,0F,1F)
-    private val customC06FakeLag = BoolValue("CustomC06FakeLag",false)
-    // Reverse
-    private val reverseStrengthValue = FloatValue("ReverseStrength", 1F, 0.1F, 1F)
-    private val reverse2StrengthValue = FloatValue("SmoothReverseStrength", 0.05F, 0.02F, 0.1F)
+    private val modeValue: ListValue = object : ListValue("Mode", modes.map { it.modeName }.toTypedArray(), "GrimAC") {
+        override fun onChange(oldValue: String, newValue: String) {
+            if (state) onDisable()
+        }
 
-    // AAC Push
-    private val aacPushXZReducerValue = FloatValue("AACPushXZReducer", 2F, 1F, 3F)
-    private val aacPushYReducerValue = BoolValue("AACPushYReducer", true)
+        override fun onChanged(oldValue: String, newValue: String) {
+            if (state) onEnable()
+        }
+    }
+    private val OnlyMove = BoolValue("OnlyMove", false)
+    private val OnlyGround = BoolValue("OnlyGround", false)
+    val horizontalValue = FloatValue("Horizontal", 0f, -2f, 2f).displayable { modeValue.equals("Simple") || modeValue.equals("Tick") }
+    val verticalValue = FloatValue("Vertical", 0f, -2f, 2f).displayable { modeValue.equals("Simple") || modeValue.equals("Tick") }
+    val chanceValue = IntegerValue("Chance", 100, 0, 100).displayable { modeValue.equals("Simple") }
+    val onlyGroundValue = BoolValue("OnlyGround", false)
+    val onlyCombatValue = BoolValue("OnlyCombat", false)
+    // private val onlyHitVelocityValue = BoolValue("OnlyHitVelocity",false)
+    private val noFireValue = BoolValue("noFire", false)
 
-    // AAc v4
-    private val aacv4MotionReducerValue = FloatValue("AACv4MotionReducer", 0.62F,0F,1F)
-    private val legitStrafeValue = BoolValue("LegitStrafe", false)
-    private val legitFaceValue = BoolValue("LegitFace", true)
-    /**
-     * VALUES
-     */
-    private var velocityTimer = MSTimer()
-    private var velocityInput = false
-    private var velocityTick = 0
-    private var velocityAirTick = 0
-    private var huayutingjumpflag = false
-    // SmoothReverse
-    private var reverseHurt = false
+    private val overrideDirectionValue = ListValue("OverrideDirection", arrayOf("None", "Hard", "Offset"), "None")
+    private val overrideDirectionYawValue = FloatValue("OverrideDirectionYaw", 0F, -180F, 180F)
+        .displayable { !overrideDirectionValue.equals("None") }
 
-    // AACPush
-    private var jump = false
+    val velocityTimer = MSTimer()
+    var wasTimer = false
+    var velocityInput = false
+    var velocityTick = 0
 
-    override val tag: String
-        get() = modeValue.get()
+    var antiDesync = false
+
+    var needReset = true
+
+    override fun onEnable() {
+        antiDesync = false
+        needReset = true
+        mode.onEnable()
+    }
 
     override fun onDisable() {
-        mc.thePlayer?.speedInAir = 0.02F
+        antiDesync = false
+        mc2.player.capabilities.isFlying = false
+        mc2.player.capabilities.flySpeed = 0.05f
+        mc2.player.noClip = false
+
+        mc.timer.timerSpeed = 1F
+        mc2.player.speedInAir = 0.02F
+
+        mode.onDisable()
     }
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        val thePlayer = mc.thePlayer ?: return
 
-        if (thePlayer.isInWater || thePlayer.isInLava || thePlayer.isInWeb)
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
             return
 
-        when (modeValue.get().toLowerCase()) {
-            "custom" -> {
-                if (thePlayer.hurtTime > 0 && !thePlayer.isDead && !mc.thePlayer!!.isPotionActive(classProvider.getPotionEnum(
-                        PotionType.MOVE_SPEED)) && !mc.thePlayer!!.isInWater) {
-                    thePlayer.motionX *= customX.get()
-                    thePlayer.motionZ *= customZ.get()
-                    if(customYStart.get())thePlayer.motionY /= customY.get()
-                    if (customC06FakeLag.get()) mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosLook(thePlayer.posX, thePlayer.posY, thePlayer.posZ, thePlayer.rotationYaw, thePlayer.rotationPitch, thePlayer.onGround))
-                }
-            }
-            "jump" -> if (thePlayer.hurtTime > 0 && thePlayer.onGround) {
-                thePlayer.motionY = 0.42
-
-                val yaw = thePlayer.rotationYaw * 0.017453292F
-
-                thePlayer.motionX -= sin(yaw) * 0.2
-                thePlayer.motionZ += cos(yaw) * 0.2
-            }
-            "vulcan" -> {
-                if(velocityTick > 10) {
-                    if(thePlayer.motionY > 0) thePlayer.motionY = 0.0
-                    thePlayer.motionX = 0.0
-                    thePlayer.motionZ = 0.0
-                    thePlayer.jumpMovementFactor = -0.00001f
-                    velocityInput = false
-                }
-                if(thePlayer.onGround && velocityTick > 1) {
-                    velocityInput = false
-                }
-            }
-            "tick" -> {
-                if(velocityTick > velocityTickValue.get()) {
-                    if(thePlayer.motionY > 0) thePlayer.motionY = 0.0
-                    thePlayer.motionX = 0.0
-                    thePlayer.motionZ = 0.0
-                    thePlayer.jumpMovementFactor = -0.00001f
-                    velocityInput = false
-                }
-                if(thePlayer.onGround && velocityTick > 1) {
-                    velocityInput = false
-                }
-            }
-            "glitch" -> {
-                thePlayer.noClip = velocityInput
-
-                if (thePlayer.hurtTime == 7)
-                    thePlayer.motionY = 0.4
-
-                velocityInput = false
-            }
-            "aac5reduce" -> {
-                if (mc.thePlayer!!.hurtTime> 1 && velocityInput) {
-                    mc.thePlayer!!.motionX *= 0.81
-                    mc.thePlayer!!.motionZ *= 0.81
-                }
-                if (velocityInput && (mc.thePlayer!!.hurtTime <5 || mc.thePlayer!!.onGround) && velocityTimer.hasTimePassed(120L)) {
-                    velocityInput = false
-                }
-            }
-            "reverse" -> {
-                if (!velocityInput)
-                    return
-
-                if (!thePlayer.onGround) {
-                    MovementUtils.strafe(MovementUtils.speed * reverseStrengthValue.get())
-                } else if (velocityTimer.hasTimePassed(80L))
-                    velocityInput = false
-            }
-
-            "smoothreverse" -> {
-                if (!velocityInput) {
-                    thePlayer.speedInAir = 0.02F
-                    return
-                }
-
-                if (thePlayer.hurtTime > 0)
-                    reverseHurt = true
-
-                if (!thePlayer.onGround) {
-                    if (reverseHurt)
-                        thePlayer.speedInAir = reverse2StrengthValue.get()
-                } else if (velocityTimer.hasTimePassed(80L)) {
-                    velocityInput = false
-                    reverseHurt = false
-                }
-            }
-
-            "aac" -> if (velocityInput && velocityTimer.hasTimePassed(80L)) {
-                thePlayer.motionX *= horizontalValue.get()
-                thePlayer.motionZ *= horizontalValue.get()
-                //mc.thePlayer.motionY *= verticalValue.get() ?
-                velocityInput = false
-            }
-
-            "aacv4" -> {
-                if (thePlayer.hurtTime>0 && !thePlayer.onGround){
-                    val reduce=aacv4MotionReducerValue.get();
-                    thePlayer.motionX *= reduce
-                    thePlayer.motionZ *= reduce
-                }
-            }
-
-            "aacpush" -> {
-                if (jump) {
-                    if (thePlayer.onGround)
-                        jump = false
-                } else {
-                    // Strafe
-                    if (thePlayer.hurtTime > 0 && thePlayer.motionX != 0.0 && thePlayer.motionZ != 0.0)
-                        thePlayer.onGround = true
-
-                    // Reduce Y
-                    if (thePlayer.hurtResistantTime > 0 && aacPushYReducerValue.get()
-                            && !LiquidBounce.moduleManager[Speed::class.java]!!.state)
-                        thePlayer.motionY -= 0.014999993
-                }
-
-                // Reduce XZ
-                if (thePlayer.hurtResistantTime >= 19) {
-                    val reduce = aacPushXZReducerValue.get()
-
-                    thePlayer.motionX /= reduce
-                    thePlayer.motionZ /= reduce
-                }
-            }
-
-            "aaczero" -> if (thePlayer.hurtTime > 0) {
-                if (!velocityInput || thePlayer.onGround || thePlayer.fallDistance > 2F)
-                    return
-
-                thePlayer.motionY -= 1.0
-                thePlayer.isAirBorne = true
-                thePlayer.onGround = true
-            } else
-                velocityInput = false
+        mode.onUpdate(event)
+        if (wasTimer) {
+            mc.timer.timerSpeed = 1f
+            wasTimer = false
         }
+        if(velocityInput) {
+            velocityTick++
+        }else velocityTick = 0
+
+        if (mc2.player.isInWater || mc2.player.isInLava || mc2.player.isInWeb) {
+            return
+        }
+
+        if ((onlyGroundValue.get() && !mc2.player.onGround) || (onlyCombatValue.get() && !LiquidBounce.combatManager.inCombat)) {
+            return
+        }
+        if (noFireValue.get() && mc2.player.isBurning) return
+        mode.onVelocity(event)
+    }
+
+    @EventTarget
+    fun onMotion(event: MotionEvent) {
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+            return
+        mode.onMotion(event)
+    }
+    
+    @EventTarget
+    fun onAttack(event: AttackEvent) {
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+            return
+        mode.onAttack(event)
+    }
+
+    @EventTarget
+    fun onStrafe(event: StrafeEvent){
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+            return
+        mode.onStrafe(event)
     }
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        val thePlayer = mc.thePlayer ?: return
-
-        val packet = event.packet
-
-        if (classProvider.isSPacketEntityVelocity(packet)) {
-            val packetEntityVelocity = packet.asSPacketEntityVelocity()
-
-
-            if ((mc.theWorld?.getEntityByID(packetEntityVelocity.entityID) ?: return) != thePlayer)
-                return
-
-            velocityTimer.reset()
-
-            when (modeValue.get().toLowerCase()) {
-                "vulcan" -> {
-                    velocityInput = true
-                    val horizontal = 0F
-                    val vertical = 0F
-
-                    if (horizontal == 0F && vertical == 0F) {
-                        event.cancelEvent()
-                    }
-                    packetEntityVelocity.motionX = (packetEntityVelocity.motionX * horizontal).toInt()
-                    packetEntityVelocity.motionY = (packetEntityVelocity.motionY * vertical).toInt()
-                    packetEntityVelocity.motionZ = (packetEntityVelocity.motionZ * horizontal).toInt()
-                }
-
-                "huayuting" -> {
-                    if(packetEntityVelocity.motionX in -150..150 || packetEntityVelocity.motionY in -150..150 || packetEntityVelocity.motionZ in -150..150){
-                        packetEntityVelocity.motionX = (packetEntityVelocity.motionX * 0.0).toInt()
-                        packetEntityVelocity.motionY = (packetEntityVelocity.motionY * 0.0).toInt()
-                        packetEntityVelocity.motionZ = (packetEntityVelocity.motionZ * 0.0).toInt()
-                    } else {
-                        event.cancelEvent()
-                        mc.netHandler.addToSendQueue(classProvider.createCPacketEntityAction(mc.thePlayer!!, ICPacketEntityAction.WAction.START_SNEAKING))
-                    }
-
-                }
-                "legit" -> {
-                    pos = WBlockPos(mc.thePlayer!!.posX, mc.thePlayer!!.posY, mc.thePlayer!!.posZ)
-                }
-                "huayutingjump" -> {
-                    if(packet is SPacketEntityVelocity) {
-                        huayutingjumpflag = true
-
-                        if(mc.thePlayer!!.hurtTime != 0) {
-                            event.cancelEvent()
-                            packet.motionX = 0
-                            packet.motionY = 0
-                            packet.motionZ = 0
-                        }
-                    }
-                }
-                "aac5.2.0" -> {
-                    event.cancelEvent()
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(mc.thePlayer!!.posX, 1.7976931348623157E+308, mc.thePlayer!!.posZ, true))
-                }
-                "NikoNiko","aac5reduce","aac",  "reverse", "smoothreverse", "aaczero" -> velocityInput = true
-
-                "cancel","vanilla","grimac" -> {
-                    event.cancelEvent()
-                    velocityInput = true
-                }
-                "tick" -> {
-                    velocityInput = true
-                    val horizontal = 0F
-                    val vertical = 0F
-
-                        event.cancelEvent()
-
-                }
-                "simple" -> {
-                    val horizontal = horizontalValue.get()
-                    val vertical = verticalValue.get()
-
-                    if (horizontal == 0F && vertical == 0F)
-                        event.cancelEvent()
-
-                    packetEntityVelocity.motionX = (packetEntityVelocity.motionX * horizontal).toInt()
-                    packetEntityVelocity.motionY = (packetEntityVelocity.motionY * vertical).toInt()
-                    packetEntityVelocity.motionZ = (packetEntityVelocity.motionZ * horizontal).toInt()
-                }
-
-                "aac", "reverse", "smoothreverse", "aaczero" -> velocityInput = true
-
-                "glitch" -> {
-                    if (!thePlayer.onGround)
-                        return
-
-                    velocityInput = true
-                    event.cancelEvent()
-                }
-            }
-        } else if (classProvider.isSPacketExplosion(packet)) {
-            // TODO: Support velocity for explosions
-            event.cancelEvent()
-        }
-    }
-
-    @EventTarget
-    fun onStrafe(event: StrafeEvent) {
-        if ((onlyGroundValue.get() && !mc.thePlayer!!.onGround) || (onlyCombatValue.get() && !LiquidBounce.combatManager.inCombat)) {
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+            return
+        mode.onPacket(event)
+        if ((onlyGroundValue.get() && !mc2.player.onGround) || (onlyCombatValue.get() && !LiquidBounce.combatManager.inCombat)) {
             return
         }
 
-        when (modeValue.get().toLowerCase()) {
-            "legit" -> {
-                if (pos == null || mc.thePlayer!!.hurtTime <= 0) {
-                    return
-                }
-
-                val rot = RotationUtils.getRotations(pos!!.x.toDouble(), pos!!.y.toDouble(), pos!!.z.toDouble())
-                if (legitFaceValue.get()) {
-                    RotationUtils.setTargetRotation(rot)
-                }
-                val yaw = rot.yaw
-                if (legitStrafeValue.get()) {
-                    val speed = MovementUtils.speed
-                    val yaw1 = Math.toRadians(yaw.toDouble())
-                    mc.thePlayer!!.motionX = -Math.sin(yaw1) * speed
-                    mc.thePlayer!!.motionZ = Math.cos(yaw1) * speed
-                } else {
-                    var strafe = event.strafe
-                    var forward = event.forward
-                    val friction = event.friction
-
-                    var f = strafe * strafe + forward * forward
-
-                    if (f >= 1.0E-4F) {
-                        f = MathHelper.sqrt(f)
-
-                        if (f < 1.0F) {
-                            f = 1.0F
-                        }
-
-                        f = friction / f
-                        strafe *= f
-                        forward *= f
-
-                        val yawSin = MathHelper.sin((yaw * Math.PI / 180F).toFloat())
-                        val yawCos = MathHelper.cos((yaw * Math.PI / 180F).toFloat())
-
-                        mc.thePlayer!!.motionX += strafe * yawCos - forward * yawSin
-                        mc.thePlayer!!.motionZ += forward * yawCos + strafe * yawSin
-                    }
-                }
+        val packet = event.packet
+        if (classProvider.isSPacketEntityVelocity(packet)) {
+            val packet1 = packet.asSPacketEntityVelocity()
+            if (mc.thePlayer == null || (mc.theWorld?.getEntityByID(packet1.entityID) ?: return) != mc.thePlayer) {
+                return
             }
+            // if(onlyHitVelocityValue.get() && packet.getMotionY()<400.0) return
+            if (noFireValue.get() && mc2.player.isBurning) return
+            velocityTimer.reset()
+            velocityTick = 0
+
+            if (!overrideDirectionValue.equals("None")) {
+                val yaw = Math.toRadians(
+                    if (overrideDirectionValue.get() == "Hard") {
+                        overrideDirectionYawValue.get()
+                    } else {
+                        mc2.player.rotationYaw + overrideDirectionYawValue.get() + 90
+                    }.toDouble()
+                )
+                val dist = sqrt((packet1.motionX * packet1.motionX + packet1.motionZ * packet1.motionZ).toDouble())
+                val x = cos(yaw) * dist
+                val z = sin(yaw) * dist
+                packet1.motionX = x.toInt()
+                packet1.motionZ = z.toInt()
+            }
+
+            mode.onVelocityPacket(event)
         }
+
+    }
+
+    @EventTarget
+    fun onWorld(event: WorldEvent) {
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+            return
+        mode.onWorld(event)
+    }
+
+    @EventTarget
+    fun onMove(event: MoveEvent) {
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+            return
+        mode.onMove(event)
+    }
+
+    @EventTarget
+    fun onBlockBB(event: BlockBBEvent) {
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+            return
+        mode.onBlockBB(event)
     }
 
     @EventTarget
     fun onJump(event: JumpEvent) {
-        val thePlayer = mc.thePlayer
-
-        if (thePlayer == null || thePlayer.isInWater || thePlayer.isInLava || thePlayer.isInWeb)
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
             return
-
-        when (modeValue.get().toLowerCase()) {
-            "aacpush" -> {
-                jump = true
-
-                if (!thePlayer.isCollidedVertically)
-                    event.cancelEvent()
-            }
-            "aaczero" -> if (thePlayer.hurtTime > 0)
-                event.cancelEvent()
-        }
+        mode.onJump(event)
     }
+
     @EventTarget
-    fun onMotion(e: MotionEvent){
-        when (modeValue.get().toLowerCase()) {
-            "grimac" -> if (velocityInput){
-                if (e.eventState == EventState.PRE) {
-                    mc2.connection!!.sendPacket(
-                        CPacketPlayerDigging(
-                            CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK , BlockPos(mc.thePlayer!!.posX,
-                            mc.thePlayer!!.posY, mc.thePlayer!!.posZ ), EnumFacing.DOWN)
-                    )
-                    velocityInput = false
-                }
+    fun onStep(event: StepEvent) {
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+            return
+        mode.onStep(event)
+    }
+    override val tag: String
+        get() = if (modeValue.get() == "Simple")
+            "${(horizontalValue.get() * 100).toInt()}% ${(verticalValue.get() * 100).toInt()}% ${chanceValue.get()}%"
+        else
+            modeValue.get()
+
+    /**
+     * 读取mode中的value并和本体中的value合并
+     * 所有的value必须在这个之前初始化
+     */
+    override val values = super.values.toMutableList().also {
+        modes.map {
+            mode -> mode.values.forEach { value ->
+                //it.add(value.displayable { modeValue.equals(mode.modeName) })
+                val displayableFunction = value.displayableFunction
+                it.add(value.displayable { displayableFunction.invoke() && modeValue.equals(mode.modeName) })
             }
         }
     }

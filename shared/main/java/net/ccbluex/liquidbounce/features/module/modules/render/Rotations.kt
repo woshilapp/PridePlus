@@ -12,11 +12,8 @@ import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.combat.BowAimbot
-import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
-import net.ccbluex.liquidbounce.features.module.modules.world.*
+import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.utils.RotationUtils
-import net.ccbluex.liquidbounce.value.BoolValue
 
 @ModuleInfo(name = "Rotations", description = "Allows you to see server-sided head and body rotations.", category = ModuleCategory.RENDER)
 class Rotations : Module() {
@@ -35,7 +32,7 @@ class Rotations : Module() {
     fun onPacket(event: PacketEvent) {
         val thePlayer = mc.thePlayer
 
-        if (!bodyValue.get() || !shouldRotate() || thePlayer == null)
+        if (!bodyValue.get() || thePlayer == null)
             return
 
         val packet = event.packet
@@ -56,13 +53,4 @@ class Rotations : Module() {
     }
 
     private fun getState(module: Class<*>) = LiquidBounce.moduleManager[module]!!.state
-
-    private fun shouldRotate(): Boolean {
-        val killAura = LiquidBounce.moduleManager.getModule(KillAura::class.java) as KillAura
-        return getState(Scaffold::class.java) || getState(Tower::class.java) ||
-                (getState(KillAura::class.java) && killAura.target != null) ||
-                getState(BowAimbot::class.java) || getState(Scaffold3::class.java) || getState(Scaffold2::class.java) ||
-                getState(Fucker::class.java) || getState(CivBreak::class.java) || getState(Nuker::class.java) ||
-                getState(ChestAura::class.java)
-    }
 }

@@ -6,19 +6,13 @@
 package net.ccbluex.liquidbounce.ui.client
 
 
-import me.utils.render.BlurUtils
-import me.utils.render.StencilUtil
-import net.ccbluex.liquidbounce.LiquidBounce
+import op.wawa.utils.render.BlurUtils
 import net.ccbluex.liquidbounce.api.minecraft.client.gui.IGuiButton
 import net.ccbluex.liquidbounce.api.util.WrappedGuiScreen
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
-import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.util.ResourceLocation
-import org.lwjgl.opengl.GL11
-import java.awt.Color
 
 class GuiMainMenu : WrappedGuiScreen() {
 
@@ -70,7 +64,7 @@ class GuiMainMenu : WrappedGuiScreen() {
         RenderUtils.drawShadow(0, 0, 140, height)
 
         // Logo
-        RenderUtils.drawImage(icon,35, (height / 2f - 120).toInt(), 70, 70)
+        op.wawa.utils.render.RenderUtils.drawImage(icon,35, (height / 2f - 120).toInt(), 70, 70)
 
         representedScreen.superDrawScreen(mouseX, mouseY, partialTicks)
     }

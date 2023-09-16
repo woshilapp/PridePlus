@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.*
 import net.ccbluex.liquidbounce.features.module.modules.exploit.*
 import net.ccbluex.liquidbounce.features.module.modules.misc.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.*
-import net.ccbluex.liquidbounce.features.module.modules.other.*
+import net.ccbluex.liquidbounce.features.module.modules.other.NewGUI
 import net.ccbluex.liquidbounce.features.module.modules.player.*
 import net.ccbluex.liquidbounce.features.module.modules.render.*
 import net.ccbluex.liquidbounce.features.module.modules.world.*
@@ -31,7 +31,6 @@ class ModuleManager : Listenable {
     init {
         LiquidBounce.eventManager.registerListener(this)
     }
-    //你刚刚有没有写什么mixin或者模块忘注册了
 
     /**
      * Register all modules
@@ -52,7 +51,6 @@ class ModuleManager : Listenable {
                 Criticals::class.java,
                 KillAura::class.java,
                 Trigger::class.java,
-                Velocity::class.java,
                 Fly::class.java,
                 ClickGUI::class.java,
             Animations::class.java,
@@ -98,7 +96,6 @@ class ModuleManager : Listenable {
                 Spammer::class.java,
                 IceSpeed::class.java,
                 Zoot::class.java,
-                HytGetName::class.java,
                 AutoLobby::class.java,
                 Regen::class.java,
                 NoFall::class.java,
@@ -143,7 +140,6 @@ class ModuleManager : Listenable {
                 TNTBlock::class.java,
                 InventoryCleaner::class.java,
                 TrueSight::class.java,
-                LiquidChat::class.java,
                 AntiBlind::class.java,
                 NoSwing::class.java,
                 BedGodMode::class.java,
@@ -189,35 +185,35 @@ class ModuleManager : Listenable {
                 Title::class.java,
                 NoSlowBreak::class.java,
                 PortalMenu::class.java,
-            Scaffold3::class.java,
+                Velocity::class.java,
+            InvManager::class.java,
             AutoLFix::class.java,
             AutoGG::class.java,
             BanChecker::class.java,
             Disabler::class.java,
-            AntiFakePlayer::class.java,
+            AntiDeadBot::class.java,
             LegitAura::class.java,
             HytJump::class.java,
-            Velocity2::class.java,
             NewGUI::class.java,
             JumpCircle::class.java,
-            InvManager::class.java,
             CancelC03::class.java,
             PotionChecker::class.java,
             ScaffoldHelper::class.java,
-            Scaffold2::class.java,//我傻了
-                    //WaWaDisabler::class.java,
             CustomUI::class.java,
             Jamming::class.java,
             Germ::class.java
-            // 下次一定优化重复啰嗦的功能
         )
 
+//        for (module in ClassUtils.getClasses("${this.javaClass.`package`.name}.modules", Module::class.java)){
+//            registerModule(module as Module)
+//        }
 
         registerModule(NoScoreboard)
         registerModule(Fucker)
         registerModule(ChestAura)
         registerModule(AntiBot)
         registerModule(FollowTargetHud)
+        registerModule(Wings)
 
         ClientUtils.getLogger().info("[ModuleManager] Loaded ${modules.size} modules.")
     }
@@ -226,9 +222,6 @@ class ModuleManager : Listenable {
      * Register [module]
      */
     fun registerModule(module: Module) {
-        if (!module.isSupported)
-            return
-
         modules += module
         moduleClassMap[module.javaClass] = module
 

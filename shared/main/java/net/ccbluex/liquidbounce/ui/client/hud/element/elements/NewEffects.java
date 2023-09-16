@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.utils.HanaBiColors;
 import net.ccbluex.liquidbounce.utils.render.PotionData;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.ccbluex.liquidbounce.utils.render.Translate;
-import net.ccbluex.liquidbounce.value.BoolValue;
+import net.ccbluex.liquidbounce.features.value.BoolValue;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import org.lwjgl.opengl.GL11;

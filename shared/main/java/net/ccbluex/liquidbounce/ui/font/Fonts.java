@@ -10,9 +10,7 @@ import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.api.minecraft.client.gui.IFontRenderer;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.ccbluex.liquidbounce.utils.MinecraftInstance;
-import net.ccbluex.liquidbounce.utils.misc.HttpUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.util.ResourceLocation;
 
 import java.awt.*;
@@ -20,32 +18,12 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 public class Fonts extends MinecraftInstance {
 
     @FontDetails(fontName = "Minecraft Font")
     public static final IFontRenderer minecraftFont = mc.getFontRendererObj();
     private static final HashMap<FontInfo, IFontRenderer> CUSTOM_FONT_RENDERERS = new HashMap<>();
-    @FontDetails(fontName = "flux", fontSize = 35)
-    public static IFontRenderer flux;
-
-    @FontDetails(fontName = "Roboto-Italic ", fontSize = 35)
-    public static IFontRenderer Italic35;
-    @FontDetails(fontName = "Roboto-Italic ", fontSize = 45)
-    public static IFontRenderer Italic45;
-    @FontDetails(fontName = "Roboto-Italic ", fontSize = 60)
-    public static IFontRenderer Italic60;
-    @FontDetails(fontName = "Roboto-Italic ", fontSize = 120)
-    public static IFontRenderer Italic120;
-
-    @FontDetails(fontName = "Roboto-Light.ttf ", fontSize = 35)
-    public static IFontRenderer Light35;
-    @FontDetails(fontName = "Roboto-Light.ttf ", fontSize = 45)
-    public static IFontRenderer Light45;
-    @FontDetails(fontName = "Roboto-Light.ttf ", fontSize = 60)
-    public static IFontRenderer Light60;
 
     @FontDetails(fontName = "Bold", fontSize = 30)
         public static IFontRenderer bold30;
@@ -63,15 +41,13 @@ public class Fonts extends MinecraftInstance {
     @FontDetails(fontName = "Bold", fontSize = 180)
     public static IFontRenderer bold180;
 
-    @FontDetails(fontName = "Roboto-Light.ttf ", fontSize = 120)
-    public static IFontRenderer Light120;
-
     @FontDetails(fontName = "Roboto Medium", fontSize = 35)
     public static IFontRenderer font35;
     @FontDetails(fontName = "Roboto Medium", fontSize = 30)
     public static IFontRenderer font30;
     @FontDetails(fontName = "Roboto Medium", fontSize = 25)
     public static IFontRenderer font25;
+
     @FontDetails(fontName = "Roboto Medium", fontSize = 40)
     public static IFontRenderer font40;
     @FontDetails(fontName = "Roboto Medium", fontSize = 80)
@@ -86,43 +62,6 @@ public class Fonts extends MinecraftInstance {
     public static IFontRenderer fontBold180;
 
 
-    @FontDetails(fontName = "Product Sans", fontSize = 30)
-    public static IFontRenderer pro30;
-    @FontDetails(fontName = "Product Sans", fontSize = 35)
-    public static IFontRenderer pro35;
-    @FontDetails(fontName = "Product Sans", fontSize = 40)
-    public static IFontRenderer pro40;
-    @FontDetails(fontName = "Product Sans", fontSize = 72)
-    public static IFontRenderer pro72;
-    @FontDetails(fontName = "Product Sans", fontSize = 80)
-    public static IFontRenderer pro80;
-    @FontDetails(fontName = "Product Sans", fontSize = 120)
-    public static IFontRenderer pro120;
-    @FontDetails(fontName = "Product Sans", fontSize = 180)
-    public static IFontRenderer pro180;
-
-
-    @FontDetails(fontName = "jellom", fontSize = 20)
-    public static GameFontRenderer jellom;
-    @FontDetails(fontName = "jello", fontSize = 20)
-    public static GameFontRenderer jello;
-    @FontDetails(fontName = "jello120 two ", fontSize = 120)
-    public static IFontRenderer jello120;
-    @FontDetails(fontName = "jello35", fontSize = 35)
-    public static IFontRenderer jello35;
-    @FontDetails(fontName = "jello35", fontSize = 37)
-    public static IFontRenderer jello37;
-    @FontDetails(fontName = "jello35", fontSize = 45)
-    public static IFontRenderer jello45;
-    @FontDetails(fontName = "jello60", fontSize = 60)
-    public static IFontRenderer jello60;
-    @FontDetails(fontName = "jello", fontSize = 24)
-    public static IFontRenderer jello40;
-    @FontDetails(fontName = "jello30", fontSize = 30)
-    public static IFontRenderer jello30;
-    @FontDetails(fontName = "jello72", fontSize = 72)
-    public static IFontRenderer jello72;
-
     @FontDetails(fontName = "SFUI Regular", fontSize = 18)
     public static IFontRenderer fontSFUI18;
     @FontDetails(fontName = "SFUI Regular", fontSize = 35)
@@ -134,13 +73,6 @@ public class Fonts extends MinecraftInstance {
     @FontDetails(fontName = "SFUI Regular", fontSize = 120)
     public static IFontRenderer fontSFUI120;
 
-    @FontDetails(fontName = "AlibabaSansLight35", fontSize = 35)
-    public static IFontRenderer AlibabaSansLight35;
-    @FontDetails(fontName = "AlibabaSansLight45", fontSize = 45)
-    public static IFontRenderer AlibabaSansLight45;
-    @FontDetails(fontName = "AlibabaSansLight60", fontSize = 60)
-    public static IFontRenderer AlibabaSansLight60;
-
     @FontDetails(fontName = "ComfortaaRegular35", fontSize = 35)
     public static IFontRenderer ComfortaaRegular35;
     @FontDetails(fontName = "ComfortaaRegular45", fontSize = 45)
@@ -148,39 +80,32 @@ public class Fonts extends MinecraftInstance {
     @FontDetails(fontName = "ComfortaaRegular60", fontSize = 60)
     public static IFontRenderer ComfortaaRegular60;
 
-    @FontDetails(fontName = "CasanovaScotia35", fontSize = 35)
-    public static IFontRenderer CasanovaScotia35;
-    @FontDetails(fontName = "CasanovaScotia45", fontSize = 45)
-    public static IFontRenderer CasanovaScotia45;
-    @FontDetails(fontName = "CasanovaScotia60", fontSize = 60)
-    public static IFontRenderer CasanovaScotia60;
+    @FontDetails(fontName = "Posterama", fontSize = 15)
+    public static IFontRenderer posterama30;
+    @FontDetails(fontName = "Posterama", fontSize = 18)
+    public static IFontRenderer posterama35;
+    @FontDetails(fontName = "Posterama", fontSize = 20)
+    public static IFontRenderer posterama40;
+    @FontDetails(fontName = "Posterama", fontSize = 25)
+    public static IFontRenderer posterama50;
+
+    @FontDetails(fontName = "yangzi", fontSize = 20)
+    public static IFontRenderer icon50;
+    @FontDetails(fontName = "yangzi", fontSize = 25)
+    public static IFontRenderer icon80;
 
     public static void loadFonts() {
         long l = System.currentTimeMillis();
 
         ClientUtils.getLogger().info("Loading Fonts.");
 
-        //downloadFonts();
-        flux = classProvider.wrapFontRenderer(new GameFontRenderer(getFlux(30)));
+        icon80 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("hicon.ttf", 25)));
+        icon50 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("hicon.ttf", 20)));
 
-        pro30 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("productsans.ttf", 30)));
-        pro35 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("productsans.ttf", 35)));
-        pro40 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("productsans.ttf", 40)));
-        pro72 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("productsans.ttf", 72)));
-        pro80 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("productsans.ttf", 80)));
-        pro120 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("productsans.ttf", 120)));
-        pro180 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("productsans.ttf", 180)));
-
-
-        Light35 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("Roboto-Light.ttf", 35)));
-        Light45= classProvider.wrapFontRenderer(new GameFontRenderer(getFont("Roboto-Light.ttf", 45)));
-        Light60 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("Roboto-Light.ttf", 60)));
-        Light120 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("Roboto-Light.ttf", 120)));
-
-        Italic35 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("Roboto-Italic.ttf", 35)));
-        Italic45= classProvider.wrapFontRenderer(new GameFontRenderer(getFont("Roboto-Italic.ttf", 45)));
-        Italic60= classProvider.wrapFontRenderer(new GameFontRenderer(getFont("Roboto-Italic.ttf", 60)));
-        Italic120= classProvider.wrapFontRenderer(new GameFontRenderer(getFont("Roboto-Italic.ttf", 120)));
+        posterama30 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("posterama.ttf", 15)));
+        posterama35 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("posterama.ttf", 18)));
+        posterama40 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("posterama.ttf", 20)));
+        posterama50 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("posterama.ttf", 20)));
 
         font35 = classProvider.wrapFontRenderer(new GameFontRenderer(getSFUI(35)));
         font25 = classProvider.wrapFontRenderer(new GameFontRenderer(getSFUI(25)));
@@ -188,8 +113,8 @@ public class Fonts extends MinecraftInstance {
         font30 = classProvider.wrapFontRenderer(new GameFontRenderer(getSFUI(30)));
         font80 = classProvider.wrapFontRenderer(new GameFontRenderer(getSFUI(80)));
 
-        fontBold72 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("Roboto-Medium.ttf", 72)));
-        fontBold120 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("Roboto-Medium.ttf", 120)));
+        fontBold72 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("Roboto-Bold.ttf", 72)));
+        fontBold120 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("Roboto-Bold.ttf", 120)));
         fontBold180 = classProvider.wrapFontRenderer(new GameFontRenderer(getFont("Roboto-Bold.ttf", 180)));
 
         fontSFUI18 = classProvider.wrapFontRenderer(new GameFontRenderer(getSFUI(18)));
@@ -197,17 +122,6 @@ public class Fonts extends MinecraftInstance {
         fontSFUI40 = classProvider.wrapFontRenderer(new GameFontRenderer(getSFUI(40)));
         fontSFUI56 = classProvider.wrapFontRenderer(new GameFontRenderer(getSFUI(56)));
         fontSFUI120 = classProvider.wrapFontRenderer(new GameFontRenderer(getSFUI(120)));
-
-        jello = new GameFontRenderer(getFont("jelloSB.ttf", 20));
-        jellom = new GameFontRenderer(getFont("jellom.ttf", 20));
-        jello40 =classProvider.wrapFontRenderer(new GameFontRenderer(getJello( 40)));
-        jello120 =classProvider.wrapFontRenderer(new GameFontRenderer(getJello(120)));
-        jello35 =classProvider.wrapFontRenderer(new GameFontRenderer(getJello( 35)));
-        jello60=classProvider.wrapFontRenderer(new GameFontRenderer(getJello(60)));
-        jello37=classProvider.wrapFontRenderer(new GameFontRenderer(getJello( 37)));
-        jello30=classProvider.wrapFontRenderer(new GameFontRenderer(getJello(30)));
-        jello45=classProvider.wrapFontRenderer(new GameFontRenderer(getJello( 45)));
-        jello72 =classProvider.wrapFontRenderer(new GameFontRenderer(getJello( 72)));
 
         bold35 = classProvider.wrapFontRenderer(new GameFontRenderer(getBold(35)));
         bold40 = classProvider.wrapFontRenderer(new GameFontRenderer(getBold(40)));
@@ -217,17 +131,9 @@ public class Fonts extends MinecraftInstance {
         bold95 = classProvider.wrapFontRenderer(new GameFontRenderer(getBold(95)));
         bold180 = classProvider.wrapFontRenderer(new GameFontRenderer(getBold(180)));
 
-        AlibabaSansLight35 = classProvider.wrapFontRenderer(new GameFontRenderer(getAlibabaSansLight(35)));
-        AlibabaSansLight45 = classProvider.wrapFontRenderer(new GameFontRenderer(getAlibabaSansLight(45)));
-        AlibabaSansLight60 = classProvider.wrapFontRenderer(new GameFontRenderer(getAlibabaSansLight(60)));
-
         ComfortaaRegular35 = classProvider.wrapFontRenderer(new GameFontRenderer(getComfortaaRegular(35)));
         ComfortaaRegular45 = classProvider.wrapFontRenderer(new GameFontRenderer(getComfortaaRegular(45)));
         ComfortaaRegular60 = classProvider.wrapFontRenderer(new GameFontRenderer(getComfortaaRegular(60)));
-
-        CasanovaScotia35 = classProvider.wrapFontRenderer(new GameFontRenderer(getCasanovaScotia(35)));
-        CasanovaScotia45 = classProvider.wrapFontRenderer(new GameFontRenderer(getCasanovaScotia(45)));
-        CasanovaScotia60 = classProvider.wrapFontRenderer(new GameFontRenderer(getCasanovaScotia(60)));
 
         try {
             CUSTOM_FONT_RENDERERS.clear();
@@ -263,35 +169,7 @@ public class Fonts extends MinecraftInstance {
             e.printStackTrace();
         }
 
-        ClientUtils.getLogger().info("Loaded Fonts. (" + (System.currentTimeMillis() - l) + "ms)");
-    }
-
-    private static void downloadFonts() {
-        try {
-            final File outputFile = new File(LiquidBounce.fileManager.fontsDir, "roboto.zip");
-
-            if (!outputFile.exists()) {
-                ClientUtils.getLogger().info("Downloading fonts...");
-                HttpUtils.download(LiquidBounce.CLIENT_CLOUD + "/fonts/Roboto.zip", outputFile);
-                ClientUtils.getLogger().info("Extract fonts...");
-                extractZip(outputFile.getPath(), LiquidBounce.fileManager.fontsDir.getPath());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    private static Font getJello(int size) {
-        Font font;
-        try {
-            InputStream is = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("pride/font/Jello.ttf")).getInputStream();
-            font = Font.createFont(0, is);
-            font = font.deriveFont(0, size);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            System.out.println("Error loading font");
-            font = new Font("default", 0, size);
-        }
-        return font;
+        ClientUtils.getLogger().info("PridePlus Font >> Loaded Fonts. (" + (System.currentTimeMillis() - l) + "ms)");
     }
     public static IFontRenderer getFontRenderer(final String name, final int size) {
         for (final Field field : Fonts.class.getDeclaredFields()) {
@@ -344,22 +222,20 @@ public class Fonts extends MinecraftInstance {
             InputStream is = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("pride/font/bold.ttf")).getInputStream();
             font = Font.createFont(0, is);
             font = font.deriveFont(0, size);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            System.out.println("Error loading font");
+        } catch (FontFormatException | IOException e) {
+            ClientUtils.getLogger().error("PridePlus Font >> Error loading Bold.");
             font = new Font("default", 0, size);
         }
         return font;
     }
-    private static Font getSFUI(int size) {
+    public static Font getSFUI(int size) {
         Font font;
         try {
             InputStream is = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("pride/font/sfuidisplayregular.ttf")).getInputStream();
             font = Font.createFont(0, is);
             font = font.deriveFont(0, size);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            System.out.println("Error loading font");
+        } catch (FontFormatException | IOException e) {
+            ClientUtils.getLogger().error("PridePlus Font >> Error loading SFUI.");
             font = new Font("default", 0, size);
         }
         return font;
@@ -371,47 +247,7 @@ public class Fonts extends MinecraftInstance {
             font = Font.createFont(0, is);
             font = font.deriveFont(0, size);
         } catch (Exception ex) {
-            ex.printStackTrace();
-            System.out.println("Error loading font");
-            font = new Font("default", 0, size);
-        }
-        return font;
-    }
-    private static Font getCasanovaScotia(int size) {
-        Font font;
-        try {
-            InputStream is = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("pride/font/CasanovaScotia.ttf")).getInputStream();
-            font = Font.createFont(0, is);
-            font = font.deriveFont(0, size);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            System.out.println("Error loading font");
-            font = new Font("default", 0, size);
-        }
-        return font;
-    }
-    private static Font getAlibabaSansLight(int size) {
-        Font font;
-        try {
-            InputStream is = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("pride/font/AlibabaSansLight.ttf")).getInputStream();
-            font = Font.createFont(0, is);
-            font = font.deriveFont(0, size);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            System.out.println("Error loading font");
-            font = new Font("default", 0, size);
-        }
-        return font;
-    }
-    private static Font getFlux(int size) {
-        Font font;
-        try {
-            InputStream is = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("pride/font/fluxicon.ttf")).getInputStream();
-            font = Font.createFont(0, is);
-            font = font.deriveFont(0, size);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            System.out.println("Error loading font");
+            ClientUtils.getLogger().error("PridePlus Font >> Error loading ComfortaaRegular.");
             font = new Font("default", 0, size);
         }
         return font;
@@ -427,7 +263,7 @@ public class Fonts extends MinecraftInstance {
 
                 if (fontObj instanceof IFontRenderer) fonts.add((IFontRenderer) fontObj);
             } catch (final IllegalAccessException e) {
-                e.printStackTrace();
+                ClientUtils.getLogger().error("PridePlus Font >> Error loading fonts.");
             }
         }
 
@@ -443,42 +279,9 @@ public class Fonts extends MinecraftInstance {
             awtClientFont = awtClientFont.deriveFont(Font.PLAIN, size);
             inputStream.close();
             return awtClientFont;
-        } catch (final Exception e) {
-            e.printStackTrace();
-
+        } catch (final FontFormatException | IOException e) {
+            ClientUtils.getLogger().error("PridePlus Font >> Error loading " + fontName + ".");
             return new Font("default", Font.PLAIN, size);
-        }
-    }
-
-    private static void extractZip(final String zipFile, final String outputFolder) {
-        final byte[] buffer = new byte[1024];
-
-        try {
-            final File folder = new File(outputFolder);
-
-            if (!folder.exists()) folder.mkdir();
-
-            final ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile));
-
-            ZipEntry zipEntry = zipInputStream.getNextEntry();
-            while (zipEntry != null) {
-                File newFile = new File(outputFolder + File.separator + zipEntry.getName());
-                new File(newFile.getParent()).mkdirs();
-
-                FileOutputStream fileOutputStream = new FileOutputStream(newFile);
-
-                int i;
-                while ((i = zipInputStream.read(buffer)) > 0)
-                    fileOutputStream.write(buffer, 0, i);
-
-                fileOutputStream.close();
-                zipEntry = zipInputStream.getNextEntry();
-            }
-
-            zipInputStream.closeEntry();
-            zipInputStream.close();
-        } catch (final IOException e) {
-            e.printStackTrace();
         }
     }
 

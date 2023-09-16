@@ -28,20 +28,21 @@ open class HUD : MinecraftInstance() {
                 Effects::class.java,
                 Image::class.java,
                 Model::class.java,
-                GameInfo::class.java,
+            Statistics::class.java,
                 Notifications::class.java,
                 TabGUI::class.java,
                 Text::class.java,
                 ScoreboardElement::class.java,
-                Target::class.java,
                 Radar::class.java,
                 SpeedGraph::class.java,
             KeyBinds::class.java,
             KeyStrokes::class.java,
             NewEffects::class.java,
-            Target2::class.java,
             Text2::class.java,
-            Logo::class.java
+            Logo::class.java,
+            Target::class.java,
+            TargetHUD::class.java,
+            TomkKeyBinds::class.java
 
         )
 
@@ -52,11 +53,12 @@ open class HUD : MinecraftInstance() {
         fun createDefault() = HUD()
                 .addElement(Text.defaultClient())
                 .addElement(Arraylist())
+                .addElement(KeyBinds())
+                .addElement(Logo())
                 .addElement(ScoreboardElement())
                 .addElement(Armor())
                 .addElement(Effects())
                 .addElement(Notifications())
-
     }
 
     /**

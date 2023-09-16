@@ -4,7 +4,7 @@ import op.wawa.lbp.newVer.element.components.Checkbox
 import op.wawa.lbp.newVer.element.module.value.ValueElement
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import op.wawa.lbp.newVer.MouseUtils
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.BoolValue
 
 import java.awt.Color
 
