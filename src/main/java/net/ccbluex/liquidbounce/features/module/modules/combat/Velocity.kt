@@ -1,0 +1,238 @@
+/*
+ * FDPClient Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
+ * https://github.com/SkidderMC/FDPClient/
+ */
+package net.ccbluex.liquidbounce.features.module.modules.combat
+
+import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.aac.*
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.grim.GrimVelocity
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.other.HypixelVelocity
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.other.MinemenVelocity
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.vulcan.VulcanVelocity
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.MovementUtils
+import net.ccbluex.liquidbounce.utils.timer.MSTimer
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
+
+@ModuleInfo(name = "Velocity", description = "AntiKB", category = ModuleCategory.COMBAT)
+object Velocity : Module() {
+
+    private val modes = listOf(
+        AAC4ReduceVelocity(),
+        AAC5ReduceVelocity(),
+        AAC520CombatVelocity(),
+        AAC520Velocity(),
+        AACPushVelocity(),
+        AACZeroVelocity(),
+        GrimVelocity(),
+        HypixelVelocity(),
+        MinemenVelocity(),
+        VulcanVelocity()
+    )
+
+    private val mode: VelocityMode
+        get() = modes.find { modeValue.get() == it.modeName } ?: throw NullPointerException() // this should not happen
+
+    private val modeValue: ListValue = object : ListValue("Mode", modes.map { it.modeName }.toTypedArray(), "GrimAC") {
+        override fun onChange(oldValue: String, newValue: String) {
+            if (state) onDisable()
+        }
+
+        override fun onChanged(oldValue: String, newValue: String) {
+            if (state) onEnable()
+        }
+    }
+    private val OnlyMove = BoolValue("OnlyMove", false)
+    private val OnlyGround = BoolValue("OnlyGround", false)
+    val horizontalValue = FloatValue("Horizontal", 0f, -2f, 2f).displayable { modeValue.equals("Simple") || modeValue.equals("Tick") }
+    val verticalValue = FloatValue("Vertical", 0f, -2f, 2f).displayable { modeValue.equals("Simple") || modeValue.equals("Tick") }
+    val chanceValue = IntegerValue("Chance", 100, 0, 100).displayable { modeValue.equals("Simple") }
+    val onlyGroundValue = BoolValue("OnlyGround", false)
+    val onlyCombatValue = BoolValue("OnlyCombat", false)
+    // private val onlyHitVelocityValue = BoolValue("OnlyHitVelocity",false)
+    private val noFireValue = BoolValue("noFire", false)
+
+    private val overrideDirectionValue = ListValue("OverrideDirection", arrayOf("None", "Hard", "Offset"), "None")
+    private val overrideDirectionYawValue = FloatValue("OverrideDirectionYaw", 0F, -180F, 180F)
+        .displayable { !overrideDirectionValue.equals("None") }
+
+    val velocityTimer = MSTimer()
+    var wasTimer = false
+    var velocityInput = false
+    var velocityTick = 0
+
+    var antiDesync = false
+
+    var needReset = true
+
+    override fun onEnable() {
+        antiDesync = false
+        needReset = true
+        mode.onEnable()
+    }
+
+    override fun onDisable() {
+        antiDesync = false
+        mc2.player.capabilities.isFlying = false
+        mc2.player.capabilities.flySpeed = 0.05f
+        mc2.player.noClip = false
+
+        mc.timer.timerSpeed = 1F
+        mc2.player.speedInAir = 0.02F
+
+        mode.onDisable()
+    }
+
+    @EventTarget
+    fun onUpdate(event: UpdateEvent) {
+
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+            return
+
+        mode.onUpdate(event)
+        if (wasTimer) {
+            mc.timer.timerSpeed = 1f
+            wasTimer = false
+        }
+        if(velocityInput) {
+            velocityTick++
+        }else velocityTick = 0
+
+        if (mc2.player.isInWater || mc2.player.isInLava || mc2.player.isInWeb) {
+            return
+        }
+
+        if ((onlyGroundValue.get() && !mc2.player.onGround) || (onlyCombatValue.get() && !LiquidBounce.combatManager.inCombat)) {
+            return
+        }
+        if (noFireValue.get() && mc2.player.isBurning) return
+        mode.onVelocity(event)
+    }
+
+    @EventTarget
+    fun onMotion(event: MotionEvent) {
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+            return
+        mode.onMotion(event)
+    }
+    
+    @EventTarget
+    fun onAttack(event: AttackEvent) {
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+            return
+        mode.onAttack(event)
+    }
+
+    @EventTarget
+    fun onStrafe(event: StrafeEvent){
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+            return
+        mode.onStrafe(event)
+    }
+
+    @EventTarget
+    fun onPacket(event: PacketEvent) {
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+            return
+        mode.onPacket(event)
+        if ((onlyGroundValue.get() && !mc2.player.onGround) || (onlyCombatValue.get() && !LiquidBounce.combatManager.inCombat)) {
+            return
+        }
+
+        val packet = event.packet
+        if (classProvider.isSPacketEntityVelocity(packet)) {
+            val packet1 = packet.asSPacketEntityVelocity()
+            if (mc.thePlayer == null || (mc.theWorld?.getEntityByID(packet1.entityID) ?: return) != mc.thePlayer) {
+                return
+            }
+            // if(onlyHitVelocityValue.get() && packet.getMotionY()<400.0) return
+            if (noFireValue.get() && mc2.player.isBurning) return
+            velocityTimer.reset()
+            velocityTick = 0
+
+            if (!overrideDirectionValue.equals("None")) {
+                val yaw = Math.toRadians(
+                    if (overrideDirectionValue.get() == "Hard") {
+                        overrideDirectionYawValue.get()
+                    } else {
+                        mc2.player.rotationYaw + overrideDirectionYawValue.get() + 90
+                    }.toDouble()
+                )
+                val dist = sqrt((packet1.motionX * packet1.motionX + packet1.motionZ * packet1.motionZ).toDouble())
+                val x = cos(yaw) * dist
+                val z = sin(yaw) * dist
+                packet1.motionX = x.toInt()
+                packet1.motionZ = z.toInt()
+            }
+
+            mode.onVelocityPacket(event)
+        }
+
+    }
+
+    @EventTarget
+    fun onWorld(event: WorldEvent) {
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+            return
+        mode.onWorld(event)
+    }
+
+    @EventTarget
+    fun onMove(event: MoveEvent) {
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+            return
+        mode.onMove(event)
+    }
+
+    @EventTarget
+    fun onBlockBB(event: BlockBBEvent) {
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+            return
+        mode.onBlockBB(event)
+    }
+
+    @EventTarget
+    fun onJump(event: JumpEvent) {
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+            return
+        mode.onJump(event)
+    }
+
+    @EventTarget
+    fun onStep(event: StepEvent) {
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+            return
+        mode.onStep(event)
+    }
+    override val tag: String
+        get() = if (modeValue.get() == "Simple")
+            "${(horizontalValue.get() * 100).toInt()}% ${(verticalValue.get() * 100).toInt()}% ${chanceValue.get()}%"
+        else
+            modeValue.get()
+
+    /**
+     * 读取mode中的value并和本体中的value合并
+     * 所有的value必须在这个之前初始化
+     */
+    override val values = super.values.toMutableList().also {
+        modes.map {
+            mode -> mode.values.forEach { value ->
+                //it.add(value.displayable { modeValue.equals(mode.modeName) })
+                val displayableFunction = value.displayableFunction
+                it.add(value.displayable { displayableFunction.invoke() && modeValue.equals(mode.modeName) })
+            }
+        }
+    }
+}
