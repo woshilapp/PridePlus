@@ -1,7 +1,6 @@
-# Pride Plus
+![image](Logo.png)
+# PridePlus - NextGen
 A free mixin-based injection hacked-client for Minecraft using Minecraft Forge, supporting versions 1.12.2
-
-N0w Reb0rn. LOL LOL LOL LOL LOL LOL LOL
 
 ## Based
 Based **LiquidBounce** & **Pride**. Thank **_CCBlueX_** and **_JieMo_**
