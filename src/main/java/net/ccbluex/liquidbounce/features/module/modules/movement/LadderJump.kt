@@ -16,14 +16,14 @@ class LadderJump : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent?) {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
-        if (thePlayer.onGround) {
-            if (thePlayer.isOnLadder) {
-                thePlayer.motionY = 1.5
+        if (player.onGround) {
+            if (player.isOnLadder) {
+                player.motionY = 1.5
                 jumped = true
             } else jumped = false
-        } else if (!thePlayer.isOnLadder && jumped) thePlayer.motionY += 0.059
+        } else if (!player.isOnLadder && jumped) player.motionY += 0.059
     }
 
     companion object {

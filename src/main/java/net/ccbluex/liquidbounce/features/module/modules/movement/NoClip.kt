@@ -15,30 +15,30 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 class NoClip : Module() {
 
     override fun onDisable() {
-        mc.thePlayer?.noClip = false
+        mc.player?.noClip = false
     }
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
-        thePlayer.noClip = true
-        thePlayer.fallDistance = 0f
-        thePlayer.onGround = false
+        player.noClip = true
+        player.fallDistance = 0f
+        player.onGround = false
 
-        thePlayer.capabilities.isFlying = false
-        thePlayer.motionX = 0.0
-        thePlayer.motionY = 0.0
-        thePlayer.motionZ = 0.0
+        player.capabilities.isFlying = false
+        player.motionX = 0.0
+        player.motionY = 0.0
+        player.motionZ = 0.0
 
         val speed = 0.32f
 
-        thePlayer.jumpMovementFactor = speed
+        player.jumpMovementFactor = speed
 
         if (mc.gameSettings.keyBindJump.isKeyDown)
-            thePlayer.motionY += speed.toDouble()
+            player.motionY += speed.toDouble()
 
         if (mc.gameSettings.keyBindSneak.isKeyDown)
-            thePlayer.motionY -= speed.toDouble()
+            player.motionY -= speed.toDouble()
     }
 }

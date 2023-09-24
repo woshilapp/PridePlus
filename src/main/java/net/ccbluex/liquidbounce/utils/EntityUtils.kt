@@ -6,8 +6,6 @@
 package net.ccbluex.liquidbounce.utils
 
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntity
-import net.ccbluex.liquidbounce.api.minecraft.client.network.INetworkPlayerInfo
 import net.ccbluex.liquidbounce.features.module.modules.combat.NoFriends
 import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
 import net.ccbluex.liquidbounce.features.module.modules.misc.Teams
@@ -15,6 +13,9 @@ import net.ccbluex.liquidbounce.utils.extensions.isAnimal
 import net.ccbluex.liquidbounce.utils.extensions.isClientFriend
 import net.ccbluex.liquidbounce.utils.extensions.isMob
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
+import net.minecraft.client.network.NetworkPlayerInfo
+import net.minecraft.entity.Entity
+import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 
 object EntityUtils : MinecraftInstance() {
@@ -35,12 +36,11 @@ object EntityUtils : MinecraftInstance() {
     var targetDead = false
 
     @JvmStatic
-    fun isSelected(entity: IEntity?, canAttackCheck: Boolean): Boolean {
-        if (classProvider.isEntityLivingBase(entity) && (targetDead || entity!!.entityAlive) && entity != null
-                && entity != mc.thePlayer) {
-            if (targetInvisible || !entity.invisible) {
-                if (targetPlayer && classProvider.isEntityPlayer(entity)) {
-                    val entityPlayer = entity.asEntityPlayer()
+    fun isSelected(entity: Entity?, canAttackCheck: Boolean): Boolean {
+        if ((entity is EntityLivingBase) && (targetDead || entity.isEntityAlive) && entity != mc.player) {
+            if (targetInvisible || !entity.isInvisible) {
+                if (targetPlayer && (entity is EntityPlayer)) {
+                    val entityPlayer = entity
 
                     if (canAttackCheck) {
                         if (isBot(entityPlayer))
@@ -49,7 +49,7 @@ object EntityUtils : MinecraftInstance() {
                         if (entityPlayer.isClientFriend() && !LiquidBounce.moduleManager.getModule(NoFriends::class.java).state)
                             return false
 
-                        if (entityPlayer.spectator) return false
+                        if (entityPlayer.isSpectator) return false
                         val teams = LiquidBounce.moduleManager.getModule(Teams::class.java) as Teams
                         return !teams.state || !teams.isInYourTeam(entityPlayer)
                     }
@@ -61,13 +61,12 @@ object EntityUtils : MinecraftInstance() {
         }
         return false
     }
-    fun isFriend(entity: IEntity): Boolean {
-        return classProvider.isEntityPlayer(entity) && entity.name != null &&
-                LiquidBounce.fileManager.friendsConfig.isFriend(stripColor(entity.name))
+    fun isFriend(entity: Entity): Boolean {
+        return entity is EntityPlayer && LiquidBounce.fileManager.friendsConfig.isFriend(stripColor(entity.name))
     }
     fun getPing(entityPlayer: EntityPlayer?): Int {
         if (entityPlayer == null) return 0
-        val networkPlayerInfo: INetworkPlayerInfo? = mc.netHandler.getPlayerInfo(entityPlayer.uniqueID)
-        return networkPlayerInfo?.responseTime ?: 0
+        val networkPlayerInfo: NetworkPlayerInfo = mc.connection!!.getPlayerInfo(entityPlayer.uniqueID)
+        return networkPlayerInfo.responseTime
     }
 }

@@ -20,8 +20,6 @@
            佛祖保佑       永无Exception     永不修改           */
 package net.ccbluex.liquidbounce
 
-import net.ccbluex.liquidbounce.api.Wrapper
-import net.ccbluex.liquidbounce.api.minecraft.util.IResourceLocation
 import net.ccbluex.liquidbounce.cape.CapeAPI.registerCapeService
 import net.ccbluex.liquidbounce.event.ClientShutdownEvent
 import net.ccbluex.liquidbounce.event.EventManager
@@ -31,22 +29,18 @@ import net.ccbluex.liquidbounce.features.special.AntiForge
 import net.ccbluex.liquidbounce.features.special.BungeeCordSpoof
 import net.ccbluex.liquidbounce.features.special.DonatorCape
 import net.ccbluex.liquidbounce.file.FileManager
-import net.ccbluex.liquidbounce.injection.backend.Backend
 import net.ccbluex.liquidbounce.script.ScriptManager
 import net.ccbluex.liquidbounce.script.remapper.Remapper.loadSrg
-import net.ccbluex.liquidbounce.tabs.BlocksTab
-import net.ccbluex.liquidbounce.tabs.ExploitsTab
-import net.ccbluex.liquidbounce.tabs.HeadsTab
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
 import net.ccbluex.liquidbounce.ui.client.hud.HUD
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.Companion.createDefault
 import net.ccbluex.liquidbounce.ui.cnfont.FontLoaders
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.ClassUtils.hasForge
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.InventoryUtils
 import net.ccbluex.liquidbounce.utils.RotationUtils
+import net.minecraft.util.ResourceLocation
 import op.wawa.manager.CombatManager
 import op.wawa.sound.Sound
 import op.wawa.utils.QQUtils
@@ -62,7 +56,6 @@ object LiquidBounce {
     var CLIENT_NAME = "PridePlus"
     const val CLIENT_VERSION = "NextGen1.0"
     const val CLIENT_CREATOR = "WaWa"
-    const val MINECRAFT_VERSION = Backend.MINECRAFT_VERSION
     const val CLIENT_CLOUD = "https://cloud.liquidbounce.net/LiquidBounce"
     @JvmField
     val CLIENT_TITLE = listOf(
@@ -96,9 +89,7 @@ object LiquidBounce {
     lateinit var clickGui: ClickGui
 
     // Menu Background
-    var background: IResourceLocation? = null
-
-    lateinit var wrapper: Wrapper
+    var background: ResourceLocation? = null
 
     fun displayTray(title: String, text: String, type: TrayIcon.MessageType?) {
         val tray = SystemTray.getSystemTray()
@@ -196,13 +187,6 @@ object LiquidBounce {
             // ClickGUI
             clickGui = ClickGui()
             fileManager.loadConfig(fileManager.clickGuiConfig)
-
-            // Tabs (Only for Forge!)
-            if (hasForge()) {
-                BlocksTab()
-                ExploitsTab()
-                HeadsTab()
-            }
 
             // Register capes service
             try {

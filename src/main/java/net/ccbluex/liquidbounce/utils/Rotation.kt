@@ -5,11 +5,10 @@
  */
 package net.ccbluex.liquidbounce.utils
 
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.player.IEntityPlayer
-import net.ccbluex.liquidbounce.api.minecraft.util.WMathHelper
-import net.ccbluex.liquidbounce.api.minecraft.util.WVec3
 import net.ccbluex.liquidbounce.event.StrafeEvent
 import net.ccbluex.liquidbounce.utils.block.PlaceInfo
+import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.util.math.Vec3d
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -22,7 +21,7 @@ data class Rotation(var yaw: Float, var pitch: Float) : MinecraftInstance() {
     /**
      * Set rotations to [player]
      */
-    fun toPlayer(player: IEntityPlayer) {
+    fun toPlayer(player: EntityPlayer) {
         if (yaw.isNaN() || pitch.isNaN())
             return
 
@@ -61,9 +60,9 @@ data class Rotation(var yaw: Float, var pitch: Float) : MinecraftInstance() {
      * @author bestnub
      */
     fun applyStrafeToPlayer(event: StrafeEvent) {
-        val player = mc.thePlayer!!
+        val player = mc.player!!
 
-        val dif = ((WMathHelper.wrapAngleTo180_float(player.rotationYaw - this.yaw
+        val dif = ((MathUtils.wrapAngleTo180_float(player.rotationYaw - this.yaw
                 - 23.5f - 135)
                 + 180) / 45).toInt()
 
@@ -146,7 +145,7 @@ data class Rotation(var yaw: Float, var pitch: Float) : MinecraftInstance() {
 /**
  * Rotation with vector
  */
-data class VecRotation(val vec: WVec3, val rotation: Rotation)
+data class VecRotation(val vec: Vec3d, val rotation: Rotation)
 
 /**
  * Rotation with place info

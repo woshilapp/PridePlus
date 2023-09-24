@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.event.MotionEvent;
 import net.ccbluex.liquidbounce.event.MoveEvent;
 import net.ccbluex.liquidbounce.features.module.modules.movement.Speed;
 import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.SpeedMode;
+import net.ccbluex.liquidbounce.injection.implementations.IMixinTimer;
 import net.ccbluex.liquidbounce.utils.MovementUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,20 +34,20 @@ public class VulcanHop2 extends SpeedMode {
         int L = 0;
 
         if (MovementUtils.isMoving()) {
-            mc.getTimer().setTimerSpeed((Objects.requireNonNull(mc.getThePlayer()).getMotionY() > 0) ? 1.65f : 0.73f);
+            ((IMixinTimer) mc.timer).setTimerSpeed((Objects.requireNonNull(mc.player).motionY > 0) ? 1.65f : 0.73f);
 
-            if (mc.getThePlayer().getOnGround()) {
+            if (mc.player.onGround) {
                 if (groundTick >= 0) {
                         MovementUtils.strafe(0.483f);
                     }
                     if (0.42 != 0) {
-                        mc.getThePlayer().setMotionY(0.42);
+                        mc.player.motionY = 0.42;
                     }
                 groundTick++;
             } else {
                 groundTick = 0;
                 L += 0.0 * 0.03;
-                mc.getThePlayer().setMotionY(L);
+                mc.player.motionY = L;
             }
         } 
     }
@@ -58,7 +59,7 @@ public class VulcanHop2 extends SpeedMode {
 
     @Override
     public void onDisable() {
-        mc.getTimer().setTimerSpeed(1F);
+        ((IMixinTimer) mc.timer).setTimerSpeed(1F);
         super.onDisable();
     }
 

@@ -6,9 +6,12 @@
 package net.ccbluex.liquidbounce.utils;
 
 import com.google.gson.JsonObject;
-import net.ccbluex.liquidbounce.LiquidBounce;
-import net.ccbluex.liquidbounce.api.minecraft.INetworkManager;
-import net.ccbluex.liquidbounce.api.minecraft.network.login.server.ISPacketEncryptionRequest;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.login.client.CPacketEncryptionResponse;
+import net.minecraft.network.login.server.SPacketEncryptionRequest;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.LogManager;
@@ -27,10 +30,6 @@ public final class ClientUtils extends MinecraftInstance {
         return logger;
     }
 
-    public static void disableFastRender() {
-        LiquidBounce.wrapper.getFunctions().disableFastRender();
-    }
-
     public static int reAlpha(int color, float alpha) {
         Color c = new Color(color);
         float r = 0.003921569f * (float)c.getRed();
@@ -38,16 +37,16 @@ public final class ClientUtils extends MinecraftInstance {
         float b = 0.003921569f * (float)c.getBlue();
         return new Color(r, g, b, alpha).getRGB();
     }
-    public static void sendEncryption(final INetworkManager networkManager, final SecretKey secretKey, final PublicKey publicKey, final ISPacketEncryptionRequest encryptionRequest) {
-        networkManager.sendPacket(classProvider.createCPacketEncryptionResponse(secretKey, publicKey, encryptionRequest.getVerifyToken()), () -> {
-            networkManager.enableEncryption(secretKey);
-
-            return null;
+    public static void sendEncryption(final NetworkManager networkManager, final SecretKey secretKey, final PublicKey publicKey, final SPacketEncryptionRequest encryptionRequest) {
+        networkManager.sendPacket(new CPacketEncryptionResponse(secretKey, publicKey, encryptionRequest.getVerifyToken()), new GenericFutureListener<Future<? super Void>>() {
+            public void operationComplete(Future<? super Void> p_operationComplete_1_) throws Exception {
+                networkManager.enableEncryption(secretKey);
+            }
         });
     }
 
     public static void displayChatMessage(final String message) {
-        if (mc.getThePlayer() == null) {
+        if (mc.player == null) {
             getLogger().info("(MCChat)" + message);
             return;
         }
@@ -55,6 +54,6 @@ public final class ClientUtils extends MinecraftInstance {
         final JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("text", message);
 
-        mc.getThePlayer().addChatMessage(LiquidBounce.wrapper.getFunctions().jsonToComponent(jsonObject.toString()));
+        mc.player.sendMessage(new TextComponentString(jsonObject.toString()));
     }
 }

@@ -15,7 +15,7 @@ class VClipCommand : Command("vclip") {
         if (args.size > 1) {
             try {
                 val y = args[1].toDouble()
-                val thePlayer = mc.thePlayer ?: return
+                val thePlayer = mc.player ?: return
 
                 val entity = if (thePlayer.isRiding) thePlayer.ridingEntity!! else thePlayer
 

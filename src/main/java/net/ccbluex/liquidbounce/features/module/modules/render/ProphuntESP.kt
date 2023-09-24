@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.api.minecraft.util.WBlockPos
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
@@ -21,12 +20,14 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.minecraft.entity.item.EntityFallingBlock
+import net.minecraft.util.math.BlockPos
 import java.awt.Color
 import java.util.*
 
 @ModuleInfo(name = "ProphuntESP", description = "Allows you to see disguised players in PropHunt.", category = ModuleCategory.RENDER)
 class ProphuntESP : Module() {
-    val blocks: MutableMap<WBlockPos, Long> = HashMap()
+    val blocks: MutableMap<BlockPos, Long> = HashMap()
 
     private val modeValue = ListValue("Mode", arrayOf("Box", "OtherBox", "ShaderOutline", "ShaderGlow"), "OtherBox")
     private val shaderOutlineRadius = FloatValue("ShaderOutline-Radius", 1.35f, 1f, 2f)
@@ -44,14 +45,14 @@ class ProphuntESP : Module() {
     fun onRender3D(event: Render3DEvent?) {
         val mode = modeValue.get()
         val color = if (colorRainbow.get()) rainbow() else Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get())
-        for (entity in mc.theWorld!!.loadedEntityList) {
+        for (entity in mc.world!!.loadedEntityList) {
             if(!mode.equals("Box", true) || !mode.equals("OtherBox", true)) break
-            if (!classProvider.isEntityFallingBlock(entity)) continue
+            if (entity !is EntityFallingBlock) continue
 
             RenderUtils.drawEntityBox(entity, color, mode.equals("Box", true))
         }
         synchronized(blocks) {
-            val iterator: MutableIterator<Map.Entry<WBlockPos, Long>> = blocks.entries.iterator()
+            val iterator: MutableIterator<Map.Entry<BlockPos, Long>> = blocks.entries.iterator()
 
             while (iterator.hasNext()) {
                 val entry = iterator.next()
@@ -76,8 +77,8 @@ class ProphuntESP : Module() {
 
         shader.startDraw(event.partialTicks)
         try {
-            for (entity in mc.theWorld!!.loadedEntityList) {
-                if (!classProvider.isEntityFallingBlock(entity)) continue
+            for (entity in mc.world!!.loadedEntityList) {
+                if (entity is EntityFallingBlock) continue
                 mc.renderManager.renderEntityStatic(entity, mc.timer.renderPartialTicks, true)
             }
         } catch (ex: Exception) {

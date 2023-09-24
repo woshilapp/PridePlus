@@ -13,6 +13,9 @@ import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlockIntersects
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.minecraft.block.BlockAir
+import net.minecraft.network.play.client.CPacketPlayer
+import net.minecraft.util.math.AxisAlignedBB
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -27,73 +30,73 @@ class WallClimb : Module() {
 
     @EventTarget
     fun onMove(event: MoveEvent) {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
-        if (!thePlayer.isCollidedHorizontally || thePlayer.isOnLadder || thePlayer.isInWater || thePlayer.isInLava)
+        if (!player.collidedHorizontally || player.isOnLadder || player.isInWater || player.isInLava)
             return
 
         if ("simple".equals(modeValue.get(), ignoreCase = true)) {
             event.y = 0.2
-            thePlayer.motionY = 0.0
+            player.motionY = 0.0
         }
     }
 
     @EventTarget
     fun onUpdate(event: MotionEvent) {
-        val thePlayer = mc.thePlayer
+        val player = mc.player
 
-        if (event.eventState != EventState.POST || thePlayer == null)
+        if (event.eventState != EventState.POST || player == null)
             return
 
 
         when (modeValue.get().toLowerCase()) {
             "clip" -> {
-                if (thePlayer.motionY < 0)
+                if (player.motionY < 0)
                     glitch = true
-                if (thePlayer.isCollidedHorizontally) {
+                if (player.collidedHorizontally) {
                     when (clipMode.get().toLowerCase()) {
-                        "jump" -> if (thePlayer.onGround)
-                            thePlayer.jump()
-                        "fast" -> if (thePlayer.onGround)
-                            thePlayer.motionY = 0.42
-                        else if (thePlayer.motionY < 0)
-                            thePlayer.motionY = -0.3
+                        "jump" -> if (player.onGround)
+                            player.jump()
+                        "fast" -> if (player.onGround)
+                            player.motionY = 0.42
+                        else if (player.motionY < 0)
+                            player.motionY = -0.3
                     }
                 }
             }
             "checkerclimb" -> {
-                val isInsideBlock = collideBlockIntersects(thePlayer.entityBoundingBox) {
-                    !classProvider.isBlockAir(it)
+                val isInsideBlock = collideBlockIntersects(player.entityBoundingBox) {
+                    it !is BlockAir
                 }
                 val motion = checkerClimbMotionValue.get()
 
                 if (isInsideBlock && motion != 0f)
-                    thePlayer.motionY = motion.toDouble()
+                    player.motionY = motion.toDouble()
             }
-            "aac3.3.12" -> if (thePlayer.isCollidedHorizontally && !thePlayer.isOnLadder) {
+            "aac3.3.12" -> if (player.collidedHorizontally && !player.isOnLadder) {
                 waited++
                 if (waited == 1)
-                    thePlayer.motionY = 0.43
+                    player.motionY = 0.43
                 if (waited == 12)
-                    thePlayer.motionY = 0.43
+                    player.motionY = 0.43
                 if (waited == 23)
-                    thePlayer.motionY = 0.43
+                    player.motionY = 0.43
                 if (waited == 29)
-                    thePlayer.setPosition(thePlayer.posX, thePlayer.posY + 0.5, thePlayer.posZ)
+                    player.setPosition(player.posX, player.posY + 0.5, player.posZ)
                 if (waited >= 30)
                     waited = 0
-            } else if (thePlayer.onGround) waited = 0
+            } else if (player.onGround) waited = 0
             "aacglide" -> {
-                if (!thePlayer.isCollidedHorizontally || thePlayer.isOnLadder) return
-                thePlayer.motionY = -0.19
+                if (!player.collidedHorizontally || player.isOnLadder) return
+                player.motionY = -0.19
             }
         }
     }
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        if (classProvider.isCPacketPlayer(event.packet)) {
-            val packetPlayer = event.packet.asCPacketPlayer()
+        if (event.packet is CPacketPlayer) {
+            val packetPlayer = event.packet
 
             if (glitch) {
                 val yaw = MovementUtils.direction.toFloat()
@@ -106,13 +109,13 @@ class WallClimb : Module() {
 
     @EventTarget
     fun onBlockBB(event: BlockBBEvent) {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         val mode = modeValue.get()
 
         when (mode.toLowerCase()) {
-            "checkerclimb" -> if (event.y > thePlayer.posY) event.boundingBox = null
-            "clip" -> if (event.block != null && mc.thePlayer != null && classProvider.isBlockAir(event.block) && event.y < thePlayer.posY && thePlayer.isCollidedHorizontally && !thePlayer.isOnLadder && !thePlayer.isInWater && !thePlayer.isInLava) event.boundingBox = classProvider.createAxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(thePlayer.posX, thePlayer.posY.toInt() - 1.0, thePlayer.posZ)
+            "checkerclimb" -> if (event.y > player.posY) event.boundingBox = null
+            "clip" -> if (event.block != null && mc.player != null && (event.block is BlockAir) && event.y < player.posY && player.collidedHorizontally && !player.isOnLadder && !player.isInWater && !player.isInLava) event.boundingBox = AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(player.posX, player.posY.toInt() - 1.0, player.posZ)
         }
     }
 }

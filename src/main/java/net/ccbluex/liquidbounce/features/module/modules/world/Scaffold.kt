@@ -1,117 +1,119 @@
 /*
- * ColorByte Hacked Client
- * A free half-open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/SkidderRyF/ColorByte/
+ * LiquidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+ * https://github.com/CCBlueX/LiquidBounce/
  */
 
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
-import net.ccbluex.liquidbounce.api.enums.BlockType
-import net.ccbluex.liquidbounce.api.enums.EnumFacingType
-import net.ccbluex.liquidbounce.api.minecraft.item.IItemBlock
-import net.ccbluex.liquidbounce.api.minecraft.network.play.client.ICPacketEntityAction
-import net.ccbluex.liquidbounce.api.minecraft.util.IMovingObjectPosition
-import net.ccbluex.liquidbounce.api.minecraft.util.WBlockPos
-import net.ccbluex.liquidbounce.api.minecraft.util.WMathHelper.wrapAngleTo180_float
-import net.ccbluex.liquidbounce.api.minecraft.util.WVec3
+import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
+import net.ccbluex.liquidbounce.features.module.modules.render.BlockOverlay
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.injection.implementations.IMixinTimer
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.InventoryUtils
-import net.ccbluex.liquidbounce.utils.InventoryUtils.findAutoBlockBlock
-import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
-import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
-import net.ccbluex.liquidbounce.utils.PlaceRotation
-import net.ccbluex.liquidbounce.utils.Rotation
-import net.ccbluex.liquidbounce.utils.RotationUtils
+import net.ccbluex.liquidbounce.utils.*
+import net.ccbluex.liquidbounce.utils.MathUtils.wrapAngleTo180_float
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.canBeClicked
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.isReplaceable
 import net.ccbluex.liquidbounce.utils.block.PlaceInfo
-import net.ccbluex.liquidbounce.utils.block.PlaceInfo.Companion.get
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
+import net.ccbluex.liquidbounce.utils.timer.TickTimer
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
+import net.minecraft.block.BlockBush
+import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.RenderHelper
+import net.minecraft.client.settings.GameSettings
+import net.minecraft.item.ItemBlock
+import net.minecraft.network.play.client.CPacketAnimation
+import net.minecraft.network.play.client.CPacketEntityAction
+import net.minecraft.network.play.client.CPacketHeldItemChange
+import net.minecraft.network.play.server.SPacketDisconnect
+import net.minecraft.util.EnumActionResult
+import net.minecraft.util.EnumFacing
+import net.minecraft.util.EnumHand
+import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.RayTraceResult
+import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11
 import java.awt.Color
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
+import kotlin.math.*
 
 @ModuleInfo(name = "Scaffold", description = "Auto Place Block", category = ModuleCategory.WORLD)
-open class Scaffold : Module() {
-    /**
-     * OPTIONS
-     */
-    // Mode
-    val modeValue = ListValue("Mode", arrayOf("Normal", "GrimAC", "Rewinside", "Expand"), "Normal")
+class Scaffold : Module() {
+
+    private val modeValue = ListValue("Mode", arrayOf("Normal", "Rewinside", "Expand"), "Normal")
 
     // Delay
-    private val placeableDelay = BoolValue("PlaceableDelay", false)
     private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 0, 0, 1000) {
         override fun onChanged(oldValue: Int, newValue: Int) {
-            val i = minDelayValue.get()
-            if (i > newValue) set(i)
+            val minDelay = minDelayValue.get()
+            if (minDelay > newValue) {
+                set(minDelay)
+            }
         }
-    }.displayable { placeableDelay.get() } as IntegerValue
+    }
+
     private val minDelayValue: IntegerValue = object : IntegerValue("MinDelay", 0, 0, 1000) {
         override fun onChanged(oldValue: Int, newValue: Int) {
-            val i = maxDelayValue.get()
-            if (i < newValue) set(i)
+            val maxDelay = maxDelayValue.get()
+            if (maxDelay < newValue) {
+                set(maxDelay)
+            }
         }
-    }.displayable { placeableDelay.get() } as IntegerValue
+    }
+    private val falldowndelay = IntegerValue("FallDownDelay", 0, 0, 1000)
+    // Placeable delay
+    private val placeDelay = BoolValue("PlaceDelay", true)
 
-    // AutoBlock
-    private val autoBlockValue = ListValue("AutoBlock", arrayOf("Off", "Spoof", "Pick", "Switch"), "Spoof")
+    // Autoblock
+    private val autoBlockValue = ListValue("AutoBlock", arrayOf("Off", "Pick", "Spoof", "Switch"), "Spoof")
+
+
 
     // Basic stuff
-    val sprintValue = BoolValue("Sprint", true)
+    private val sprintValue = BoolValue("Sprint", true)
+    private val sprintModeValue = ListValue("SprintMode", arrayOf("Same", "Ground", "Air"), "Air")
     private val swingValue = BoolValue("Swing", true)
     private val searchValue = BoolValue("Search", true)
     private val downValue = BoolValue("Down", true)
     private val placeModeValue = ListValue("PlaceTiming", arrayOf("Pre", "Post"), "Post")
+    private val placeConditionValue = ListValue("PlaceCondition", arrayOf("Always","DelayAir","FallDown"), "Always")
+    private val RotConditionValue = ListValue("RotCondition", arrayOf("Always","DelayAir","FallDown"), "Always")
+    private val airticks = IntegerValue("PlaceAirTime",0,0,10)
+    private val Rotairticks = IntegerValue("RotAirTime",0,0,10)
 
     // Eagle
-    private val eagleValue = ListValue("Eagle", arrayOf("Normal", "EdgeDistance", "Silent", "Off"), "Off")
-    private val blocksToEagleValue =
-        IntegerValue("BlocksToEagle", 0, 0, 10).displayable { eagleValue.get().toLowerCase() != "off" }
-    private val edgeDistanceValue =
-        FloatValue("EagleEdgeDistance", 0.2f, 0f, 0.5f).displayable { eagleValue.get().toLowerCase() != "off" }
+    private val eagleValue = ListValue("Eagle", arrayOf("Normal", "Silent", "Off"), "Normal")
+    private val blocksToEagleValue = IntegerValue("BlocksToEagle", 0, 0, 10)
+    private val edgeDistanceValue = FloatValue("EagleEdgeDistance", 0f, 0f, 0.5f)
 
     // Expand
-    private val expandLengthValue =
-        IntegerValue("ExpandLength", 5, 1, 6).displayable { modeValue.get().toLowerCase() == "expand" }
+    private val omniDirectionalExpand = BoolValue("OmniDirectionalExpand", false)
+    private val expandLengthValue = IntegerValue("ExpandLength", 1, 1, 6)
 
-    // RotationStrafe
-    private val rotationStrafeValue = BoolValue("RotationStrafe", false)
+    // Rotation Options
+    private val strafeMode = ListValue("Strafe", arrayOf("Off", "AAC"), "Off")
+    private val rotationsValue = BoolValue("Rotations", true)
+    private val silentRotationValue = BoolValue("SilentRotation", true)
+    private val keepRotationValue = BoolValue("KeepRotation", true)
+    private val keepLengthValue = IntegerValue("KeepRotationLength", 0, 0, 20)
 
-    // Rotations
-    private val rotationModeValue =
-        ListValue("RotationMode", arrayOf("Normal", "Static", "StaticPitch", "StaticYaw", "Off"), "Normal")
-    private val silentRotation = BoolValue("SilentRotation", true)
-    private val keepRotationValue = BoolValue("KeepRotation", false)
-    private val keepLengthValue = IntegerValue("KeepRotationLength", 0, 0, 20).displayable { keepRotationValue.get() }
-    private val staticPitchValue =
-        FloatValue("StaticPitchOffset", 86f, 70f, 90f).displayable { rotationModeValue.get() == "StaticPitch" }
-    private val staticYawOffsetValue =
-        FloatValue("StaticYawOffset", 0f, 0f, 90f).displayable { rotationModeValue.get() == "StaticYaw" }
+    // XZ/Y range
+    private val searchMode = ListValue("XYZSearch", arrayOf("Auto", "AutoCenter", "Manual"), "AutoCenter")
+    private val xzRangeValue = FloatValue("xzRange", 0.8f, 0f, 1f)
+    private var yRangeValue = FloatValue("yRange", 0.8f, 0f, 1f)
+    private val minDistValue = FloatValue("MinDist", 0.0f, 0.0f, 0.2f)
 
-    // Other
-    private val xzRangeValue = FloatValue("xzRange", 0.8f, 0.1f, 1.0f)
-    private val yRangeValue = FloatValue("yRange", 0.8f, 0.1f, 1.0f)
-
-    // SearchAccuracy
-    private val searchAccuracyValue: IntegerValue = object : IntegerValue("SearchAccuracy", 8, 1, 24) {
+    // Search Accuracy
+    private val searchAccuracyValue: IntegerValue = object : IntegerValue("SearchAccuracy", 8, 1, 16) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             if (maximum < newValue) {
                 set(maximum)
@@ -146,632 +148,526 @@ open class Scaffold : Module() {
     }
 
     // Zitter
-    private val zitterValue = BoolValue("Zitter", false)
-    private val zitterModeValue =
-        ListValue("ZitterMode", arrayOf("Teleport", "Smooth"), "Teleport").displayable { zitterValue.get() }
-    private val zitterSpeed = FloatValue("ZitterSpeed", 0.13f, 0.1f, 0.3f).displayable { zitterValue.get() }
-    private val zitterStrength = FloatValue("ZitterStrength", 0.072f, 0.05f, 0.2f).displayable { zitterValue.get() }
+    private val zitterMode = ListValue("Zitter", arrayOf("Off", "Teleport", "Smooth"), "Off")
+    private val zitterSpeed = FloatValue("ZitterSpeed", 0.13f, 0.1f, 0.3f)
+    private val zitterStrength = FloatValue("ZitterStrength", 0.05f, 0f, 0.2f)
 
     // Game
     private val timerValue = FloatValue("Timer", 1f, 0.1f, 10f)
     private val speedModifierValue = FloatValue("SpeedModifier", 1f, 0f, 2f)
-    private val slowValue: BoolValue = object : BoolValue("Slow", false) {
-        override fun onChanged(oldValue: Boolean, newValue: Boolean) {
-            if (newValue) sprintValue.set(false)
-        }
-    }
-    private val slowSpeed = FloatValue("SlowSpeed", 0.6f, 0.2f, 0.8f).displayable { slowValue.get() }
-    private var progress = 0f
+    private val slowValue = BoolValue("Slow", false)
+    private val slowSpeed = FloatValue("SlowSpeed", 0.6f, 0.2f, 0.8f)
+
+    // Safety
     private val sameYValue = BoolValue("SameY", false)
-    private val smartSpeedValue = BoolValue("SmartSpeed", false)
-    private val autoJumpValue = BoolValue("AutoJump", false)
     private val safeWalkValue = BoolValue("SafeWalk", true)
     private val airSafeValue = BoolValue("AirSafe", false)
-
+    private val fastPlace = BoolValue("FastPlace", false)
+    private val fallingFastPlace = BoolValue("FallingFastPlace", false).displayable { fastPlace.get() }
     // Visuals
     private val counterDisplayValue = BoolValue("Counter", true)
     private val markValue = BoolValue("Mark", false)
-    private val autoTimer = BoolValue("AutoTimer", false)
 
-    /**
-     * MODULE
-     */
     // Target block
     private var targetPlace: PlaceInfo? = null
 
-    // Launch position
-    private var launchY = 0
-
     // Rotation lock
     private var lockRotation: Rotation? = null
-    private var limitedRotation: Rotation? = null
+    private var lockRotationTimer = TickTimer()
+
+    // Launch position
+    private var launchY = 0
     private var facesBlock = false
 
-    // Auto block slot
+    // AutoBlock
     private var slot = 0
 
-    // Zitter Smooth
+    // Zitter Direction
     private var zitterDirection = false
 
     // Delay
     private val delayTimer = MSTimer()
     private val zitterTimer = MSTimer()
-    private var delay: Long = 0
+    private var delay = 0L
 
     // Eagle
     private var placedBlocksWithoutEagle = 0
     private var eagleSneaking = false
 
-    // Down
+    // Downwards
     private var shouldGoDown = false
 
-    /**
-     * Enable module
-     */
+    private var f = false
+    private var n = false
+    private var canPlace = false
+    private var canRot = false
+    private var airtime = 0
+
+    // Enabling module
     override fun onEnable() {
-        if (mc.thePlayer == null) return
-        if (autoTimer.get()) {
-            val timer = moduleManager.getModule(
-                Timer::class.java
-            ) as Timer
-            timer.state = true
-        }
-        progress = 0f
-        launchY = mc.thePlayer!!.posY.toInt()
+        val player = mc.player ?: return
+        canPlace = false
+        canRot = false
+        f = false
+        airtime = 0
+        launchY = player.posY.roundToInt()
+        slot = player.inventory.currentItem
+        facesBlock = false
     }
 
-    private val blockPosUnder: WBlockPos
-        get() = WBlockPos(
-            mc.thePlayer!!.posX,
-            mc.thePlayer!!.posY - 1.0,
-            mc.thePlayer!!.posZ
-        )
-
-    /**
-     * Update event
-     */
+    // Events
     @EventTarget
-    fun onUpdate(event: UpdateEvent?) {
-        Thread {
-            if (modeValue.get() == "GrimAC") {
-                if (mc2.player.onGround && mc.theWorld!!
-                        .getBlockState(
-                            WBlockPos(
-                                mc.thePlayer!!.posX,
-                                mc.thePlayer!!.posY - 1.0, mc.thePlayer!!.posZ
-                            )
-                        ).block != classProvider.getBlockEnum(BlockType.AIR)
-                ) {
-                    rotationModeValue.set("Off")
-                } else {
-                    rotationModeValue.set("StaticYaw")
-                }
+    private fun onUpdate(event: UpdateEvent) {
+        val player = mc.player ?: return
+        if(!player.onGround){
+            airtime++
+        }else{
+            if(placeConditionValue.get().equals("falldown", ignoreCase = true)|| (placeConditionValue.get().equals("delayair", ignoreCase = true))){
+                delay = 0L
+                delayTimer.reset()
+                eagleSneaking = false
+                shouldGoDown = false
+                canPlace = false
+                canRot = false
+                f = false
+                launchY = player.posY.roundToInt()
+                slot = player.inventory.currentItem
+                facesBlock = false
             }
-        }
+            airtime = 0
 
-        mc.timer.timerSpeed = timerValue.get()
-        if (autoJumpValue.get() && (blocksAmount == 0)) {
-            if (mc.thePlayer!!.onGround && isMoving) {
-                mc.thePlayer!!.jump()
-            }
         }
-        bestBlocks
+        f = airtime > airticks.get()
+        n = airtime > Rotairticks.get()
+        (mc.timer as IMixinTimer).timerSpeed = timerValue.get()
+        canPlace = (((placeConditionValue.get().equals("falldown", ignoreCase = true))&&mc.player!!.fallDistance > 0)||(placeConditionValue.get().equals("always", ignoreCase = true)) || (placeConditionValue.get().equals("delayair", ignoreCase = true)&&!mc.player!!.onGround&&f) )
+        canRot =(((RotConditionValue.get().equals("falldown", ignoreCase = true))&&mc.player!!.fallDistance > 0)||(RotConditionValue.get().equals("always", ignoreCase = true)) || (RotConditionValue.get().equals("delayair", ignoreCase = true)&&!mc.player!!.onGround&&n) )
+        if (!sprintValue.get()) mc.player!!.isSprinting = false
+        if (sprintModeValue.get().equals("off", ignoreCase = true) || sprintModeValue.get()
+                .equals("ground", ignoreCase = true) && !mc.player!!.onGround || sprintModeValue.get()
+                .equals("air", ignoreCase = true) && mc.player!!.onGround
+        ) {
+            mc.player!!.isSprinting = false
+        }
         shouldGoDown =
-            downValue.get() && !sameYValue.get() && mc.gameSettings.keyBindSneak.isKeyDown && blocksAmount > 1
-        if (shouldGoDown) mc.gameSettings.keyBindSneak.pressed = false
-        if (slowValue.get()) {
-            mc.thePlayer!!.motionX *= slowSpeed.get()
-            mc.thePlayer!!.motionZ *= slowSpeed.get()
+            downValue.get() && !sameYValue.get() && GameSettings.isKeyDown(mc2.gameSettings.keyBindSneak) && blocksAmount > 1
+        if (shouldGoDown) {
+            mc.gameSettings.keyBindSneak.pressed = false
         }
-        if (mc.thePlayer!!.onGround) {
-            val mode = modeValue.get()
+        if (slowValue.get()) {
+            player.motionX = player.motionX * slowSpeed.get()
+            player.motionZ = player.motionZ * slowSpeed.get()
+        }
+        // Eagle
+        if (!eagleValue.get().equals("Off", true) && !shouldGoDown) {
+            var dif = 0.5
+            val blockPos = BlockPos(player.posX, player.posY - 1.0, player.posZ)
+            if (edgeDistanceValue.get() > 0) {
+                for (facingType in EnumFacing.values()) {
+                    if (facingType == EnumFacing.UP || facingType == EnumFacing.DOWN) {
+                        continue
+                    }
+                    val side = facingType
+                    val neighbor = blockPos.offset(side)
+                    if (isReplaceable(neighbor)) {
+                        val calcDif = (if (facingType == EnumFacing.NORTH || facingType == EnumFacing.SOUTH) {
+                            abs((neighbor.z + 0.5) - player.posZ)
+                        } else {
+                            abs((neighbor.x + 0.5) - player.posX)
+                        }) - 0.5
 
-            // Rewinside scaffold mode
-            if (mode.equals("Rewinside", ignoreCase = true)) {
-                strafe(0.2f)
-                mc.thePlayer!!.motionY = 0.0
-            }
-
-            // Smooth Zitter
-            if (zitterValue.get() && zitterModeValue.get().equals("smooth", ignoreCase = true)) {
-                if (!mc.gameSettings.isKeyDown(mc.gameSettings.keyBindRight)) mc.gameSettings.keyBindRight.pressed =
-                    false
-                if (!mc.gameSettings.isKeyDown(mc.gameSettings.keyBindLeft)) mc.gameSettings.keyBindLeft.pressed = false
-                if (zitterTimer.hasTimePassed(100)) {
-                    zitterDirection = !zitterDirection
-                    zitterTimer.reset()
-                }
-                if (zitterDirection) {
-                    mc.gameSettings.keyBindRight.pressed = true
-                    mc.gameSettings.keyBindLeft.pressed = false
-                } else {
-                    mc.gameSettings.keyBindRight.pressed = false
-                    mc.gameSettings.keyBindLeft.pressed = true
-                }
-            }
-
-            // Eagle
-            if (!eagleValue.get().equals("Off", ignoreCase = true) && !shouldGoDown) {
-                var dif = 0.5
-                if (eagleValue.get().equals("EdgeDistance", ignoreCase = true) && !shouldGoDown) {
-                    for (i in 0..3) {
-                        when (i) {
-                            0 -> {
-                                run {
-                                    val blockPos = WBlockPos(
-                                        mc.thePlayer!!.posX - 1,
-                                        mc.thePlayer!!.posY - if (mc.thePlayer!!.posY == mc.thePlayer!!.posY.toInt() + 0.5) 0.0 else 1.0,
-                                        mc.thePlayer!!.posZ
-                                    )
-                                    val placeInfo = get(blockPos)
-                                    if (isReplaceable(blockPos) && placeInfo != null) {
-                                        var calcDif = mc.thePlayer!!.posX - blockPos.x
-                                        calcDif -= 0.5
-                                        if (calcDif < 0) calcDif *= -1.0
-                                        calcDif -= 0.5
-                                        if (calcDif < dif) dif = calcDif
-                                    }
-                                }
-                                run {
-                                    val blockPos = WBlockPos(
-                                        mc.thePlayer!!.posX + 1,
-                                        mc.thePlayer!!.posY - if (mc.thePlayer!!.posY == mc.thePlayer!!.posY.toInt() + 0.5) 0.0 else 1.0,
-                                        mc.thePlayer!!.posZ
-                                    )
-                                    val placeInfo = get(blockPos)
-                                    if (isReplaceable(blockPos) && placeInfo != null) {
-                                        var calcDif = mc.thePlayer!!.posX - blockPos.x
-                                        calcDif -= 0.5
-                                        if (calcDif < 0) calcDif *= -1.0
-                                        calcDif -= 0.5
-                                        if (calcDif < dif) dif = calcDif
-                                    }
-                                }
-                                run {
-                                    val blockPos = WBlockPos(
-                                        mc.thePlayer!!.posX,
-                                        mc.thePlayer!!.posY - if (mc.thePlayer!!.posY == mc.thePlayer!!.posY.toInt() + 0.5) 0.0 else 1.0,
-                                        mc.thePlayer!!.posZ - 1
-                                    )
-                                    val placeInfo = get(blockPos)
-                                    if (isReplaceable(blockPos) && placeInfo != null) {
-                                        var calcDif = mc.thePlayer!!.posZ - blockPos.z
-                                        calcDif -= 0.5
-                                        if (calcDif < 0) calcDif *= -1.0
-                                        calcDif -= 0.5
-                                        if (calcDif < dif) dif = calcDif
-                                    }
-                                }
-                                run {
-                                    val blockPos = WBlockPos(
-                                        mc.thePlayer!!.posX,
-                                        mc.thePlayer!!.posY - if (mc.thePlayer!!.posY == mc.thePlayer!!.posY.toInt() + 0.5) 0.0 else 1.0,
-                                        mc.thePlayer!!.posZ + 1
-                                    )
-                                    val placeInfo = get(blockPos)
-                                    if (isReplaceable(blockPos) && placeInfo != null) {
-                                        var calcDif = mc.thePlayer!!.posZ - blockPos.z
-                                        calcDif -= 0.5
-                                        if (calcDif < 0) calcDif *= -1.0
-                                        calcDif -= 0.5
-                                        if (calcDif < dif) dif = calcDif
-                                    }
-                                }
-                            }
-
-                            1 -> {
-                                run {
-                                    val blockPos = WBlockPos(
-                                        mc.thePlayer!!.posX + 1,
-                                        mc.thePlayer!!.posY - if (mc.thePlayer!!.posY == mc.thePlayer!!.posY.toInt() + 0.5) 0.0 else 1.0,
-                                        mc.thePlayer!!.posZ
-                                    )
-                                    val placeInfo = get(blockPos)
-                                    if (isReplaceable(blockPos) && placeInfo != null) {
-                                        var calcDif = mc.thePlayer!!.posX - blockPos.x
-                                        calcDif -= 0.5
-                                        if (calcDif < 0) calcDif *= -1.0
-                                        calcDif -= 0.5
-                                        if (calcDif < dif) dif = calcDif
-                                    }
-                                }
-                                run {
-                                    val blockPos = WBlockPos(
-                                        mc.thePlayer!!.posX,
-                                        mc.thePlayer!!.posY - if (mc.thePlayer!!.posY == mc.thePlayer!!.posY.toInt() + 0.5) 0.0 else 1.0,
-                                        mc.thePlayer!!.posZ - 1
-                                    )
-                                    val placeInfo = get(blockPos)
-                                    if (isReplaceable(blockPos) && placeInfo != null) {
-                                        var calcDif = mc.thePlayer!!.posZ - blockPos.z
-                                        calcDif -= 0.5
-                                        if (calcDif < 0) calcDif *= -1.0
-                                        calcDif -= 0.5
-                                        if (calcDif < dif) dif = calcDif
-                                    }
-                                }
-                                run {
-                                    val blockPos = WBlockPos(
-                                        mc.thePlayer!!.posX,
-                                        mc.thePlayer!!.posY - if (mc.thePlayer!!.posY == mc.thePlayer!!.posY.toInt() + 0.5) 0.0 else 1.0,
-                                        mc.thePlayer!!.posZ + 1
-                                    )
-                                    val placeInfo = get(blockPos)
-                                    if (isReplaceable(blockPos) && placeInfo != null) {
-                                        var calcDif = mc.thePlayer!!.posZ - blockPos.z
-                                        calcDif -= 0.5
-                                        if (calcDif < 0) calcDif *= -1.0
-                                        calcDif -= 0.5
-                                        if (calcDif < dif) dif = calcDif
-                                    }
-                                }
-                            }
-
-                            2 -> {
-                                run {
-                                    val blockPos = WBlockPos(
-                                        mc.thePlayer!!.posX,
-                                        mc.thePlayer!!.posY - if (mc.thePlayer!!.posY == mc.thePlayer!!.posY.toInt() + 0.5) 0.0 else 1.0,
-                                        mc.thePlayer!!.posZ - 1
-                                    )
-                                    val placeInfo = get(blockPos)
-                                    if (isReplaceable(blockPos) && placeInfo != null) {
-                                        var calcDif = mc.thePlayer!!.posZ - blockPos.z
-                                        calcDif -= 0.5
-                                        if (calcDif < 0) calcDif *= -1.0
-                                        calcDif -= 0.5
-                                        if (calcDif < dif) dif = calcDif
-                                    }
-                                }
-                                run {
-                                    val blockPos = WBlockPos(
-                                        mc.thePlayer!!.posX,
-                                        mc.thePlayer!!.posY - if (mc.thePlayer!!.posY == mc.thePlayer!!.posY.toInt() + 0.5) 0.0 else 1.0,
-                                        mc.thePlayer!!.posZ + 1
-                                    )
-                                    val placeInfo = get(blockPos)
-                                    if (isReplaceable(blockPos) && placeInfo != null) {
-                                        var calcDif = mc.thePlayer!!.posZ - blockPos.z
-                                        calcDif -= 0.5
-                                        if (calcDif < 0) calcDif *= -1.0
-                                        calcDif -= 0.5
-                                        if (calcDif < dif) dif = calcDif
-                                    }
-                                }
-                            }
-
-                            3 -> {
-                                val blockPos = WBlockPos(
-                                    mc.thePlayer!!.posX,
-                                    mc.thePlayer!!.posY - if (mc.thePlayer!!.posY == mc.thePlayer!!.posY.toInt() + 0.5) 0.0 else 1.0,
-                                    mc.thePlayer!!.posZ + 1
-                                )
-                                val placeInfo = get(blockPos)
-                                if (isReplaceable(blockPos) && placeInfo != null) {
-                                    var calcDif = mc.thePlayer!!.posZ - blockPos.z
-                                    calcDif -= 0.5
-                                    if (calcDif < 0) calcDif *= -1.0
-                                    calcDif -= 0.5
-                                    if (calcDif < dif) dif = calcDif
-                                }
-                            }
+                        if (calcDif < dif) {
+                            dif = calcDif
                         }
                     }
                 }
-                if (placedBlocksWithoutEagle >= blocksToEagleValue.get()) {
-                    val shouldEagle = mc.theWorld!!
-                        .getBlockState(
-                            WBlockPos(
-                                mc.thePlayer!!.posX,
-                                mc.thePlayer!!.posY - 1.0, mc.thePlayer!!.posZ
-                            )
-                        ).block == classProvider.getBlockEnum(BlockType.AIR) || dif < edgeDistanceValue.get() && eagleValue.get()
-                        .equals("EdgeDistance", ignoreCase = true)
-                    if (eagleValue.get().equals("Silent", ignoreCase = true) && !shouldGoDown) {
-                        if (eagleSneaking != shouldEagle) {
-                            mc.netHandler.addToSendQueue(
-                                classProvider.createCPacketEntityAction(
-                                    mc.thePlayer!!,
-                                    if (shouldEagle) ICPacketEntityAction.WAction.START_SNEAKING else ICPacketEntityAction.WAction.STOP_SNEAKING
-                                )
-                            )
-                        }
-                        eagleSneaking = shouldEagle
-                    } else mc.gameSettings.keyBindSneak.pressed = shouldEagle
-                    placedBlocksWithoutEagle = 0
-                } else placedBlocksWithoutEagle++
             }
-
-            // Zitter
-            if (zitterValue.get() && zitterModeValue.get().equals("teleport", ignoreCase = true)) {
-                strafe(zitterSpeed.get())
-                val yaw = Math.toRadians(mc.thePlayer!!.rotationYaw + if (zitterDirection) 90.0 else -90.0)
-                mc.thePlayer!!.motionX -= sin(yaw) * zitterStrength.get()
-                mc.thePlayer!!.motionZ += cos(yaw) * zitterStrength.get()
-                zitterDirection = !zitterDirection
+            if (placedBlocksWithoutEagle >= blocksToEagleValue.get()) {
+                val shouldEagle =
+                    isReplaceable(blockPos) || (edgeDistanceValue.get() > 0 && dif < edgeDistanceValue.get())
+                if (eagleValue.get().equals("Silent", true)) {
+                    if (eagleSneaking != shouldEagle) {
+                        mc.connection!!.sendPacket(
+                            CPacketEntityAction(
+                                player, if (shouldEagle) {
+                                    CPacketEntityAction.Action.START_SNEAKING
+                                } else {
+                                    CPacketEntityAction.Action.STOP_SNEAKING
+                                }
+                            )
+                        )
+                    }
+                    eagleSneaking = shouldEagle
+                } else {
+                    mc.gameSettings.keyBindSneak.pressed = shouldEagle
+                }
+                placedBlocksWithoutEagle = 0
+            } else {
+                placedBlocksWithoutEagle++
             }
         }
-        //Auto Jump thingy
-        if (shouldGoDown) launchY = mc.thePlayer!!.posY.toInt() - 1
+        if (player.onGround) {
+            when (modeValue.get().toLowerCase()) {
+                "rewinside" -> {
+                    MovementUtils.strafe(0.2F)
+                    player.motionY = 0.0
+                }
+            }
+            when (zitterMode.get().toLowerCase()) {
+                "off" -> {
+                    return
+                }
+                "smooth" -> {
+                    if (!GameSettings.isKeyDown(mc2.gameSettings.keyBindRight)) {
+                        mc.gameSettings.keyBindRight.pressed = false
+                    }
+                    if (!GameSettings.isKeyDown(mc2.gameSettings.keyBindLeft)) {
+                        mc.gameSettings.keyBindLeft.pressed = false
+                    }
+                    if (zitterTimer.hasTimePassed(100)) {
+                        zitterDirection = !zitterDirection
+                        zitterTimer.reset()
+                    }
+                    if (zitterDirection) {
+                        mc.gameSettings.keyBindRight.pressed = true
+                        mc.gameSettings.keyBindLeft.pressed = false
+                    } else {
+                        mc.gameSettings.keyBindRight.pressed = false
+                        mc.gameSettings.keyBindLeft.pressed = true
+                    }
+                }
+                "teleport" -> {
+                    MovementUtils.strafe(zitterSpeed.get())
+                    val yaw = Math.toRadians(player.rotationYaw + if (zitterDirection) 90.0 else -90.0)
+                    player.motionX = player.motionX - sin(yaw) * zitterStrength.get()
+                    player.motionZ = player.motionZ + cos(yaw) * zitterStrength.get()
+                    zitterDirection = !zitterDirection
+                }
+            }
+        }
     }
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        if (mc.thePlayer == null) return
-        val packet = event.packet
-
-        // AutoBlock
-        if (classProvider.isCPacketHeldItemChange(packet)) {
-            val packetHeldItemChange = packet.asCPacketHeldItemChange()
-            slot = packetHeldItemChange.slotId
+        if(event.packet is SPacketDisconnect){
+            state = false
         }
+        if (mc.player == null) {
+            return
+        }
+
+        val packet = event.packet
+        if (packet is CPacketHeldItemChange) {
+            slot = packet.slotId
+        }
+
     }
 
     @EventTarget
-    private fun onStrafe(event: StrafeEvent) {
-        if (!rotationStrafeValue.get()) return
-        RotationUtils.serverRotation.applyStrafeToPlayer(event)
+    fun onStrafe(event: StrafeEvent) {
+        if (strafeMode.get().equals("Off", true)) {
+            return
+        }
+        if(!canRot){ return }
+        update()
+        val rotation = lockRotation ?: return
+
+        if (rotationsValue.get() && (keepRotationValue.get() || !lockRotationTimer.hasTimePassed(keepLengthValue.get()))) {
+            if (targetPlace == null) {
+                rotation.yaw = wrapAngleTo180_float((rotation.yaw / 45f).roundToInt() * 45f)
+            }
+            setRotation(rotation)
+            lockRotationTimer.update()
+
+            rotation.applyStrafeToPlayer(event)
+            event.cancelEvent()
+            return
+        }
+
+        val targetRotation = RotationUtils.targetRotation ?: return
+        targetRotation.applyStrafeToPlayer(event)
         event.cancelEvent()
     }
 
     @EventTarget
     fun onMotion(event: MotionEvent) {
         val eventState = event.eventState
-
+        if(!canRot){ return }
         // Lock Rotation
-        if (!rotationModeValue.get()
-                .equals("Off", ignoreCase = true) && keepRotationValue.get() && lockRotation != null
-        ) setRotation(
-            lockRotation!!
-        )
-        if ((facesBlock || rotationModeValue.get().equals("Off", ignoreCase = true)) && placeModeValue.get()
-                .equals(eventState.stateName, ignoreCase = true)
-        ) place()
+        if (rotationsValue.get() && (keepRotationValue.get() || !lockRotationTimer.hasTimePassed(keepLengthValue.get())) && lockRotation != null && strafeMode.get()
+                .equals("Off", true)
+        ) {
+            setRotation(lockRotation!!)
+            if (eventState == EventState.POST) {
+                lockRotationTimer.update()
+            }
+        }
 
-        // Update and search for new block
-        if (eventState === EventState.PRE) update()
+        // Face block
+        if ((facesBlock || !rotationsValue.get()) && placeModeValue.get().equals(eventState.stateName, true)) {
+            if(!canPlace){return}
+            place()
+        }
+        if((mc.player!!.fallDistance > 0 && fallingFastPlace.get()) || (canPlace && fastPlace.get())){
+            place()
+        }
+        // Update and search for a new block
+        if (eventState == EventState.PRE && strafeMode.get().equals("Off", true)) {
+            update()
+        }
 
         // Reset placeable delay
-        if (targetPlace == null && placeableDelay.get()) delayTimer.reset()
-    }
-
-    private fun update() {
-        val isHeldItemBlock = mc.thePlayer!!.heldItem != null && classProvider.isItemBlock(
-            mc.thePlayer!!.heldItem!!.item
-        )
-        if (if (!autoBlockValue.get()
-                    .equals("Off", ignoreCase = true)
-            ) findAutoBlockBlock() == -1 && !isHeldItemBlock else !isHeldItemBlock
-        ) return
-        findBlock(modeValue.get().equals("expand", ignoreCase = true))
-    }
-
-    private fun setRotation(rotation: Rotation, keepRotation: Int) {
-        if (silentRotation.get()) {
-            RotationUtils.setTargetRotation(rotation, keepRotation)
-        } else {
-            mc.thePlayer!!.rotationYaw = rotation.yaw
-            mc.thePlayer!!.rotationPitch = rotation.pitch
+        if (targetPlace == null && placeDelay.get()) {
+            delayTimer.reset()
         }
+    }
+
+    fun update() {
+        if(!canRot){ return }
+        val player = mc.player ?: return
+
+        val holdingItem = player.heldItemMainhand != null && player.heldItemMainhand!!.item is ItemBlock
+        if (if (!autoBlockValue.get()
+                    .equals("off", true)
+            ) InventoryUtils.findAutoBlockBlock() == -1 && !holdingItem else !holdingItem
+        ) {
+            return
+        }
+
+        findBlock(modeValue.get().equals("expand", true))
     }
 
     private fun setRotation(rotation: Rotation) {
-        setRotation(rotation, 0)
-    }
+        if(!canRot){ return }
+        val player = mc.player ?: return
 
-    /**
-     * Search for new target block
-     */
-    private fun findBlock(expand: Boolean) {
-        /*final WBlockPos blockPosition = shouldGoDown ? (mc.getThePlayer().getPosY() == (int) mc.getThePlayer().getPosY() + 0.5D ?
-                new WBlockPos(mc.getThePlayer().getPosX(), mc.getThePlayer().getPosY() - 0.6D, mc.getThePlayer().getPosZ())
-                : new WBlockPos(mc.getThePlayer().getPosX(), mc.getThePlayer().getPosY() - 0.6, mc.getThePlayer().getPosZ()).down()) :
-                (mc.getThePlayer().getPosY() == (int) mc.getThePlayer().getPosY() + 0.5D ? new WBlockPos(mc.getThePlayer())
-                        : new WBlockPos(mc.getThePlayer().getPosX(), mc.getThePlayer().getPosY(), mc.getThePlayer().getPosZ()).down());*/
-        val blockPosition =
-            if (shouldGoDown) (if (mc.thePlayer!!.posY == mc.thePlayer!!.posY.toInt() + 0.5) WBlockPos(
-                mc.thePlayer!!.posX, mc.thePlayer!!.posY - 0.6, mc.thePlayer!!.posZ
-            ) else WBlockPos(
-                mc.thePlayer!!.posX, mc.thePlayer!!.posY - 0.6, mc.thePlayer!!.posZ
-            ).down()) else if (sameYValue.get() || (autoJumpValue.get() || smartSpeedValue.get() && moduleManager.getModule(
-                    Speed::class.java
-                ).state) && !mc.gameSettings.keyBindJump.isKeyDown && launchY <= mc.thePlayer!!.posY
-            ) WBlockPos(
-                mc.thePlayer!!.posX, (launchY - 1).toDouble(), mc.thePlayer!!.posZ
-            ) else if (mc.thePlayer!!.posY == mc.thePlayer!!.posY.toInt() + 0.5) WBlockPos(
-                mc.thePlayer!!
-            ) else WBlockPos(mc.thePlayer!!.posX, mc.thePlayer!!.posY, mc.thePlayer!!.posZ).down()
-        if (!expand && (!isReplaceable(blockPosition) || search(blockPosition, !shouldGoDown))) return
-        if (expand) {
-            for (i in 0 until expandLengthValue.get()) {
-                if (search(
-                        blockPosition.add(
-                            if (mc.thePlayer!!.horizontalFacing == classProvider.getEnumFacing(EnumFacingType.WEST)) -i else if (mc.thePlayer!!.horizontalFacing == classProvider.getEnumFacing(
-                                    EnumFacingType.EAST
-                                )
-                            ) i else 0,
-                            0,
-                            if (mc.thePlayer!!.horizontalFacing == classProvider.getEnumFacing(EnumFacingType.NORTH)) -i else if (mc.thePlayer!!.horizontalFacing == classProvider.getEnumFacing(
-                                    EnumFacingType.SOUTH
-                                )
-                            ) i else 0
-                        ), false
-                    )
-                ) return
-            }
-        } else if (searchValue.get()) {
-            for (x in -1..1) for (z in -1..1) if (search(blockPosition.add(x, 0, z), !shouldGoDown)) return
+        if (silentRotationValue.get()) {
+            RotationUtils.setTargetRotation(rotation, 0)
+        } else {
+            player.rotationYaw = rotation.yaw
+            player.rotationPitch = rotation.pitch
         }
     }
 
-    /**
-     * Place target block
-     */
-    private fun place() {
-        if (targetPlace == null) {
-            if (placeableDelay.get()) delayTimer.reset()
+    // Search for new target block
+    private fun findBlock(expand: Boolean) {
+        val player = mc.player ?: return
+        if(!canRot){ return }
+        val blockPosition = if (shouldGoDown) {
+            (if (player.posY == player.posY.roundToInt() + 0.5) {
+                BlockPos(player.posX, player.posY - 0.6, player.posZ)
+            } else {
+                BlockPos(player.posX, player.posY - 0.6, player.posZ).down()
+            })
+        } else (if (sameYValue.get() && launchY <= player.posY) {
+            BlockPos(player.posX, launchY - 1.0, player.posZ)
+        } else (if (player.posY == player.posY.roundToInt() + 0.5) {
+            BlockPos(player)
+        } else {
+            BlockPos(player.posX, player.posY, player.posZ).down()
+        }))
+        if (!expand && (!isReplaceable(blockPosition) || search(blockPosition, !shouldGoDown))) {
             return
         }
-        if (!delayTimer.hasTimePassed(delay) || sameYValue.get() && launchY - 1 != targetPlace!!.vec3.yCoord.toInt()) return
-        val blockSlot: Int
-        var itemStack = mc.thePlayer!!.heldItem
-        if (itemStack == null || !classProvider.isItemBlock(itemStack.item) ||
-            classProvider.isBlockBush(
-                itemStack.item!!
-                    .asItemBlock().block
-            ) || mc.thePlayer!!.heldItem!!.stackSize <= 0
-        ) {
-            if (autoBlockValue.get().equals("Off", ignoreCase = true)) return
-            blockSlot = findAutoBlockBlock()
-            if (blockSlot == -1) return
-            if (autoBlockValue.get()
-                    .equals("Pick", ignoreCase = true)
-            ) mc.netHandler.addToSendQueue(classProvider.createCPacketHeldItemChange(blockSlot - 36))
-            mc.playerController.updateController()
-            if (autoBlockValue.get().equals("Spoof", ignoreCase = true)) {
-                if (blockSlot - 36 != slot) mc.netHandler.addToSendQueue(
-                    classProvider.createCPacketHeldItemChange(
-                        blockSlot - 36
-                    )
-                )
-            } else if (autoBlockValue.get().equals("Switch", ignoreCase = true)) {
-                mc.thePlayer!!.inventory.currentItem = blockSlot - 36
-                mc.playerController.updateController()
-            } else {
-                mc.thePlayer!!.inventory.currentItem = blockSlot - 36
-                mc.playerController.updateController()
+
+        if (expand) {
+            val yaw = Math.toRadians(player.rotationYaw.toDouble() + 180)
+            val x = if (omniDirectionalExpand.get()) -sin(yaw).roundToInt() else player.horizontalFacing.directionVec.x
+            val z = if (omniDirectionalExpand.get()) cos(yaw).roundToInt() else player.horizontalFacing.directionVec.z
+            for (i in 0 until expandLengthValue.get()) {
+                if (search(blockPosition.add(x * i, 0, z * i), false)) {
+                    return
+                }
             }
-            itemStack = mc.thePlayer!!.inventoryContainer.getSlot(blockSlot).stack
+        } else if (searchValue.get()) {
+            for (x in -1..1) {
+                for (z in -1..1) {
+                    if (search(blockPosition.add(x, 0, z), !shouldGoDown)) {
+                        return
+                    }
+                }
+            }
         }
-        if (mc.playerController.onPlayerRightClick(
-                mc.thePlayer!!,
-                mc.theWorld!!,
-                itemStack,
-                targetPlace!!.blockPos,
-                targetPlace!!.enumFacing,
-                targetPlace!!.vec3
-            )
+    }
+
+    fun place() {
+        val player = mc.player ?: return
+        val world = mc.world ?: return
+        if(!canPlace){ return }
+        if (targetPlace == null) {
+            if (placeDelay.get()) {
+                delayTimer.reset()
+            }
+            return
+        }
+
+        if (!delayTimer.hasTimePassed(delay) || sameYValue.get() && launchY - 1 != targetPlace!!.vec3.y.toInt()) {
+            return
+        }
+
+        var itemStack = player.heldItemMainhand
+        if (itemStack == null || itemStack.item !is ItemBlock|| (itemStack.item!! as ItemBlock).block is BlockBush || player.heldItemMainhand!!.stackSize <= 0) {
+            val blockSlot = InventoryUtils.findAutoBlockBlock()
+
+            if (blockSlot == -1) {
+                return
+            }
+
+            when (autoBlockValue.get().toLowerCase()) {
+                "off" -> {
+                    return
+                }
+                "pick" -> {
+                    player.inventory.currentItem = blockSlot - 36
+                    mc.playerController.updateController()
+                }
+                "spoof" -> {
+                    if (blockSlot - 36 != slot) {
+                        mc.connection!!.sendPacket(CPacketHeldItemChange(blockSlot - 36))
+                    }
+                }
+                "switch" -> {
+                    if (blockSlot - 36 != slot) {
+                        mc.connection!!.sendPacket(CPacketHeldItemChange(blockSlot - 36))
+                    }
+                }
+            }
+            itemStack = player.inventoryContainer.getSlot(blockSlot).stack
+        }
+
+        if (mc.playerController.processRightClickBlock(
+                player, world, targetPlace!!.blockPos, targetPlace!!.enumFacing, targetPlace!!.vec3, EnumHand.MAIN_HAND
+            ) == EnumActionResult.SUCCESS
         ) {
             delayTimer.reset()
-            delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
-            if (mc.thePlayer!!.onGround) {
-                val modifier = speedModifierValue.get()
-                mc.thePlayer!!.motionX *= modifier
-                mc.thePlayer!!.motionZ *= modifier
+            delay = if (!placeDelay.get()){
+                0
+            }else{
+                if(mc.player!!.fallDistance > 0){
+                    falldowndelay.get().toLong()
+                }else {
+                    TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+                }
             }
-            if (swingValue.get()) mc.thePlayer!!.swingItem() else mc.netHandler.addToSendQueue(classProvider.createCPacketAnimation())
+
+
+            if (player.onGround) {
+                val modifier = speedModifierValue.get()
+                player.motionX = player.motionX * modifier
+                player.motionZ = player.motionZ * modifier
+            }
+
+            if (swingValue.get()) {
+                player.swingArm(EnumHand.MAIN_HAND)
+            } else {
+                mc.connection!!.sendPacket(CPacketAnimation())
+            }
         }
-
-        /*
-        if (!stayAutoBlock.get() && blockSlot >= 0)
-            mc.getNetHandler().addToSendQueue(classProvider.createCPacketHeldItemChange(mc.getThePlayer().getInventory().getCurrentItem()));
-         */
-
-        // Reset
+        if (autoBlockValue.get().equals("Switch", true)) {
+            if (slot != player.inventory.currentItem) {
+                mc.connection!!.sendPacket(CPacketHeldItemChange(player.inventory.currentItem))
+            }
+        }
         targetPlace = null
     }
 
-    /**
-     * Disable scaffold module
-     */
+    // Disabling module
     override fun onDisable() {
-        if (mc.thePlayer == null) return
-        if (!mc.gameSettings.isKeyDown(mc.gameSettings.keyBindSneak)) {
+        val player = mc.player ?: return
+
+        if (!GameSettings.isKeyDown(mc2.gameSettings.keyBindSneak)) {
             mc.gameSettings.keyBindSneak.pressed = false
-            if (eagleSneaking) mc.netHandler.addToSendQueue(
-                classProvider.createCPacketEntityAction(
-                    mc.thePlayer!!, ICPacketEntityAction.WAction.STOP_SNEAKING
+            if (eagleSneaking) {
+                mc.connection!!.sendPacket(
+                    CPacketEntityAction(
+                        player, CPacketEntityAction.Action.STOP_SNEAKING
+                    )
                 )
-            )
+            }
         }
-        if (!mc.gameSettings.isKeyDown(mc.gameSettings.keyBindRight)) mc.gameSettings.keyBindRight.pressed = false
-        if (!mc.gameSettings.isKeyDown(mc.gameSettings.keyBindLeft)) mc.gameSettings.keyBindLeft.pressed = false
-        if (autoTimer.get()) {
-            val timer = moduleManager.getModule(
-                Timer::class.java
-            ) as Timer
-            timer.state = false
+        if (!GameSettings.isKeyDown(mc2.gameSettings.keyBindRight)) {
+            mc.gameSettings.keyBindRight.pressed = false
         }
+        if (!GameSettings.isKeyDown(mc2.gameSettings.keyBindLeft)) {
+            mc.gameSettings.keyBindLeft.pressed = false
+        }
+
         lockRotation = null
-        limitedRotation = null
         facesBlock = false
-        mc.timer.timerSpeed = 1f
+        (mc.timer as IMixinTimer).timerSpeed = 1f
         shouldGoDown = false
-        if (slot != mc.thePlayer!!.inventory.currentItem) mc.netHandler.addToSendQueue(
-            classProvider.createCPacketHeldItemChange(
-                mc.thePlayer!!.inventory.currentItem
-            )
-        )
+
+        if (slot != player.inventory.currentItem) {
+            mc.connection!!.sendPacket(CPacketHeldItemChange(player.inventory.currentItem))
+        }
     }
 
-    /**
-     * Entity movement event
-     */
+    // Entity movement event
     @EventTarget
     fun onMove(event: MoveEvent) {
-        if (!safeWalkValue.get() || shouldGoDown) return
-        if (airSafeValue.get() || mc.thePlayer!!.onGround || (modeValue.get() == "GrimAC" || mc.thePlayer!!.onGround)) event.isSafeWalk = true
+        val player = mc.player ?: return
+
+        if (!safeWalkValue.get() || shouldGoDown) {
+            return
+        }
+        if (airSafeValue.get() || player.onGround) {
+            event.isSafeWalk = true
+        }
     }
 
-    /**
-     * Scaffold visuals
-     */
+    // Scaffold visuals
     @EventTarget
-    fun onRender2D(event: Render2DEvent?) {
+    fun onRender2D(event: Render2DEvent) {
         if (counterDisplayValue.get()) {
-            val blockSlot = findAutoBlockBlock()
-            if (blockSlot == -1)
-                return
-            val itemStack = mc.thePlayer!!.inventoryContainer.getSlot(blockSlot).stack
-            val res = classProvider.createScaledResolution(mc)
             GL11.glPushMatrix()
-            GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
-            RenderHelper.enableGUIStandardItemLighting()
-            GlStateManager.pushMatrix()
-            GlStateManager.disableAlpha()
-            GlStateManager.clear(256)
-            mc.renderItem.zLevel = -150.0f
-            mc.renderItem.renderItemAndEffectIntoGUI(itemStack!!, res.scaledWidth / 2 - 17, res.scaledHeight / 2 + 11)
-            Fonts.font40.drawStringWithShadow(
-                "$blocksAmount",
-                (res.scaledWidth / 2 + 5),
-                (res.scaledHeight / 2 + 16),
+            val blockOverlay = LiquidBounce.moduleManager.getModule(BlockOverlay::class.java) as BlockOverlay
+            if (blockOverlay.state && blockOverlay.infoValue.get() && blockOverlay.currentBlock != null) {
+                GL11.glTranslatef(0f, 15f, 0f)
+            }
+            val info = "Blocks: §7$blocksAmount"
+            val scaledResolution = ScaledResolution(mc2)
+
+            RenderUtils.drawBorderedRect(
+                scaledResolution.scaledWidth / 2 - 2.toFloat(),
+                scaledResolution.scaledHeight / 2 + 5.toFloat(),
+                scaledResolution.scaledWidth / 2 + Fonts.font40.getStringWidth(info) + 2.toFloat(),
+                scaledResolution.scaledHeight / 2 + 16.toFloat(),
+                3f,
+                Color.BLACK.rgb,
+                Color.BLACK.rgb
+            )
+
+            GlStateManager.resetColor()
+
+            Fonts.font40.drawString(
+                info,
+                scaledResolution.scaledWidth / 2.toFloat(),
+                scaledResolution.scaledHeight / 2 + 7.toFloat(),
                 Color.WHITE.rgb
             )
-            mc.renderItem.zLevel = 0.0f
-            GlStateManager.disableBlend()
-            GlStateManager.scale(0.5f, 0.5f, 0.5f)
-            GlStateManager.disableDepth()
-            GlStateManager.disableLighting()
-            GlStateManager.enableDepth()
-            GlStateManager.scale(2.0f, 2.0f, 2.0f)
-            GlStateManager.enableAlpha()
-            GlStateManager.popMatrix()
             GL11.glPopMatrix()
         }
     }
 
-    /**
-     * Scaffold visuals
-     */
+    // Visuals
     @EventTarget
-    fun onRender3D(event: Render3DEvent?) {
-        if (!markValue.get()) return
-        for (i in 0 until if (modeValue.get().equals("Expand", ignoreCase = true)) expandLengthValue.get() + 1 else 2) {
-            val blockPos = WBlockPos(
-                mc.thePlayer!!.posX + if (mc.thePlayer!!.horizontalFacing == classProvider.getEnumFacing(
-                        EnumFacingType.WEST
-                    )
-                ) -i else if (mc.thePlayer!!.horizontalFacing == classProvider.getEnumFacing(EnumFacingType.EAST)) i else 0,
-                mc.thePlayer!!.posY - (if (mc.thePlayer!!.posY == mc.thePlayer!!.posY.toInt() + 0.5) 0.0 else 1.0) - if (shouldGoDown) 1.0f else 0f,
-                mc.thePlayer!!.posZ + if (mc.thePlayer!!.horizontalFacing == classProvider.getEnumFacing(EnumFacingType.NORTH)) -i else if (mc.thePlayer!!.horizontalFacing == classProvider.getEnumFacing(
-                        EnumFacingType.SOUTH
-                    )
-                ) i else 0
+    fun onRender3D(event: Render3DEvent) {
+        val player = mc.player ?: return
+        if (!markValue.get()) {
+            return
+        }
+        for (i in 0 until if (modeValue.get().equals("Expand", true)) expandLengthValue.get() + 1 else 2) {
+            val yaw = Math.toRadians(player.rotationYaw.toDouble())
+            val x = if (omniDirectionalExpand.get()) -sin(yaw).roundToInt() else player.horizontalFacing.directionVec.x
+            val z = if (omniDirectionalExpand.get()) cos(yaw).roundToInt() else player.horizontalFacing.directionVec.z
+            val blockPos = BlockPos(
+                player.posX + x * i,
+                if (sameYValue.get() && launchY <= player.posY) launchY - 1.0 else player.posY - (if (player.posY == player.posY + 0.5) 0.0 else 1.0) - if (shouldGoDown) 1.0 else 0.0,
+                player.posZ + z * i
             )
-            val placeInfo = get(blockPos)
+            val placeInfo = PlaceInfo.get(blockPos)
             if (isReplaceable(blockPos) && placeInfo != null) {
-                RenderUtils.drawBlockBox(blockPos, Color(255, 255, 255, 50), true)
+                RenderUtils.drawBlockBox(blockPos, Color(68, 117, 255, 100), false)
                 break
             }
         }
@@ -781,232 +677,166 @@ open class Scaffold : Module() {
      * Search for placeable block
      *
      * @param blockPosition pos
-     * @param checks        visible
+     * @param raycast visible
+     * @return
      */
-    private fun search(blockPosition: WBlockPos, checks: Boolean): Boolean {
-        if (!isReplaceable(blockPosition)) return false
-        // StaticModes
-        val staticMode = rotationModeValue.get().equals("Static", ignoreCase = true)
-        val staticPitchMode = staticMode || rotationModeValue.get().equals("StaticPitch", ignoreCase = true)
-        val staticYawMode = staticMode || rotationModeValue.get().equals("StaticYaw", ignoreCase = true)
-        val staticPitch = staticPitchValue.get()
-        val staticYawOffset = staticYawOffsetValue.get()
 
-        // SearchRanges
+    private fun search(blockPosition: BlockPos, raycast: Boolean): Boolean {
+        facesBlock = false
+        val player = mc.player ?: return false
+        val world = mc.world ?: return false
+
+        if (!isReplaceable(blockPosition)) {
+            return false
+        }
+
+        // Search Ranges
         val xzRV = xzRangeValue.get().toDouble()
-        val xzSSV = calcStepSize(xzRV)
+        val xzSSV = calcStepSize(xzRV.toFloat())
         val yRV = yRangeValue.get().toDouble()
-        val ySSV = calcStepSize(yRV)
-        var xSearchFace = 0.0
-        var ySearchFace = 0.0
-        var zSearchFace = 0.0
-        val eyesPos = WVec3(
-            mc.thePlayer!!.posX,
-            mc.thePlayer!!.entityBoundingBox.minY + mc.thePlayer!!.eyeHeight,
-            mc.thePlayer!!.posZ
-        )
+        val ySSV = calcStepSize(yRV.toFloat())
+        val eyesPos = Vec3d(player.posX, player.entityBoundingBox.minY + player.eyeHeight, player.posZ)
         var placeRotation: PlaceRotation? = null
-        for (facingType in EnumFacingType.values()) {
-            val side = classProvider.getEnumFacing(facingType)
+        for (facingType in EnumFacing.values()) {
+            val side = facingType
             val neighbor = blockPosition.offset(side)
-            if (!canBeClicked(neighbor)) continue
-            val dirVec = WVec3(side.directionVec)
-            var xSearch = 0.5 - xzRV / 2
-            while (xSearch <= 0.5 + xzRV / 2) {
-                var ySearch = 0.5 - yRV / 2
-                while (ySearch <= 0.5 + yRV / 2) {
-                    var zSearch = 0.5 - xzRV / 2
-                    while (zSearch <= 0.5 + xzRV / 2) {
-                        val posVec = WVec3(blockPosition).addVector(xSearch, ySearch, zSearch)
+            if (!canBeClicked(neighbor)) {
+                continue
+            }
+            val dirVec = Vec3d(side.directionVec)
+            val auto = searchMode.get().equals("Auto", true)
+            val center = searchMode.get().equals("AutoCenter", true)
+            var xSearch = if (auto) 0.1 else 0.5 - xzRV / 2
+            while (xSearch <= if (auto) 0.9 else 0.5 + xzRV / 2) {
+                var ySearch = if (auto) 0.1 else 0.5 - yRV / 2
+                while (ySearch <= if (auto) 0.9 else 0.5 + yRV / 2) {
+                    var zSearch = if (auto) 0.1 else 0.5 - xzRV / 2
+                    while (zSearch <= if (auto) 0.9 else 0.5 + xzRV / 2) {
+                        val posVec = Vec3d(blockPosition).addVector(
+                            if (center) 0.5 else xSearch, if (center) 0.5 else ySearch, if (center) 0.5 else zSearch
+                        )
                         val distanceSqPosVec = eyesPos.squareDistanceTo(posVec)
-                        val hitVec = posVec.add(WVec3(dirVec.xCoord * 0.5, dirVec.yCoord * 0.5, dirVec.zCoord * 0.5))
-                        if (checks && (eyesPos.squareDistanceTo(hitVec) > 18.0 || distanceSqPosVec > eyesPos.squareDistanceTo(
+                        val hitVec = posVec.add(Vec3d(dirVec.x * 0.5, dirVec.y * 0.5, dirVec.z * 0.5))
+                        if (raycast && (eyesPos.distanceTo(hitVec) > 4.25 || distanceSqPosVec > eyesPos.squareDistanceTo(
                                 posVec.add(dirVec)
-                            ) || mc.theWorld!!.rayTraceBlocks(eyesPos, hitVec,
-                                stopOnLiquid = false,
-                                ignoreBlockWithoutBoundingBox = true,
-                                returnLastUncollidableBlock = false
+                            ) || world.rayTraceBlocks(
+                                eyesPos,
+                                hitVec,
+                                false,
+                                true,
+                                false
                             ) != null)
                         ) {
-                            zSearch += xzSSV
+                            zSearch += if (auto) 0.1 else xzSSV
                             continue
                         }
 
-                        // face block
-                        for (i in 0 until if (staticYawMode) 2 else 1) {
-                            val diffX: Double = if (staticYawMode && i == 0) 0.0 else hitVec.xCoord - eyesPos.xCoord
-                            val diffY = hitVec.yCoord - eyesPos.yCoord
-                            val diffZ: Double = if (staticYawMode && i == 1) 0.0 else hitVec.zCoord - eyesPos.zCoord
-                            val diffXZ = sqrt(diffX * diffX + diffZ * diffZ)
-                            val pitch = if (staticPitchMode) staticPitch else wrapAngleTo180_float(
-                                -Math.toDegrees(
-                                    atan2(
-                                        diffY,
-                                        diffXZ
-                                    )
-                                ).toFloat()
-                            )
-                            val rotation = Rotation(
-                                wrapAngleTo180_float(
-                                    Math.toDegrees(atan2(diffZ, diffX)).toFloat() - 90f +
-                                            if (staticYawMode) staticYawOffset else 0F
-                                ), pitch
-                            )
-                            val rotationVector = RotationUtils.getVectorForRotation(rotation)
-                            val vector = eyesPos.addVector(
-                                rotationVector.xCoord * 4,
-                                rotationVector.yCoord * 4,
-                                rotationVector.zCoord * 4
-                            )
-                            val obj = mc.theWorld!!.rayTraceBlocks(eyesPos, vector,
-                                stopOnLiquid = false,
-                                ignoreBlockWithoutBoundingBox = false,
-                                returnLastUncollidableBlock = true
-                            )
-                            if (obj!!.typeOfHit !== IMovingObjectPosition.WMovingObjectType.BLOCK || obj!!.blockPos!! != neighbor
-                            ) continue
-                            if (placeRotation == null || RotationUtils.getRotationDifference(rotation) < RotationUtils.getRotationDifference(
-                                    placeRotation.rotation
-                                )
-                            ) {
-                                placeRotation = PlaceRotation(PlaceInfo(neighbor, side.opposite, hitVec), rotation)
+                        // Face block
+                        val diffX = hitVec.x - eyesPos.x
+                        val diffY = hitVec.y - eyesPos.y
+                        val diffZ = hitVec.z - eyesPos.z
+                        val diffXZ = sqrt(diffX * diffX + diffZ * diffZ)
+                        if (facingType != EnumFacing.UP && facingType != EnumFacing.DOWN) {
+                            val diff = abs(if (facingType == EnumFacing.NORTH || facingType == EnumFacing.SOUTH) diffZ else diffX)
+                            if (diff < minDistValue.get()) {
+                                zSearch += if (auto) 0.1 else xzSSV
+                                continue
                             }
-                            xSearchFace = xSearch
-                            ySearchFace = ySearch
-                            zSearchFace = zSearch
                         }
-                        zSearch += xzSSV
+                        val rotation = Rotation(
+                            wrapAngleTo180_float(Math.toDegrees(atan2(diffZ, diffX)).toFloat() - 90f),
+                            wrapAngleTo180_float(-Math.toDegrees(atan2(diffY, diffXZ)).toFloat())
+                        )
+                        val rotationVector = RotationUtils.getVectorForRotation(rotation)
+                        val vector = eyesPos.addVector(
+                            rotationVector.x * 4.25, rotationVector.y * 4.25, rotationVector.z * 4.25
+                        )
+
+                        val obj = world.rayTraceBlocks(
+                            eyesPos,
+                            vector,
+                            false,
+                            false,
+                            true
+                        ) ?: continue
+
+                        if (obj.typeOfHit != RayTraceResult.Type.BLOCK || obj.blockPos != neighbor) {
+                            zSearch += if (auto) 0.1 else xzSSV
+                            continue
+                        }
+                        if (placeRotation == null || RotationUtils.getRotationDifference(rotation) < RotationUtils.getRotationDifference(
+                                placeRotation.rotation
+                            )
+                        ) {
+                            placeRotation = PlaceRotation(PlaceInfo(neighbor, side.opposite, hitVec), rotation)
+                        }
+
+                        zSearch += if (auto) 0.1 else xzSSV
                     }
-                    ySearch += ySSV
+                    ySearch += if (auto) 0.1 else ySSV
                 }
-                xSearch += xzSSV
+                xSearch += if (auto) 0.1 else xzSSV
             }
         }
-        if (placeRotation == null) return false
-        if (!rotationModeValue.get().equals("Off", ignoreCase = true)) {
+        if (placeRotation == null) {
+            return false
+        }
+        if (rotationsValue.get() && canRot) {
+
             if (minTurnSpeedValue.get() < 180) {
-                limitedRotation = RotationUtils.limitAngleChange(
+                val limitedRotation = RotationUtils.limitAngleChange(
                     RotationUtils.serverRotation,
                     placeRotation.rotation,
                     (Math.random() * (maxTurnSpeedValue.get() - minTurnSpeedValue.get()) + minTurnSpeedValue.get()).toFloat()
                 )
-                setRotation(limitedRotation!!, keepLengthValue.get())
-                lockRotation = limitedRotation
-                facesBlock = false
-                for (facingType in EnumFacingType.values()) {
-                    val side = classProvider.getEnumFacing(facingType)
-                    val neighbor = blockPosition.offset(side)
-                    if (!canBeClicked(neighbor)) continue
-                    val dirVec = WVec3(side.directionVec)
-                    val posVec = WVec3(blockPosition).addVector(xSearchFace, ySearchFace, zSearchFace)
-                    val distanceSqPosVec = eyesPos.squareDistanceTo(posVec)
-                    val hitVec = posVec.add(WVec3(dirVec.xCoord * 0.5, dirVec.yCoord * 0.5, dirVec.zCoord * 0.5))
-                    if (checks && (eyesPos.squareDistanceTo(hitVec) > 18.0 || distanceSqPosVec > eyesPos.squareDistanceTo(
-                            posVec.add(dirVec)
-                        ) || mc.theWorld!!.rayTraceBlocks(eyesPos, hitVec,
-                            stopOnLiquid = false,
-                            ignoreBlockWithoutBoundingBox = true,
-                            returnLastUncollidableBlock = false
-                        ) != null)
-                    ) continue
-                    val rotationVector = RotationUtils.getVectorForRotation(limitedRotation)
-                    val vector = eyesPos.addVector(
-                        rotationVector.xCoord * 4,
-                        rotationVector.yCoord * 4,
-                        rotationVector.zCoord * 4
-                    )
-                    val obj = mc.theWorld!!.rayTraceBlocks(eyesPos, vector,
-                        stopOnLiquid = false,
-                        ignoreBlockWithoutBoundingBox = false,
-                        returnLastUncollidableBlock = true
-                    )
-                    if (!(obj!!.typeOfHit === IMovingObjectPosition.WMovingObjectType.BLOCK && obj!!.blockPos!! == neighbor)
-                    ) continue
+
+                if ((10 * wrapAngleTo180_float(limitedRotation.yaw)).roundToInt() == (10 * wrapAngleTo180_float(
+                        placeRotation.rotation.yaw
+                    )).roundToInt() && (10 * wrapAngleTo180_float(limitedRotation.pitch)).roundToInt() == (10 * wrapAngleTo180_float(
+                        placeRotation.rotation.pitch
+                    )).roundToInt()
+                ) {
+                    setRotation(placeRotation.rotation)
+                    lockRotation = placeRotation.rotation
                     facesBlock = true
-                    break
+                } else {
+                    setRotation(limitedRotation)
+                    lockRotation = limitedRotation
+                    facesBlock = false
                 }
             } else {
-                setRotation(placeRotation.rotation, keepLengthValue.get())
+                setRotation(placeRotation.rotation)
                 lockRotation = placeRotation.rotation
                 facesBlock = true
             }
+            lockRotationTimer.reset()
         }
         targetPlace = placeRotation.placeInfo
         return true
     }
 
-    private fun calcStepSize(range: Double): Double {
+    private fun calcStepSize(range: Float): Double {
         var accuracy = searchAccuracyValue.get().toDouble()
         accuracy += accuracy % 2 // If it is set to uneven it changes it to even. Fixes a bug
-        return if (range / accuracy < 0.01) 0.01 else range / accuracy
+        return if (range / accuracy < 0.01) 0.01 else (range / accuracy)
     }
 
-    private val blocksAmount: Int
-        /**
-         * @return hotbar blocks amount
-         */
+    // Return hotbar amount
+    val blocksAmount: Int
         get() {
             var amount = 0
             for (i in 36..44) {
-                val itemStack = mc.thePlayer!!.inventoryContainer.getSlot(i).stack
-                if (itemStack != null && classProvider.isItemBlock(itemStack.item)) {
-                    val block = itemStack.item!!.asItemBlock().block
-                    val heldItem = mc.thePlayer!!.heldItem
-                    if (heldItem != null && heldItem == itemStack || !InventoryUtils.BLOCK_BLACKLIST.contains(block) && !classProvider.isBlockBush(
-                            block
-                        )
-                    ) amount += itemStack.stackSize
+                val itemStack = mc.player!!.inventoryContainer.getSlot(i).stack
+                if (itemStack != null && itemStack.item is ItemBlock) {
+                    val block = (itemStack.item as ItemBlock).block
+                    val heldItem = mc.player!!.heldItemMainhand
+                    if (heldItem != null && heldItem == itemStack || !InventoryUtils.BLOCK_BLACKLIST.contains(block) &&
+                            block is BlockBush
+                        ) amount += itemStack.stackSize
                 }
             }
             return amount
         }
     override val tag: String
         get() = modeValue.get()
-    private val bestBlocks: Unit
-        get() {
-            if (blocksAmount == 0) return
-            if (invCheck()) {
-                val `is` = classProvider.createItemStack(functions.getItemById(261)!!)
-                for (i in 9..35) {
-                    if (mc.thePlayer!!.inventoryContainer.getSlot(i).hasStack) {
-                        val item = mc.thePlayer!!.inventoryContainer.getSlot(i).stack
-                        var count = 0
-                        if (item is IItemBlock) {
-                            for (a in 36..44) {
-                                if (functions.canAddItemToSlot(
-                                        mc.thePlayer!!.inventoryContainer.getSlot(a),
-                                        `is`,
-                                        true
-                                    )
-                                ) {
-                                    swap(i, a - 36)
-                                    count++
-                                    break
-                                }
-                            }
-                            if (count == 0) {
-                                swap(i, 7)
-                            }
-                            break
-                        }
-                    }
-                }
-            }
-        }
-
-    private fun swap(slot: Int, hotbarNum: Int) {
-        mc.playerController.windowClick(mc.thePlayer!!.inventoryContainer.windowId, slot, hotbarNum, 2, mc.thePlayer!!)
-    }
-
-    private fun invCheck(): Boolean {
-        for (i in 36..44) {
-            if (mc.thePlayer!!.inventoryContainer.getSlot(i).hasStack) {
-                val item = mc.thePlayer!!.inventoryContainer.getSlot(i).stack!!.item
-                if (classProvider.isItemBlock(item)) {
-                    return false
-                }
-            }
-        }
-        return true
-    }
 }

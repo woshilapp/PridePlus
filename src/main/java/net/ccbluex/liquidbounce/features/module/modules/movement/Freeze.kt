@@ -15,14 +15,14 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 class Freeze : Module() {
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        val thePlayer = mc.thePlayer!!
+        val player = mc.player!!
 
-        thePlayer.isDead = true
-        thePlayer.rotationYaw = thePlayer.cameraYaw
-        thePlayer.rotationPitch = thePlayer.cameraPitch
+        player.isDead = true
+        player.rotationYaw = player.cameraYaw
+        player.rotationPitch = player.cameraPitch
     }
 
     override fun onDisable() {
-        mc.thePlayer?.isDead = false
+        mc.player?.isDead = false
     }
 }

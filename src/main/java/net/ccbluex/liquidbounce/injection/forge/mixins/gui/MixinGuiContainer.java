@@ -1,9 +1,9 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
+import net.ccbluex.liquidbounce.features.module.modules.player.InvManager;
 import op.wawa.utils.animation.EaseUtils;
 import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
-import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner;
 import net.ccbluex.liquidbounce.features.module.modules.render.Animations;
 import net.ccbluex.liquidbounce.features.module.modules.world.ChestStealer;
 import net.ccbluex.liquidbounce.injection.implementations.IMixinGuiContainer;
@@ -41,7 +41,7 @@ public abstract class MixinGuiContainer extends MixinGuiScreen implements IMixin
         buttonList.add(killAuraButton = new GuiButton(1024576, 5, 5, 140, 20, "Disable KillAura"));
         firstY += 30;
 
-        buttonList.add(invManagerButton = new GuiButton(321123, 5, 5 + firstY, 140, 20, "Disable InvCleaner"));
+        buttonList.add(invManagerButton = new GuiButton(321123, 5, 5 + firstY, 140, 20, "Disable InvManager"));
         firstY += 30;
 
         buttonList.add(chestStealerButton = new GuiButton(727, 5, 5 + firstY, 140, 20, "Disable ChestStealer"));
@@ -107,7 +107,10 @@ public abstract class MixinGuiContainer extends MixinGuiScreen implements IMixin
                 LiquidBounce.moduleManager.getModule(KillAura.class).setState(false);
             }
             if (var52.mousePressed(this.mc, mouseX, mouseY) && var52.id == 321123) {
-                LiquidBounce.moduleManager.getModule(InventoryCleaner.class).setState(false);
+                LiquidBounce.moduleManager.getModule(InvManager.class).setState(false);
+            }
+            if (var52.mousePressed(this.mc, mouseX, mouseY) && var52.id == 727) {
+                LiquidBounce.moduleManager.getModule(ChestStealer.class).setState(false);
             }
         }
     }

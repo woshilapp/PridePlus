@@ -11,25 +11,28 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.movement.Parkour
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.injection.implementations.IMixinTimer
+import net.ccbluex.liquidbounce.utils.MovementUtils
+
 /**
  *
  * By WaWa
  * @Date on 2023/5/27
  *
  */
-@ModuleInfo(name = "ScaffoldHelper", description = "For GrimAC",category = ModuleCategory.WORLD)
+@ModuleInfo(name = "TellyHelper", description = "Toggle Scaffold. For GrimAC",category = ModuleCategory.WORLD)
 class ScaffoldHelper : Module() {
     private val modeValue = ListValue("Mode", arrayOf("State"), "State")
 
     private val scaffoldModeValue = ListValue("ScaffoldMode", arrayOf("Scaffold"/*, "Scaffold3","Scaffold2"*/), "Scaffold")
 
-    private val jumpModeValue = ListValue("JumpMode", arrayOf("mc", "mc2","MotionY","Key", "Parkour", "Off"), "Off")
+    private val jumpModeValue = ListValue("JumpMode", arrayOf("mc", "NoEvent", "Key", "Parkour", "Off"), "Off")
 
     private val timerValue = BoolValue("OnGroundTimer", true)
+    private val timerSpeed = FloatValue("TimerSpeed", 0.8F, 0.1F, 10F).displayable { timerValue.get() }
 
     private val rotationValue = BoolValue("SmartRotation", true)
 
@@ -44,12 +47,10 @@ class ScaffoldHelper : Module() {
     fun jump(){
         if (mc2.player.onGround || !mc2.player.isAirBorne) {
             when (jumpModeValue.get().toLowerCase()) {
-                "mc" -> mc.thePlayer!!.jump()
-                "mc2" -> mc2.player.jump()
-                "motiony" -> mc.thePlayer!!.motionY = 0.42
+                "mc" -> mc.player!!.jump()
+                "noevent" -> mc.player!!.motionY = 0.42
                 "key" -> {
-                    mc2.gameSettings.keyBindJump.pressed = true
-                    mc2.gameSettings.keyBindJump.pressed = false
+                    mc.gameSettings.keyBindJump.pressed = true
                 }
             }
         }
@@ -59,29 +60,34 @@ class ScaffoldHelper : Module() {
         when (scaffoldModeValue.get().toLowerCase()) {
             "scaffold" -> LiquidBounce.moduleManager[Scaffold::class.java].state = false
         }
-        LiquidBounce.moduleManager[Parkour::class.java].state = false
-        LiquidBounce.moduleManager[Timer::class.java].state = false
 
-        mc.gameSettings.keyBindJump.pressed = false
+        (mc.timer as IMixinTimer).timerSpeed = 1F
+
+        if(!mc.gameSettings.keyBindJump.isKeyDown) mc.gameSettings.keyBindJump.pressed = false
         super.onDisable()
     }
+
     @EventTarget
     fun onUpdate(event: UpdateEvent){
         if(jumpModeValue.get() == "Parkour") {
-            LiquidBounce.moduleManager[Parkour::class.java].state = true
+            val player = mc.player ?: return
+
+            if (MovementUtils.isMoving && player.onGround && !player.isSneaking && !mc.gameSettings.keyBindSneak.isKeyDown && !mc.gameSettings.keyBindJump.isKeyDown &&
+                mc.world!!.getCollisionBoxes(player, player.entityBoundingBox
+                    .offset(0.0, -0.5, 0.0).expand(-0.001, 0.0, -0.001)).isEmpty())
+                player.jump()
         }else{
-            LiquidBounce.moduleManager[Parkour::class.java].state = false
             jump()
         }
 
         if (rotationValue.get()){
             setYaw()
-            mc.thePlayer!!.rotationPitch = customPitchValue.get()
+            mc.player!!.rotationPitch = customPitchValue.get()
         }
 
-        if (mc.thePlayer!!.onGround){
+        if (mc.player!!.onGround){
             if(timerValue.get())
-                LiquidBounce.moduleManager[Timer::class.java].state = true
+                (mc.timer as IMixinTimer).timerSpeed = timerSpeed.get()
 
             if (modeValue.get().toLowerCase() == "state") {
                 when (scaffoldModeValue.get().toLowerCase()) {
@@ -90,7 +96,7 @@ class ScaffoldHelper : Module() {
             }
         }else {
             if (timerValue.get())
-                LiquidBounce.moduleManager[Timer::class.java].state = false
+                (mc.timer as IMixinTimer).timerSpeed = 1F
             if (modeValue.get().toLowerCase() == "state") {
                 when (scaffoldModeValue.get().toLowerCase()) {
                     "scaffold" -> LiquidBounce.moduleManager[Scaffold::class.java].state = true
@@ -100,29 +106,29 @@ class ScaffoldHelper : Module() {
     }
 
     private fun setYaw() {
-        val thePlayer = mc.thePlayer!!
-        val x = java.lang.Double.valueOf(thePlayer.motionX)
-        val y = java.lang.Double.valueOf(thePlayer.motionZ)
+        val player = mc.player!!
+        val x = java.lang.Double.valueOf(player.motionX)
+        val y = java.lang.Double.valueOf(player.motionZ)
         if (mc.gameSettings.keyBindForward.isKeyDown) {
             if (y != null &&
                 y.toDouble() > 0.1
             ) {
-                thePlayer.rotationYaw = 0.0f
+                player.rotationYaw = 0.0f
             }
             if (y != null &&
                 y.toDouble() < -0.1
             ) {
-                thePlayer.rotationYaw = 180.0f
+                player.rotationYaw = 180.0f
             }
             if (x != null &&
                 x.toDouble() > 0.1
             ) {
-                thePlayer.rotationYaw = -90.0f
+                player.rotationYaw = -90.0f
             }
             if (x != null &&
                 x.toDouble() < -0.1
             ) {
-                thePlayer.rotationYaw = 90.0f
+                player.rotationYaw = 90.0f
             }
         }
 

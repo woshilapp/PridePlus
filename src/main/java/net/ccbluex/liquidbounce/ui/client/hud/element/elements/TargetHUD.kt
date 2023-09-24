@@ -4,12 +4,12 @@ import com.mojang.realmsclient.gui.ChatFormatting
 import me.utils.render.BlurBuffer
 import me.utils.render.ShadowUtils
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntityLivingBase
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
@@ -17,7 +17,9 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.RoundedUtil
+import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.entity.EntityLivingBase
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
@@ -39,13 +41,13 @@ class TargetHUD : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertic
 
 
 
-    private var prevTarget:IEntityLivingBase?=null
+    private var prevTarget: EntityLivingBase?=null
     private var lastHealth=20F
     private var lastChangeHealth=20F
     private var changeTime=System.currentTimeMillis()
     private var displayPercent=0f
     private var lastUpdate = System.currentTimeMillis()
-    private fun getHealth(entity: IEntityLivingBase?):Float{
+    private fun getHealth(entity: EntityLivingBase?):Float{
         return if(entity==null || entity.isDead){ 0f }else{ entity.health }
     }
     override fun drawElement(): Border? {
@@ -54,8 +56,8 @@ class TargetHUD : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertic
         val pct = (time - lastUpdate) / (switchAnimSpeedValue.get()*50f)
         lastUpdate=System.currentTimeMillis()
 
-        if (classProvider.isGuiHudDesigner(mc.currentScreen)|| classProvider.isGuiChat(mc.currentScreen)) {
-            target=mc.thePlayer
+        if ((mc.currentScreen is GuiHudDesigner)|| (mc.currentScreen is GuiChat)) {
+            target=mc.player
         }
         if (target != null) {
             prevTarget = target
@@ -99,7 +101,7 @@ class TargetHUD : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertic
     }
 
 
-    private fun distance(target: IEntityLivingBase, easingHealth: Float) {
+    private fun distance(target: EntityLivingBase, easingHealth: Float) {
         //shadow
         GL11.glTranslated(-renderX, -renderY, 0.0)
         GL11.glScalef(1F, 1F, 1F)
@@ -137,7 +139,7 @@ class TargetHUD : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertic
         GL11.glTranslated(renderX, renderY, 0.0)
 
         Fonts.font35.drawString(target.name!!, 36, 6, -1)
-        Fonts.font35.drawString("Distance:   " + ChatFormatting.WHITE + Math.round(target.getDistance(mc.thePlayer!!.posX,mc.thePlayer!!.posY,mc.thePlayer!!.posZ)) + "m", 36, 18, Color(0, 162, 255).rgb)
+        Fonts.font35.drawString("Distance:   " + ChatFormatting.WHITE + Math.round(target.getDistance(mc.player!!.posX,mc.player!!.posY,mc.player!!.posZ)) + "m", 36, 18, Color(0, 162, 255).rgb)
         RenderUtils.drawCircle(123f, 15f,10f, -90, (270f * (easingHealth / 20f)).toInt(), Color(0, 162, 255))
         Fonts.font35.drawCenteredString(Math.round(easingHealth).toString(), 123.1f, 12f, -1)
         RoundedUtil.drawRound(5.1F,3.8f,23F,23F,3f, Color(0,162,255,255))
@@ -157,7 +159,7 @@ class TargetHUD : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertic
             GL11.glTranslated(renderX, renderY, 0.0)
         }
         Fonts.font35.drawString(target.name!!, 36, 6, -1)
-        Fonts.font35.drawString("Distance:   " + ChatFormatting.WHITE + Math.round(target.getDistance(mc.thePlayer!!.posX,mc.thePlayer!!.posY,mc.thePlayer!!.posZ)) + "m", 36, 18, Color(0, 162, 255).rgb)
+        Fonts.font35.drawString("Distance:   " + ChatFormatting.WHITE + Math.round(target.getDistance(mc.player!!.posX,mc.player!!.posY,mc.player!!.posZ)) + "m", 36, 18, Color(0, 162, 255).rgb)
         RenderUtils.drawCircle(123f, 15f,10f, -90, (270f * (easingHealth / 20f)).toInt(), Color(0, 162, 255))
         Fonts.font35.drawCenteredString(Math.round(easingHealth).toString(), 123.1f, 12f, -1)
         RoundedUtil.drawRound(5.1F,3.8f,23F,23F,3f, Color(0,162,255,255))

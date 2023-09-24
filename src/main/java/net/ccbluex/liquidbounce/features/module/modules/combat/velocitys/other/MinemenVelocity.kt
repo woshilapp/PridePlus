@@ -3,7 +3,6 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.other
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
-import net.ccbluex.liquidbounce.injection.backend.unwrap
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.minecraft.network.play.server.SPacketEntityVelocity
 
@@ -21,24 +20,24 @@ class MinemenVelocity : VelocityMode("Minemen") {
             canCancel = true
         }
         if (ticks >= 2 && ticks <= 4 && !lastCancel) {
-            mc.thePlayer!!.motionX *= 0.99
-            mc.thePlayer!!.motionZ *= 0.99
+            mc.player!!.motionX *= 0.99
+            mc.player!!.motionZ *= 0.99
         } else if (ticks == 5 && !lastCancel) {
             MovementUtils.strafe()
         }
     }
     
     override fun onPacket(event: PacketEvent) {
-        val packet = event.packet.unwrap()
+        val packet = event.packet
         if(packet is SPacketEntityVelocity) {
-            if (mc.thePlayer == null || (mc.theWorld?.getEntityByID(packet.entityID) ?: return) != mc.thePlayer) return
+            if (mc.player == null || (mc.world?.getEntityByID(packet.entityID) ?: return) != mc.player) return
             ticks = 0
             if (canCancel) {
                 event.cancelEvent()
                 lastCancel = true
                 canCancel = false
             } else {
-                mc.thePlayer!!.jump()
+                mc.player!!.jump()
                 lastCancel = false
             }
         }

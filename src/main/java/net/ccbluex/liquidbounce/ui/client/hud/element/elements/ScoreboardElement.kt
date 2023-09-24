@@ -1,13 +1,11 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-import ad.utils.Color.modules.CustomUI
+import me.CustomUI
 import com.google.common.collect.Iterables
 import com.google.common.collect.Lists
-import me.utils.render.BlurBuffer
+import com.mojang.realmsclient.gui.ChatFormatting
 import me.utils.render.ShadowUtils
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.minecraft.scoreboard.IScoreObjective
-import net.ccbluex.liquidbounce.api.minecraft.util.WEnumChatFormatting
 import net.ccbluex.liquidbounce.features.module.modules.render.HUD
 import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
@@ -18,6 +16,8 @@ import net.ccbluex.liquidbounce.ui.cnfont.FontLoaders
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.scoreboard.ScoreObjective
+import net.minecraft.scoreboard.ScorePlayerTeam
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
@@ -90,13 +90,13 @@ class ScoreboardElement(
             rectColorBlueAlpha.get()
         ).rgb
 
-        val worldScoreboard = mc.theWorld!!.scoreboard
-        var currObjective: IScoreObjective? = null
-        val playerTeam = worldScoreboard.getPlayersTeam(mc.thePlayer!!.name)
+        val worldScoreboard = mc.world!!.scoreboard
+        var currObjective: ScoreObjective? = null
+        val playerTeam = worldScoreboard.getPlayersTeam(mc.player!!.name)
 
 
         if (playerTeam != null) {
-            val colorIndex = playerTeam.chatFormat.colorIndex
+            val colorIndex = playerTeam.color.colorIndex
 
             if (colorIndex >= 0)
                 currObjective = worldScoreboard.getObjectiveInDisplaySlot(3 + colorIndex)
@@ -121,15 +121,15 @@ class ScoreboardElement(
         for (score in scoreCollection) {
             val scorePlayerTeam = scoreboard.getPlayersTeam(score.playerName)
             val width = "${
-                functions.scoreboardFormatPlayerName(
+                ScorePlayerTeam.formatPlayerName(
                     scorePlayerTeam,
                     score.playerName
                 )
-            }: ${WEnumChatFormatting.RED}${score.scorePoints}"
+            }: ${ChatFormatting.RED}${score.scorePoints}"
             maxWidth = maxWidth.coerceAtLeast(fontRenderer.getStringWidth(width))
         }
 
-        val maxHeight = scoreCollection.size * fontRenderer.fontHeight
+        val maxHeight = scoreCollection.size * fontRenderer.FONT_HEIGHT
         val l1 = -maxWidth - 3 -  0
         if (shadowShaderValue.get()) {
             GL11.glTranslated(-renderX, -renderY, 0.0)
@@ -139,7 +139,7 @@ class ScoreboardElement(
                 GL11.glPushMatrix()
                 GL11.glTranslated(renderX, renderY, 0.0)
                 GL11.glScalef(scale, scale, scale)
-                RenderUtils.drawRoundedRect(l1 - 7f, -5f, 9f, (maxHeight + fontRenderer.fontHeight + 5).toFloat(),
+                RenderUtils.drawRoundedRect(l1 - 7f, -5f, 9f, (maxHeight + fontRenderer.FONT_HEIGHT + 5).toFloat(),
                     radius.get().toInt(),backColor2)
                 GL11.glPopMatrix()
             }, {
@@ -149,7 +149,7 @@ class ScoreboardElement(
                 GlStateManager.enableBlend()
                 GlStateManager.disableTexture2D()
                 GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
-                RenderUtils.drawRoundedRect(l1 - 7f, -5f, 9f, (maxHeight + fontRenderer.fontHeight + 5).toFloat(),
+                RenderUtils.drawRoundedRect(l1 - 7f, -5f, 9f, (maxHeight + fontRenderer.FONT_HEIGHT + 5).toFloat(),
                     radius.get().toInt(),backColor2)
                 GlStateManager.enableTexture2D()
                 GlStateManager.disableBlend()
@@ -160,7 +160,7 @@ class ScoreboardElement(
             GL11.glTranslated(renderX, renderY, 0.0)
         }
 
-        RenderUtils.drawRoundedRect(l1 - 7f, -5f, 9f, (maxHeight + fontRenderer.fontHeight + 5).toFloat(),
+        RenderUtils.drawRoundedRect(l1 - 7f, -5f, 9f, (maxHeight + fontRenderer.FONT_HEIGHT + 5).toFloat(),
             radius.get().toInt(),backColor)
 
         //Blur
@@ -177,20 +177,20 @@ class ScoreboardElement(
             GL11.glTranslated(renderX, renderY, 0.0)
         }*/
         if (outline.get()){
-            net.ccbluex.liquidbounce.utils.render.RenderUtils.drawGidentOutlinedRoundedRect(l1 - 7.0, -5.0, 8.0 - (l1 - 7.0), (maxHeight + fontRenderer.fontHeight + 5).toDouble() - (-5.0), radius.get().toDouble(),linewidth.get())
+            net.ccbluex.liquidbounce.utils.render.RenderUtils.drawGidentOutlinedRoundedRect(l1 - 7.0, -5.0, 8.0 - (l1 - 7.0), (maxHeight + fontRenderer.FONT_HEIGHT + 5).toDouble() - (-5.0), radius.get().toDouble(),linewidth.get())
         }
 //Shadow!!!!
         if(!noshadow.get()){
-            RenderUtils.drawShadowWithCustomAlpha(l1 - 7f, -5f, -l1 + 16f, maxHeight + fontRenderer.fontHeight + 10f, 255f)}
+            RenderUtils.drawShadowWithCustomAlpha(l1 - 7f, -5f, -l1 + 16f, maxHeight + fontRenderer.FONT_HEIGHT + 10f, 255f)}
 
         scoreCollection.forEachIndexed { index, score ->
             val team = scoreboard.getPlayersTeam(score.playerName)
 
-            var name = functions.scoreboardFormatPlayerName(team, score.playerName)
-            val scorePoints = "${WEnumChatFormatting.RED}${score.scorePoints}"
+            var name = ScorePlayerTeam.formatPlayerName(team, score.playerName)
+            val scorePoints = "${ChatFormatting.RED}${score.scorePoints}"
 
             val width = 5 - 0
-            val height = maxHeight - index * fontRenderer.fontHeight
+            val height = maxHeight - index * fontRenderer.FONT_HEIGHT
 
             GlStateManager.resetColor()
 
@@ -229,7 +229,7 @@ class ScoreboardElement(
                 FontLoaders.F16.drawStringWithShadow(
                     displayName,
                     (l1 + maxWidth / 2 - fontRenderer.getStringWidth(displayName) / 2).toFloat(),
-                    (height - fontRenderer.fontHeight).toFloat(),
+                    (height - fontRenderer.FONT_HEIGHT).toFloat(),
                     textColor)
             }
 
@@ -267,7 +267,7 @@ class ScoreboardElement(
             }
         }
 
-        return Border(-maxWidth.toFloat() - 10f - 0, -5F, 9F, maxHeight.toFloat() + fontRenderer.fontHeight + 5)
+        return Border(-maxWidth.toFloat() - 10f - 0, -5F, 9F, maxHeight.toFloat() + fontRenderer.FONT_HEIGHT + 5)
     }
 
     private fun backgroundColor() = Color(backgroundColorRedValue.get(), backgroundColorGreenValue.get(),

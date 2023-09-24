@@ -8,20 +8,21 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.speeds.spartan
 import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.event.MoveEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.SpeedMode
+import net.ccbluex.liquidbounce.injection.implementations.IMixinTimer
 
 class SpartanYPort : SpeedMode("SpartanYPort") {
     private var airMoves = 0
     override fun onMotion(event: MotionEvent) {
         if (mc.gameSettings.keyBindForward.isKeyDown && !mc.gameSettings.keyBindJump.isKeyDown) {
-            if (mc.thePlayer!!.onGround) {
-                mc.thePlayer!!.jump()
+            if (mc.player!!.onGround) {
+                mc.player!!.jump()
                 airMoves = 0
             } else {
-                mc.timer.timerSpeed = 1.08f
-                if (airMoves >= 3) mc.thePlayer!!.jumpMovementFactor = 0.0275f
+                (mc.timer as IMixinTimer).timerSpeed = 1.08f
+                if (airMoves >= 3) mc.player!!.jumpMovementFactor = 0.0275f
                 if (airMoves >= 4 && airMoves % 2.toDouble() == 0.0) {
-                    mc.thePlayer!!.motionY = -0.32f - 0.009 * Math.random()
-                    mc.thePlayer!!.jumpMovementFactor = 0.0238f
+                    mc.player!!.motionY = -0.32f - 0.009 * Math.random()
+                    mc.player!!.jumpMovementFactor = 0.0238f
                 }
                 airMoves++
             }

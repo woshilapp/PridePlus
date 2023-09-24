@@ -8,7 +8,6 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.misc.germ.GermButton
 import net.ccbluex.liquidbounce.features.module.modules.misc.germ.GermPage
-import net.ccbluex.liquidbounce.injection.backend.unwrap
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.minecraft.network.PacketBuffer
 import net.minecraft.network.play.client.CPacketCustomPayload
@@ -25,7 +24,7 @@ import org.yaml.snakeyaml.Yaml
 @ModuleInfo(name = "Germ", category = ModuleCategory.MISC, description = "萌芽引擎代替品 只供学习使用")
 class Germ : Module() {
     fun onPacket(event: PacketEvent?) {
-        val packet = event!!.packet.unwrap()
+        val packet = event!!.packet
         if (packet is SPacketCustomPayload) {
             if (packet.channelName.equals("germplugin-netease")) {
                 process(packet.bufferData)

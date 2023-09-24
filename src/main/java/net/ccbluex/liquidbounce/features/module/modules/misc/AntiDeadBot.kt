@@ -9,7 +9,6 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.injection.backend.unwrap
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.minecraft.network.play.server.SPacketChat
 import java.util.regex.Pattern
@@ -37,7 +36,7 @@ class AntiDeadBot : Module() {
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        val packet = event.packet.unwrap()
+        val packet = event.packet
 
         if ((packet is SPacketChat) && !packet.chatComponent.unformattedText.contains(":") && (packet.chatComponent.unformattedText.startsWith("起床战争") || packet.chatComponent.unformattedText.startsWith("[起床战争"))) {
             val chat = packet.chatComponent.unformattedText
@@ -139,9 +138,9 @@ class AntiDeadBot : Module() {
     }
 
     private fun hideMsg(event: PacketEvent) {
-        val packet = event.packet.unwrap()
+        val packet = event.packet
         if ((packet is SPacketChat) && hideKillChatValue.get() && !(showMyKillDeathChatValue.get() && packet.chatComponent.unformattedText.contains(
-                mc.thePlayer!!.displayNameString
+                mc.player!!.displayNameString
             ))
         ) {
             event.cancelEvent()

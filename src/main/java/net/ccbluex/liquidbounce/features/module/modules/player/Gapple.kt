@@ -13,6 +13,10 @@ import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.init.Items
+import net.minecraft.network.play.client.CPacketHeldItemChange
+import net.minecraft.network.play.client.CPacketPlayer
+import net.minecraft.network.play.client.CPacketPlayerTryUseItem
+import net.minecraft.util.EnumHand
 
 
 @ModuleInfo(name = "Gapple", description = "Eat Gapples.", category = ModuleCategory.PLAYER)
@@ -40,7 +44,7 @@ class Gapple : Module() {
             "auto" -> {
                 if (!timer.hasTimePassed(delayValue.get().toLong()))
                     return
-                if (mc.thePlayer!!.health <= healthValue.get()){
+                if (mc.player!!.health <= healthValue.get()){
                     doEat(false)
                     timer.reset()
                 }
@@ -49,23 +53,23 @@ class Gapple : Module() {
                 if (eating == -1) {
                     val gappleInHotbar = InventoryUtils.findItem2(36, 45, Items.GOLDEN_APPLE)
                     if(gappleInHotbar == -1) return
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketHeldItemChange(gappleInHotbar - 36))
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerBlockPlacement(mc.thePlayer!!.heldItem))
+                    mc.connection!!.sendPacket(CPacketHeldItemChange(gappleInHotbar - 36))
+                    mc.connection!!.sendPacket(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))
                     eating = 0
                 } else if (eating > 35) {
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketHeldItemChange(mc.thePlayer!!.inventory.currentItem))
+                    mc.connection!!.sendPacket(CPacketHeldItemChange(mc.player!!.inventory.currentItem))
                     timer.reset()
                 }
             }
             "head" -> {
                 if (!timer.hasTimePassed(delayValue.get().toLong()))
                     return
-                if (mc.thePlayer!!.health <= healthValue.get()){
+                if (mc.player!!.health <= healthValue.get()){
                     val headInHotbar = InventoryUtils.findItem2(36, 45, Items.SKULL)
                     if(headInHotbar != -1) {
-                        mc.netHandler.addToSendQueue(classProvider.createCPacketHeldItemChange(headInHotbar - 36))
-                        mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerBlockPlacement(mc.thePlayer!!.heldItem))
-                        mc.netHandler.addToSendQueue(classProvider.createCPacketHeldItemChange(mc.thePlayer!!.inventory.currentItem))
+                        mc.connection!!.sendPacket(CPacketHeldItemChange(headInHotbar - 36))
+                        mc.connection!!.sendPacket(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))
+                        mc.connection!!.sendPacket(CPacketHeldItemChange(mc.player!!.inventory.currentItem))
                         timer.reset()
                     }
                 }
@@ -80,12 +84,12 @@ class Gapple : Module() {
 
         val gappleInHotbar = InventoryUtils.findItem2(36, 45, Items.GOLDEN_APPLE)
         if(gappleInHotbar != -1){
-            mc.netHandler.addToSendQueue(classProvider.createCPacketHeldItemChange(gappleInHotbar - 36))
-            mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerBlockPlacement(mc.thePlayer!!.heldItem))
+            mc.connection!!.sendPacket(CPacketHeldItemChange(gappleInHotbar - 36))
+            mc.connection!!.sendPacket(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))
             repeat(35) {
-                mc.netHandler.addToSendQueue(classProvider.createCPacketPlayer(mc.thePlayer!!.onGround))
+                mc.connection!!.sendPacket(CPacketPlayer(mc.player.onGround))
             }
-            mc.netHandler.addToSendQueue(classProvider.createCPacketHeldItemChange(mc.thePlayer!!.inventory.currentItem))
+            mc.connection!!.sendPacket(CPacketHeldItemChange(mc.player!!.inventory.currentItem))
         }else if(warn){
         }
     }

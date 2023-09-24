@@ -7,14 +7,6 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import me.utils.PacketUtils
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.enums.EnumFacingType
-import net.ccbluex.liquidbounce.api.enums.WEnumHand
-import net.ccbluex.liquidbounce.api.minecraft.item.IItem
-import net.ccbluex.liquidbounce.api.minecraft.item.IItemStack
-import net.ccbluex.liquidbounce.api.minecraft.network.play.client.*
-import net.ccbluex.liquidbounce.api.minecraft.util.IEnumFacing
-import net.ccbluex.liquidbounce.api.minecraft.util.WBlockPos
-import net.ccbluex.liquidbounce.api.minecraft.util.WMathHelper
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
@@ -24,11 +16,10 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.injection.backend.unwrap
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.createUseItemPacket
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
-import net.minecraft.item.ItemSword
+import net.minecraft.item.*
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayServer
 import net.minecraft.network.play.client.*
@@ -36,6 +27,8 @@ import net.minecraft.network.play.server.SPacketWindowItems
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.MathHelper
+import net.minecraft.util.math.MathHelper.floor
 import java.util.*
 
 @ModuleInfo(name = "NoSlow", description = "Cancels slowness effects caused by SoulSand and using items.",
@@ -80,7 +73,7 @@ class NoSlow : Module() {
 
 
     private fun isBlock(): Boolean {
-        return mc.thePlayer!!.isBlocking || killAura.blockingStatus
+        return mc.player.isActiveItemStackBlocking || killAura.blockingStatus
     }
 
     fun fuckKotline(value: Int): Boolean{
@@ -96,7 +89,7 @@ class NoSlow : Module() {
     }
 
     private val isBlocking: Boolean
-        get() = (mc.thePlayer!!.isUsingItem || (LiquidBounce.moduleManager[KillAura::class.java] as KillAura).blockingStatus) && mc.thePlayer!!.heldItem != null && mc.thePlayer!!.heldItem!!.item is ItemSword
+        get() = (mc.player!!.isHandActive || (LiquidBounce.moduleManager[KillAura::class.java] as KillAura).blockingStatus) && mc.player!!.getHeldItem(EnumHand.MAIN_HAND).item is ItemSword
 
     override fun onDisable() {
         Timer.reset()
@@ -110,37 +103,37 @@ class NoSlow : Module() {
 
     private fun sendPacket(Event : MotionEvent,SendC07 : Boolean, SendC08 : Boolean,Delay : Boolean,DelayValue : Long,onGround : Boolean,Hypixel : Boolean = false) {
         val aura = LiquidBounce.moduleManager[KillAura::class.java] as KillAura
-        val digging = classProvider.createCPacketPlayerDigging(ICPacketPlayerDigging.WAction.RELEASE_USE_ITEM, WBlockPos(-1,-1,-1),EnumFacing.DOWN as IEnumFacing)
-        val blockPlace = classProvider.createCPacketPlayerBlockPlacement(mc.thePlayer!!.inventory.currentItem as IItemStack)
-        val blockMent = classProvider.createCPacketPlayerBlockPlacement(WBlockPos(-1, -1, -1), 255, mc.thePlayer!!.inventory.currentItem as IItemStack, 0f, 0f, 0f)
-        if(onGround && !mc.thePlayer!!.onGround) {
+        val digging = CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos(-1,-1,-1),EnumFacing.DOWN)
+        val blockPlace = CPacketPlayerTryUseItem(EnumHand.MAIN_HAND)
+        val blockMent = CPacketPlayerTryUseItemOnBlock(BlockPos(-1, -1, -1), EnumFacing.values()[255], EnumHand.MAIN_HAND, 0f, 0f, 0f)
+        if(onGround && !mc.player!!.onGround) {
             return
         }
 
         if(SendC07 && OnPre(Event)) {
             if(Delay && Timer.hasTimePassed(DelayValue)) {
-                mc.netHandler.addToSendQueue(digging)
+                mc.connection!!.sendPacket(digging)
             } else if(!Delay) {
-                mc.netHandler.addToSendQueue(digging)
+                mc.connection!!.sendPacket(digging)
             }
         }
         if(SendC08 && OnPost(Event)) {
             if(Delay && Timer.hasTimePassed(DelayValue) && !Hypixel) {
-                mc.netHandler.addToSendQueue(blockPlace)
+                mc.connection!!.sendPacket(blockPlace)
                 Timer.reset()
             } else if(!Delay && !Hypixel) {
-                mc.netHandler.addToSendQueue(blockPlace)
+                mc.connection!!.sendPacket(blockPlace)
             } else if(Hypixel) {
-                mc.netHandler.addToSendQueue(blockMent)
+                mc.connection!!.sendPacket(blockMent)
             }
         }
     }
 
     @EventTarget
     fun onMotion(event: MotionEvent) {
-        val thePlayer = mc.thePlayer ?: return
-        var test = fuckKotline(mc.thePlayer!!.ticksExisted and 1)
-        val heldItem = thePlayer.heldItem
+        val player = mc.player ?: return
+        var test = fuckKotline(mc.player!!.ticksExisted and 1)
+        val heldItem = player.getHeldItem(EnumHand.MAIN_HAND)
 
         if (!MovementUtils.isMoving) {
             return
@@ -148,46 +141,46 @@ class NoSlow : Module() {
 
         when(modeValue.get().toLowerCase()) {
             "grimtest" -> {
-                val item = heldItem?.item
-                if (classProvider.isItemBlock(item)) return
-                if (event.eventState == EventState.PRE && classProvider.isItemSword(item) && isBlocking) {
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerDigging(ICPacketPlayerDigging.WAction.RELEASE_USE_ITEM,
-                        WBlockPos.ORIGIN, classProvider.getEnumFacing(EnumFacingType.DOWN)))
-                    mc2.connection!!.sendPacket(CPacketPlayerTryUseItemOnBlock(BlockPos(-1,-1,-1), EnumFacing.DOWN, EnumHand.MAIN_HAND, 0F, 0F, 0F))
+                val item = heldItem.item
+                if (item is ItemBlock) return
+                if (event.eventState == EventState.PRE && (item is ItemSword) && isBlocking) {
+                    mc.connection!!.sendPacket(CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM,
+                        BlockPos.ORIGIN, EnumFacing.DOWN))
+                    mc.connection!!.sendPacket(CPacketPlayerTryUseItemOnBlock(BlockPos(-1,-1,-1), EnumFacing.values()[255], EnumHand.MAIN_HAND, 0F, 0F, 0F))
                 }
             }
             "custom" -> {
                 sendPacket(event,true,true,true,customDelayValue.get().toLong(),customOnGround.get())
             }
             "vanilla" -> {
-                mc.thePlayer!!.motionX=mc.thePlayer!!.motionX
-                mc.thePlayer!!.motionY=mc.thePlayer!!.motionY
-                mc.thePlayer!!.motionZ= mc.thePlayer!!.motionZ
+                mc.player!!.motionX = mc.player!!.motionX
+                mc.player!!.motionY = mc.player!!.motionY
+                mc.player!!.motionZ = mc.player!!.motionZ
             }
             "grimac"->{
-                if (event.eventState == EventState.PRE && classProvider.isItemSword(mc.thePlayer!!.heldItem!!.item) && isBlocking) {
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerDigging(ICPacketPlayerDigging.WAction.RELEASE_USE_ITEM,
-                        WBlockPos.ORIGIN, classProvider.getEnumFacing(EnumFacingType.DOWN)))
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerBlockPlacement(mc.thePlayer!!.inventory.getCurrentItemInHand() as IItemStack))
+                if (event.eventState == EventState.PRE && mc.player!!.getHeldItem(EnumHand.MAIN_HAND).item is ItemSword && isBlocking) {
+                    mc.connection!!.sendPacket(CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM,
+                        BlockPos.ORIGIN, EnumFacing.DOWN))
+                    mc.connection!!.sendPacket(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))
                 }
             }
             "grimc07"->{
-                if (event.eventState == EventState.PRE && classProvider.isItemSword(mc.thePlayer!!.heldItem!!.item) && isBlocking) {
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerDigging(ICPacketPlayerDigging.WAction.RELEASE_USE_ITEM,
-                        WBlockPos.ORIGIN, classProvider.getEnumFacing(EnumFacingType.DOWN)))
+                if (event.eventState == EventState.PRE && heldItem.item is ItemSword && isBlocking) {
+                    mc.connection!!.sendPacket(CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM,
+                        BlockPos.ORIGIN, EnumFacing.DOWN))
                 }
             }
             "aac" -> {
-                if (mc.thePlayer!!.ticksExisted % 3 == 0) {
+                if (mc.player!!.ticksExisted % 3 == 0) {
                     sendPacket(event, true, false, false, 0, false)
                 } else {
                     sendPacket(event, false, true, false, 0, false)
                 }
             }
             "aac5" -> {
-                if (mc.thePlayer!!.isUsingItem || mc.thePlayer!!.isBlocking || isBlock()) {
-                    mc.netHandler.addToSendQueue(createUseItemPacket(mc.thePlayer!!.inventory.getCurrentItemInHand(), WEnumHand.MAIN_HAND))
-                    mc.netHandler.addToSendQueue(createUseItemPacket(mc.thePlayer!!.inventory.getCurrentItemInHand(), WEnumHand.OFF_HAND))
+                if (mc.player!!.isHandActive || mc.player!!.isActiveItemStackBlocking || isBlock()) {
+                    mc.connection!!.sendPacket(createUseItemPacket(mc.player!!.inventory.getCurrentItem(), EnumHand.MAIN_HAND))
+                    mc.connection!!.sendPacket(createUseItemPacket(mc.player!!.inventory.getCurrentItem(), EnumHand.OFF_HAND))
                 }
             }
         }
@@ -199,24 +192,24 @@ class NoSlow : Module() {
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if(modeValue.equals("Matrix") || modeValue.equals("Vulcan")&& nextTemp) {
-            if((packet is CPacketPlayerDigging || packet is ICPacketPlayerBlockPlacement) && isBlocking) {
+            if((packet is CPacketPlayerDigging || packet is CPacketPlayerTryUseItemOnBlock) && isBlocking) {
                 event.cancelEvent()
             }
             event.cancelEvent()
-        }else if (packet is CPacketPlayer || packet is CPacketAnimation || packet is CPacketEntityAction || packet is CPacketUseEntity || packet is CPacketPlayerDigging || packet is ICPacketPlayerBlockPlacement) {
-            if (modeValue.equals("Vulcan") && waitC03 && packet is ICPacketPlayer) {
+        }else if (packet is CPacketPlayer || packet is CPacketAnimation || packet is CPacketEntityAction || packet is CPacketUseEntity || packet is CPacketPlayerDigging || packet is CPacketPlayerTryUseItemOnBlock) {
+            if (modeValue.equals("Vulcan") && waitC03 && packet is CPacketPlayer) {
                 waitC03 = false
                 return
             }
             packetBuf.add(packet as Packet<INetHandlerPlayServer>)
         }
         if (modeValue.equals("FakeBlock")){
-            if (isBlocking && packet.unwrap() is CPacketPlayerTryUseItemOnBlock){
+            if (isBlocking && packet is CPacketPlayerTryUseItemOnBlock){
                 event.cancelEvent()
             }
         }
-        if (event.packet.unwrap() is SPacketWindowItems) {
-            if (mc.thePlayer!!.isUsingItem) {
+        if (event.packet is SPacketWindowItems) {
+            if (mc.player!!.isHandActive) {
                 event.cancelEvent()
             }
         }
@@ -227,14 +220,14 @@ class NoSlow : Module() {
         if((modeValue.equals("Matrix") || modeValue.equals("Vulcan")) && (lastBlockingStat || isBlocking)) {
             if(msTimer.hasTimePassed(230) && nextTemp) {
                 nextTemp = false
-                classProvider.createCPacketPlayerDigging(ICPacketPlayerDigging.WAction.RELEASE_USE_ITEM, WBlockPos(-1, -1, -1), EnumFacing.DOWN as IEnumFacing)
+                CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos(-1, -1, -1), EnumFacing.DOWN)
                 if(packetBuf.isNotEmpty()) {
                     var canAttack = false
                     for(packet in packetBuf) {
                         if(packet is CPacketPlayer) {
                             canAttack = true
                         }
-                        if(!((packet is ICPacketUseEntity || packet is ICPacketAnimation) && !canAttack)) {
+                        if(!((packet is CPacketUseEntity || packet is CPacketAnimation) && !canAttack)) {
                             PacketUtils.sendPacketNoEvent(packet)
                         }
                     }
@@ -246,7 +239,7 @@ class NoSlow : Module() {
                 if (!isBlocking) {
                     return
                 }
-                classProvider.createCPacketPlayerBlockPlacement(WBlockPos(-1, -1, -1), 255, mc.thePlayer!!.inventory.currentItem as IItemStack, 0f, 0f, 0f)
+                CPacketPlayerTryUseItemOnBlock(BlockPos(-1, -1, -1), EnumFacing.values()[255], EnumHand.MAIN_HAND, 0f, 0f, 0f)
                 nextTemp = true
                 waitC03 = modeValue.equals("Vulcan")
                 msTimer.reset()
@@ -256,21 +249,21 @@ class NoSlow : Module() {
 
     @EventTarget
     fun onSlowDown(event: SlowDownEvent) {
-        val heldItem = mc.thePlayer!!.heldItem?.item
+        val heldItem = mc.player!!.getHeldItem(EnumHand.MAIN_HAND)?.item
 
         event.forward = getMultiplier(heldItem, true)
         event.strafe = getMultiplier(heldItem, false)
     }
 
-    private fun getMultiplier(item: IItem?, isForward: Boolean): Float {
+    private fun getMultiplier(item: Item?, isForward: Boolean): Float {
         return when {
-            classProvider.isItemFood(item) || classProvider.isItemPotion(item) || classProvider.isItemBucketMilk(item) -> {
+            (item is ItemFood) || (item is ItemPotion) || (item is ItemBucketMilk) -> {
                 if (isForward) this.consumeForwardMultiplier.get() else this.consumeStrafeMultiplier.get()
             }
-            classProvider.isItemSword(item) -> {
+            (item is ItemSword) -> {
                 if (isForward) this.blockForwardMultiplier.get() else this.blockStrafeMultiplier.get()
             }
-            classProvider.isItemBow(item) -> {
+            (item is ItemBow) -> {
                 if (isForward) this.bowForwardMultiplier.get() else this.bowStrafeMultiplier.get()
             }
             else -> 0.2F
@@ -278,9 +271,9 @@ class NoSlow : Module() {
     }
     fun getHytBlockpos(): BlockPos {
         val random = java.util.Random()
-        val dx = WMathHelper.floor_double(random.nextDouble() / 1000 + 2820)
-        val jy = WMathHelper.floor_double(random.nextDouble() / 100 * 0.20000000298023224)
-        val kz = WMathHelper.floor_double(random.nextDouble() / 1000 + 2820)
+        val dx = floor(random.nextDouble() / 1000 + 2820)
+        val jy = floor(random.nextDouble() / 100 * 0.20000000298023224)
+        val kz = floor(random.nextDouble() / 1000 + 2820)
         return BlockPos(dx, -jy % 255, kz)
     }
 

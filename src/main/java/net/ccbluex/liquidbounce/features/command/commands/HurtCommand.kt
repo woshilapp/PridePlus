@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.features.command.commands
 
 import net.ccbluex.liquidbounce.features.command.Command
+import net.minecraft.network.play.client.CPacketPlayer
 
 class HurtCommand : Command("hurt") {
     /**
@@ -24,18 +25,18 @@ class HurtCommand : Command("hurt") {
         }
 
         // Latest NoCheatPlus damage exploit
-        val thePlayer = mc.thePlayer ?: return
+        val thePlayer = mc.player ?: return
 
         val x = thePlayer.posX
         val y = thePlayer.posY
         val z = thePlayer.posZ
 
         for (i in 0 until 65 * damage) {
-            mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(x, y + 0.049, z, false))
-            mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(x, y, z, false))
+            mc.connection!!.sendPacket(CPacketPlayer.Position(x, y + 0.049, z, false))
+            mc.connection!!.sendPacket(CPacketPlayer.Position(x, y, z, false))
         }
 
-        mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(x, y, z, true))
+        mc.connection!!.sendPacket(CPacketPlayer.Position(x, y, z, true))
 
         // Output message
         chat("You were damaged.")

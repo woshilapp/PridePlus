@@ -1,14 +1,14 @@
 package op.wawa.lbp.newVer.element.module.value.impl
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.util.ResourceLocation
 import op.wawa.lbp.newVer.ColorManager
 import op.wawa.lbp.newVer.MouseUtils
 import op.wawa.lbp.newVer.element.module.value.ValueElement
 import op.wawa.lbp.newVer.extensions.animSmooth
-import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.features.value.ListValue
-import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
@@ -19,7 +19,7 @@ class ListElement(val saveValue: ListValue): ValueElement<String>(saveValue) {
     private val maxSubWidth = -(saveValue.values.map { -Fonts.font40.getStringWidth(it) }.sorted().firstOrNull() ?: 0) + 20
 
     companion object {
-        val expanding = LiquidBounce.wrapper.classProvider.createResourceLocation("wawa/expand.png") }
+        val expanding = ResourceLocation("wawa/expand.png") }
 
     override fun drawElement(mouseX: Int, mouseY: Int, x: Float, y: Float, width: Float, bgColor: Color, accentColor: Color): Float {
         expandHeight = expandHeight.animSmooth(if (expansion) 16F * (saveValue.values.size - 1F) else 0F, 0.5F) as Float

@@ -13,13 +13,17 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.*
+import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
+import net.ccbluex.liquidbounce.ui.cnfont.FontLoaders
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.render.ColorUtil
 import net.ccbluex.liquidbounce.utils.render.Colors
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Gui
+import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.util.ResourceLocation
 import java.awt.Color
 import java.text.SimpleDateFormat
 import java.util.*
@@ -49,10 +53,10 @@ class HUD : Module() {
     @JvmField
     val domainValue = TextValue("Scoreboard-Domain", "PridePlus-2K23")
     val hueInterpolation = BoolValue("DoubleColor-Interpolate", false)
-    val simpleFPS = BoolValue("Simple-FPS-Render", true)
-    val prideBackCN = BoolValue("PrideLogoCN", false)
-    val prideBack = ListValue("PrideLogoBack-Mode", arrayOf("FPS","miHoYo","Pro","114514","idan","Custom","Off"),"Custom")
-    val prideBackValue = TextValue("PrideLogoBack-CustomText", "But Pa1m0n i love u")
+    val simpleFPS = BoolValue("Simple-FPS-Render", false)
+    val prideBackCN = BoolValue("PrideLogoTextCN", false)
+    val prideBack = ListValue("PrideLogoTextBack-Mode", arrayOf("FPS","miHoYo","Pro","114514","idan","Custom","Off"),"Custom")
+    //val prideBackValue = TextValue("PrideLogoBack-CustomText", "But Pa1m0n i love u")
 
     val customColor = Color(redValue.get(), greenValue.get(), blueValue.get())
     val customTextColor = Color(textRedValue.get(), textGreenValue.get(), textBlueValue.get()).rgb
@@ -81,10 +85,10 @@ class HUD : Module() {
         i = "ide"
         p2 = "Pl"
         u = "us"
-        var back:String = "FPS:" + mc.debugFPS
+        var back:String = "FPS:" + Minecraft.getDebugFPS()
 
         when(prideBack.get().toLowerCase()){
-            "fps" -> back = "FPS:" + mc.debugFPS + "."
+            "fps" -> back = "FPS:" + Minecraft.getDebugFPS() + "."
             "mihoyo" -> back = "By miHoYo-Team"
             "pro" -> back = "WaWa我给你跪下了"
             "114514" -> back = "哼啊啊啊啊啊啊啊啊"
@@ -98,12 +102,12 @@ class HUD : Module() {
             text = p+i+p2+u
         }
         if (prideBack.get().toLowerCase() == "off"){
-            mc.fontRendererObj.drawString(text+" "+LiquidBounce.CLIENT_VERSION,2F,height - (mc.fontRendererObj.fontHeight + 2F),customTextColor,true)
+            FontLoaders.F16.drawString(text+" "+LiquidBounce.CLIENT_VERSION,2F,height - (Fonts.font35.fontHeight + 2F),customTextColor,true)
         }else{
-            mc.fontRendererObj.drawString(text+" "+LiquidBounce.CLIENT_VERSION+", "+ back,2F,height - (mc.fontRendererObj.fontHeight + 2F),Color.WHITE.rgb,true)
+            FontLoaders.F16.drawString(text+" "+LiquidBounce.CLIENT_VERSION+", "+ back,2F,height - (Fonts.font35.fontHeight + 2F),Color.WHITE.rgb,true)
         }
 
-        if (simpleFPS.get()) mc.fontRendererObj.drawString("FPS: " + mc.debugFPS,width / 2F - (mc.fontRendererObj.getStringWidth("FPS: " + mc.debugFPS) / 2F),1F,Color.WHITE.rgb,true)
+        if (simpleFPS.get()) mc.fontRenderer.drawString("FPS: " + Minecraft.getDebugFPS(),width / 2F - (mc.fontRenderer.getStringWidth("FPS: " + Minecraft.getDebugFPS()) / 2F),1F,Color.WHITE.rgb,true)
 
         when (logValue.get().toLowerCase()) {
 
@@ -119,12 +123,12 @@ class HUD : Module() {
             }
 
             "idk" -> {
-                Fonts.fontSFUI35.drawStringWithShadow(ClientName.get() + "#0810",7, 10,   Color(255, 255, 255, 245).rgb)
+                Fonts.fontSFUI35.drawStringWithShadow(ClientName.get() + "#0810", 7F, 10F,   Color(255, 255, 255, 245).rgb)
             }
             "powerx" ->{
                 Gui.drawRect(2, 1, 78, 18, Color(10, 10, 10, 180).rgb)
                 Gui.drawRect(2, 1, 4, 18, Color(240, 240, 240, 245).rgb)
-                Fonts.fontSFUI56.drawStringWithShadow(ClientName.get(), 7, 3,   Color(255, 255, 255, 245).rgb)
+                Fonts.fontSFUI56.drawStringWithShadow(ClientName.get(), 7F, 3F,   Color(255, 255, 255, 245).rgb)
             }
             "jello" ->{
                 Fonts.fontSFUI120 .drawString(ClientName.get(), 10.0f, 10f, VisualUtils.reAlpha(Colors.WHITE.c, 0.75f))
@@ -134,11 +138,11 @@ class HUD : Module() {
                 Fonts.font80.drawCenteredString(ClientName.get(), 71.0f, 7.0f, java.awt.Color(0, 0, 0, 180).rgb)
                 Fonts.font35.drawCenteredString("by" + DevName.get() , 71.0f, 25.0f, java.awt.Color(0, 0, 0, 180).rgb)
                 Fonts.font80.drawString("_______________", 6.0f, 19.0f, java.awt.Color(0, 0, 0, 180).rgb)
-                Fonts.font35.drawString("UserName:" + mc.thePlayer!!.name, 45.0f - Fonts.font35.getStringWidth("UserName:" + mc.thePlayer!!.name).toFloat() / 2.0f + 28.0f, 40.0f, java.awt.Color(0, 0, 0, 180).rgb)
-                Fonts.font35.drawString("FPS:" + MinecraftInstance.mc.debugFPS, 45.0f - Fonts.font35.getStringWidth("FPS:" + MinecraftInstance.mc.debugFPS).toFloat() / 2.0f + 28.0f, 52.0f, java.awt.Color(0, 0, 0, 180).rgb)
+                Fonts.font35.drawString("UserName:" + mc.player!!.name, 45.0f - Fonts.font35.getStringWidth("UserName:" + mc.player!!.name).toFloat() / 2.0f + 28.0f, 40.0f, java.awt.Color(0, 0, 0, 180).rgb)
+                Fonts.font35.drawString("FPS:" + Minecraft.getDebugFPS(), 45.0f - Fonts.font35.getStringWidth("FPS:" + Minecraft.getDebugFPS()).toFloat() / 2.0f + 28.0f, 52.0f, java.awt.Color(0, 0, 0, 180).rgb)
             }
         }
-        if (classProvider.isGuiHudDesigner(mc.currentScreen))
+        if (mc.currentScreen is GuiHudDesigner)
             return
 
         LiquidBounce.hud.render(false)
@@ -156,10 +160,12 @@ class HUD : Module() {
 
     @EventTarget(ignoreCondition = true)
     fun onScreen(event: ScreenEvent) {
-        if (mc.theWorld == null || mc.thePlayer == null) return
+        if (mc.world == null || mc.player == null) return
         if (state && blurValue.get() && !mc.entityRenderer.isShaderActive() && event.guiScreen != null &&
-                !(classProvider.isGuiChat(event.guiScreen) || classProvider.isGuiHudDesigner(event.guiScreen))) mc.entityRenderer.loadShader(classProvider.createResourceLocation("pride/blur.json")) else if (mc.entityRenderer.shaderGroup != null &&
-                mc.entityRenderer.shaderGroup!!.shaderGroupName.contains("pride/blur.json")) mc.entityRenderer.stopUseShader()
+                !(event.guiScreen is GuiChat || event.guiScreen is GuiHudDesigner)) mc.entityRenderer.loadShader(
+            ResourceLocation("pride/blur.json")
+        ) else if (mc.entityRenderer.shaderGroup != null &&
+                mc.entityRenderer.shaderGroup.shaderGroupName.contains("pride/blur.json")) mc.entityRenderer.stopUseShader()
     }
 
     init {

@@ -6,7 +6,6 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.minecraft.client.gui.IFontRenderer
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
@@ -21,6 +20,7 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.FontValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.minecraft.client.gui.FontRenderer
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
 import java.awt.Color
@@ -296,7 +296,7 @@ class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element(x = x, y = y) {
         var textFade = 0F
 
         fun drawTab(x: Float, y: Float, color: Int, backgroundColor: Int, borderColor: Int, borderStrength: Float,
-                    upperCase: Boolean, fontRenderer: IFontRenderer, borderRainbow: Boolean, rectRainbow: Boolean) {
+                    upperCase: Boolean, fontRenderer: FontRenderer, borderRainbow: Boolean, rectRainbow: Boolean) {
             var maxWidth = 0
 
             for (module in modules)

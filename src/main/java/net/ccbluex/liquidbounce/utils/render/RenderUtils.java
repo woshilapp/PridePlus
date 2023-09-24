@@ -5,36 +5,34 @@
  */
 package net.ccbluex.liquidbounce.utils.render;
 
-import ad.utils.Color.modules.CustomUI;
+import me.CustomUI;
 import net.ccbluex.liquidbounce.LiquidBounce;
-import net.ccbluex.liquidbounce.api.enums.EnchantmentType;
-import net.ccbluex.liquidbounce.api.enums.WDefaultVertexFormats;
-import net.ccbluex.liquidbounce.api.minecraft.client.block.IBlock;
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntity;
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntityLivingBase;
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.player.IEntityPlayer;
-import net.ccbluex.liquidbounce.api.minecraft.client.render.ITessellator;
-import net.ccbluex.liquidbounce.api.minecraft.client.render.IWorldRenderer;
-import net.ccbluex.liquidbounce.api.minecraft.item.IItemStack;
-import net.ccbluex.liquidbounce.api.minecraft.renderer.entity.IRenderManager;
-import net.ccbluex.liquidbounce.api.minecraft.util.*;
 import net.ccbluex.liquidbounce.features.module.modules.render.HUD;
-import net.ccbluex.liquidbounce.injection.backend.Backend;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.ImageUtils;
 import net.ccbluex.liquidbounce.utils.MinecraftInstance;
 import net.ccbluex.liquidbounce.utils.block.BlockUtils;
 import net.ccbluex.liquidbounce.utils.item.ItemUtils;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.shader.Framebuffer;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemBow;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Timer;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
 
@@ -44,8 +42,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Math.*;
-import static op.wawa.utils.render.ScaleUtils.fadeBetween;
 import static net.ccbluex.liquidbounce.utils.MathUtils.interpolateFloat;
+import static op.wawa.utils.render.ScaleUtils.fadeBetween;
 import static org.lwjgl.opengl.GL11.*;
 
 public final class RenderUtils extends MinecraftInstance {
@@ -347,20 +345,7 @@ public final class RenderUtils extends MinecraftInstance {
         angle = (angle >= 180 ? 360 - angle : angle) * 2;
         return trueColor ? interpolateColorHue(start, end, angle / 360f) : interpolateColorC(start, end, angle / 360f);
     }
-    public static void drawImage3(ResourceLocation image, float x, float y, int width, int height, float r, float g, float b, float al) {
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
-        glDepthMask(false);
-        OpenGlHelper.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
-        glColor4f(r, g, b, al);
-        glTranslatef(x, y, x);
-        mc2.getTextureManager().bindTexture(image);
-        Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, width, height, width, height);
-        glTranslatef(-x, -y, -x);
-        glDepthMask(true);
-        glDisable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
-    }
+
     public static void drawLimitedCircle(final float lx, final float ly, final float x2, final float y2,final int xx, final int yy, final float radius, final Color color) {
         int sections = 50;
         double dAngle = 2 * Math.PI / sections;
@@ -527,16 +512,16 @@ public final class RenderUtils extends MinecraftInstance {
             Fonts.font30.drawString(text, x, y, mainColor);
         return x + Fonts.font30.getStringWidth(text) - 2F;
     }
-    public static void drawExhiEnchants(IItemStack stack, float x, float y) {
+    public static void drawExhiEnchants(ItemStack stack, float x, float y) {
         RenderHelper.disableStandardItemLighting();
         GlStateManager.disableDepth();
         GlStateManager.disableBlend();
         GlStateManager.resetColor();
         final int darkBorder = 0xFF000000;
         if (stack.getItem() instanceof ItemArmor) {
-            int prot = ItemUtils.getEnchantment(stack,classProvider.getEnchantmentEnum(EnchantmentType.PROTECTION));
-            int unb =  ItemUtils.getEnchantment(stack,classProvider.getEnchantmentEnum(EnchantmentType.UNBREAKING));
-            int thorn = ItemUtils.getEnchantment(stack,classProvider.getEnchantmentEnum(EnchantmentType.THORNS));
+            int prot = ItemUtils.getEnchantment(stack, Enchantments.PROTECTION);
+            int unb =  ItemUtils.getEnchantment(stack, Enchantments.UNBREAKING);
+            int thorn = ItemUtils.getEnchantment(stack, Enchantments.THORNS);
             if (prot > 0) {
                 drawExhiOutlined(prot + "", drawExhiOutlined("P", x, y, 0.35F, darkBorder, -1, true), y, 0.35F, getBorderColor(prot), getMainColor(prot), true);
                 y += 4;
@@ -551,8 +536,8 @@ public final class RenderUtils extends MinecraftInstance {
             }
         }
         if (stack.getItem() instanceof ItemBow) {
-            int power =  ItemUtils.getEnchantment(stack,classProvider.getEnchantmentEnum(EnchantmentType.POWER));
-            int unb =  ItemUtils.getEnchantment(stack,classProvider.getEnchantmentEnum(EnchantmentType.UNBREAKING));
+            int power =  ItemUtils.getEnchantment(stack,Enchantments.POWER);
+            int unb =  ItemUtils.getEnchantment(stack,Enchantments.UNBREAKING);
             if (power > 0) {
                 drawExhiOutlined(power + "", drawExhiOutlined("Pow", x, y, 0.35F, darkBorder, -1, true), y, 0.35F, getBorderColor(power), getMainColor(power), true);
                 y += 4;
@@ -565,9 +550,9 @@ public final class RenderUtils extends MinecraftInstance {
             }
         }
         if (stack.getItem() instanceof ItemSword) {
-            int sharp =  ItemUtils.getEnchantment(stack,classProvider.getEnchantmentEnum(EnchantmentType.SHARPNESS));
-            int fire = ItemUtils.getEnchantment(stack,classProvider.getEnchantmentEnum(EnchantmentType.FIRE_PROTECTION));
-            int unb = ItemUtils.getEnchantment(stack,classProvider.getEnchantmentEnum(EnchantmentType.UNBREAKING));
+            int sharp =  ItemUtils.getEnchantment(stack,Enchantments.SHARPNESS);
+            int fire = ItemUtils.getEnchantment(stack,Enchantments.FIRE_PROTECTION);
+            int unb = ItemUtils.getEnchantment(stack,Enchantments.UNBREAKING);
             if (sharp > 0) {
                 drawExhiOutlined(sharp + "", drawExhiOutlined("S", x, y, 0.35F, darkBorder, -1, true), y, 0.35F, getBorderColor(sharp), getMainColor(sharp), true);
                 y += 4;
@@ -636,9 +621,9 @@ public final class RenderUtils extends MinecraftInstance {
     public static void drawScaledCustomSizeModalCircle(int x, int y, float u, float v, int uWidth, int vHeight, int width, int height, float tileWidth, float tileHeight) {
         float f = 1.0F / tileWidth;
         float f1 = 1.0F / tileHeight;
-        ITessellator tessellator = classProvider.getTessellatorInstance();
-        IWorldRenderer worldrenderer = tessellator.getWorldRenderer();
-        worldrenderer.begin(GL_POLYGON, classProvider.getVertexFormatEnum(WDefaultVertexFormats.POSITION_TEX));
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder worldrenderer = tessellator.getBuffer();
+        worldrenderer.begin(GL_POLYGON, DefaultVertexFormats.POSITION_TEX);
         float xRadius = width / 2f;
         float yRadius = height / 2f;
         float uRadius = (((u + (float) uWidth) * f) - (u * f)) / 2f;
@@ -737,10 +722,10 @@ public final class RenderUtils extends MinecraftInstance {
     }
 
     public static void drawShadow2(int x, int y, float width, float height) {
-        drawImage(classProvider.createResourceLocation("pride/shadow/shadow_250_125.png"), x - 25, y - 25, (int) (width + 50), (int) (height + 50));
+        drawImage(new ResourceLocation("pride/shadow/shadow_250_125.png"), x - 25, y - 25, (int) (width + 50), (int) (height + 50));
     }
     public static void drawShadow2(int x, int y, float width, float height, float alpha) {
-        drawImage3(new ResourceLocation("pride/shadow/shadow_250_125.png"), x - 25, y - 25, (int) (width + 50), (int) (height + 50),0,0,0, alpha);
+        drawImage(new ResourceLocation("pride/shadow/shadow_250_125.png"), x - 25, y - 25, (int) (width + 50), (int) (height + 50),0,0,0, alpha);
     }
     public static void drawShadowWithCustomAlpha(float x, float y, float width, float height, float alpha) {
         drawTexturedRectWithCustomAlpha(x - 9, y - 9, 9, 9, "paneltopleft", alpha);
@@ -807,22 +792,22 @@ public final class RenderUtils extends MinecraftInstance {
     }
 
     public static Framebuffer createFrameBuffer(Framebuffer framebuffer) {
-        if (framebuffer == null || framebuffer.framebufferWidth != mc.getDisplayWidth() || framebuffer.framebufferHeight != mc.getDisplayHeight()) {
+        if (framebuffer == null || framebuffer.framebufferWidth != mc.displayWidth || framebuffer.framebufferHeight != mc.displayHeight) {
             if (framebuffer != null) {
                 framebuffer.deleteFramebuffer();
             }
-            return new Framebuffer(mc.getDisplayWidth(), mc.getDisplayHeight(), true);
+            return new Framebuffer(mc.displayWidth, mc.displayHeight, true);
         }
         return framebuffer;
     }
-    public static void quickDrawHead(IResourceLocation skin, int x, int y, int width, int height) {
+    public static void quickDrawHead(ResourceLocation skin, int x, int y, int width, int height) {
         mc.getTextureManager().bindTexture(skin);
         RenderUtils.drawScaledCustomSizeModalRect(x, y, 8F, 8F, 8, 8, width, height,
                 64F, 64F);
         RenderUtils.drawScaledCustomSizeModalRect(x, y, 40F, 8F, 8, 8, width, height,
                 64F, 64F);
     }
-    public static void drawHead(IResourceLocation skin, int x, int y, int width, int height) {
+    public static void drawHead(ResourceLocation skin, int x, int y, int width, int height) {
         GL11.glColor4f(1F, 1F, 1F, 1F);
         mc.getTextureManager().bindTexture(skin);
         RenderUtils.drawScaledCustomSizeModalRect(x, y, 8F, 8F, 8, 8, width, height,
@@ -830,7 +815,11 @@ public final class RenderUtils extends MinecraftInstance {
         RenderUtils.drawScaledCustomSizeModalRect(x, y, 40F, 8F, 8, 8, width, height,
                 64F, 64F);
     }
-    public static void drawEntityOnScreen(final int posX, final int posY, final int scale, final IEntityLivingBase entity) {
+    public static void drawEntityOnScreen(final int posX, final int posY, final int scale, final EntityLivingBase entity) {
+        drawEntityOnScreen(posX, posY, scale, entity, false);
+    }
+    
+    public static void drawEntityOnScreen(final int posX, final int posY, final int scale, final EntityLivingBase entity, boolean renderTag) {
         GlStateManager.pushMatrix();
         GlStateManager.enableColorMaterial();
 
@@ -842,29 +831,29 @@ public final class RenderUtils extends MinecraftInstance {
         GlStateManager.rotate(-135F, 0F, 1F, 0F);
         GlStateManager.translate(0.0, 0.0, 0.0);
 
-        float renderYawOffset = entity.getRenderYawOffset();
-        float rotationYaw = entity.getRotationYaw();
-        float rotationPitch = entity.getRotationPitch();
-        float prevRotationYawHead = entity.getPrevRotationYawHead();
-        float rotationYawHead = entity.getRotationYawHead();
+        float renderYawOffset = entity.renderYawOffset;
+        float rotationYaw = entity.rotationYaw;
+        float rotationPitch = entity.rotationPitch;
+        float prevRotationYawHead = entity.prevRotationYawHead;
+        float rotationYawHead = entity.rotationYawHead;
 
 
         entity.setRenderYawOffset(0);
-        entity.setRotationYaw(0);
-        entity.setRotationPitch(90);
-        entity.setRotationYawHead(entity.getRotationYaw());
-        entity.setPrevRotationYawHead(entity.getRotationYaw());
+        entity.rotationYaw = 0;
+        entity.rotationPitch = 90;
+        entity.setRotationYawHead(entity.rotationYaw);
+        entity.prevRotationYawHead = entity.rotationYaw;
 
-        IRenderManager rendermanager = mc.getRenderManager();
-        rendermanager.setPlayerViewY(180F);
-        rendermanager.setRenderShadow(false);
-        rendermanager.renderEntityWithPosYaw(entity, 0.0, 0.0, 0.0, 0F, 1F);
-        rendermanager.setRenderShadow(true);
+        RenderManager renderManager = mc.getRenderManager();
+        renderManager.setPlayerViewY(180F);
+        renderManager.setRenderShadow(false);
+        renderManager.renderEntity(entity, 0.0, 0.0, 0.0, 0F, 1F, renderTag);
+        renderManager.setRenderShadow(true);
 
         entity.setRenderYawOffset(renderYawOffset);
-        entity.setRotationYaw(rotationYaw);
-        entity.setRotationPitch(rotationPitch);
-        entity.setPrevRotationYawHead(prevRotationYawHead);
+        entity.rotationYaw = rotationYaw;
+        entity.rotationPitch = rotationPitch;
+        entity.prevRotationYawHead = prevRotationYawHead;
         entity.setRotationYawHead(rotationYawHead);
 
         GlStateManager.popMatrix();
@@ -1366,9 +1355,9 @@ public final class RenderUtils extends MinecraftInstance {
     {
         float f = 0.00390625F;
         float f1 = 0.00390625F;
-        ITessellator tessellator = classProvider.getTessellatorInstance();
-        IWorldRenderer worldrenderer = tessellator.getWorldRenderer();
-        worldrenderer.begin(7, classProvider.getVertexFormatEnum(WDefaultVertexFormats.POSITION_TEX));
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder worldrenderer = tessellator.getBuffer();
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
         worldrenderer.pos((double)(x + 0), (double)(y + height), (double)zLevel).tex((double)((float)(textureX + 0) * f), (double)((float)(textureY + height) * f1)).endVertex();
         worldrenderer.pos((double)(x + width), (double)(y + height), (double)zLevel).tex((double)((float)(textureX + width) * f), (double)((float)(textureY + height) * f1)).endVertex();
         worldrenderer.pos((double)(x + width), (double)(y + 0), (double)zLevel).tex((double)((float)(textureX + width) * f), (double)((float)(textureY + 0) * f1)).endVertex();
@@ -1449,7 +1438,7 @@ public final class RenderUtils extends MinecraftInstance {
         if(!enableBlend) glEnable(GL_BLEND);
         if(!disableAlpha) glDisable(GL_ALPHA_TEST);
         GlStateManager.color(1F, 1F, 1F, alpha);
-        mc.getTextureManager().bindTexture(classProvider.createResourceLocation("pride/shadow/" + image + ".png"));
+        mc.getTextureManager().bindTexture(new ResourceLocation("pride/shadow/" + image + ".png"));
         drawModalRectWithCustomSizedTexture(x, y, 0, 0, width, height, width, height);
         if(!enableBlend) glDisable(GL_BLEND);
         if(!disableAlpha) glEnable(GL_ALPHA_TEST);
@@ -1472,7 +1461,7 @@ public final class RenderUtils extends MinecraftInstance {
         final boolean disableAlpha = !glIsEnabled(GL_ALPHA_TEST);
         if (!enableBlend) glEnable(GL_BLEND);
         if (!disableAlpha) glDisable(GL_ALPHA_TEST);
-        mc.getTextureManager().bindTexture(classProvider.createResourceLocation("pride/shadow/" + image + ".png"));
+        mc.getTextureManager().bindTexture(new ResourceLocation("pride/shadow/" + image + ".png"));
         GlStateManager.color(1F, 1F, 1F, 1F);
         RenderUtils.drawModalRectWithCustomSizedTexture(x, y, 0, 0, width, height, width, height);
         if (!enableBlend) glDisable(GL_BLEND);
@@ -1510,7 +1499,7 @@ public final class RenderUtils extends MinecraftInstance {
         GL11.glPushMatrix();
         GlStateManager.enableBlend();
         GlStateManager.disableAlpha();
-        mc.getTextureManager().bindTexture(classProvider.createResourceLocation("pride/shadow/" + image + ".png"));
+        mc.getTextureManager().bindTexture(new ResourceLocation("pride/shadow/" + image + ".png"));
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         Gui.drawModalRectWithCustomSizedTexture(x, y, 0, 0, width, height, width, height);
         GlStateManager.disableBlend();
@@ -1690,29 +1679,25 @@ public final class RenderUtils extends MinecraftInstance {
         GL11.glDisable(2848);
         GL11.glShadeModel(7424);
     }
-    public static void drawBlockBox(final WBlockPos blockPos, final Color color, final boolean outline) {
-        final IRenderManager renderManager = mc.getRenderManager();
-        final ITimer timer = mc.getTimer();
+    public static void drawBlockBox(final BlockPos blockPos, final Color color, final boolean outline) {
+        final RenderManager renderManager = mc.getRenderManager();
+        final Timer timer = mc.timer;
 
-        final double x = blockPos.getX() - renderManager.getRenderPosX();
-        final double y = blockPos.getY() - renderManager.getRenderPosY();
-        final double z = blockPos.getZ() - renderManager.getRenderPosZ();
+        final double x = blockPos.getX() - renderManager.renderPosX;
+        final double y = blockPos.getY() - renderManager.renderPosY;
+        final double z = blockPos.getZ() - renderManager.renderPosZ;
 
-        IAxisAlignedBB axisAlignedBB = classProvider.createAxisAlignedBB(x, y, z, x + 1.0, y + 1.0, z + 1.0);
-        final IBlock block = BlockUtils.getBlock(blockPos);
+        AxisAlignedBB axisAlignedBB = new AxisAlignedBB(x, y, z, x + 1.0, y + 1.0, z + 1.0);
+        final Block block = BlockUtils.getBlock(blockPos);
 
         if (block != null) {
-            final IEntityPlayer player = mc.getThePlayer();
+            final EntityPlayer player = mc.player;
 
-            final double posX = player.getLastTickPosX() + (player.getPosX() - player.getLastTickPosX()) * (double) timer.getRenderPartialTicks();
-            final double posY = player.getLastTickPosY() + (player.getPosY() - player.getLastTickPosY()) * (double) timer.getRenderPartialTicks();
-            final double posZ = player.getLastTickPosZ() + (player.getPosZ() - player.getLastTickPosZ()) * (double) timer.getRenderPartialTicks();
+            final double posX = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double) timer.renderPartialTicks;
+            final double posY = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double) timer.renderPartialTicks;
+            final double posZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double) timer.renderPartialTicks;
 
-            if (Backend.MINECRAFT_VERSION_MINOR < 12) {
-                block.setBlockBoundsBasedOnState(mc.getTheWorld(), blockPos);
-            }
-
-            axisAlignedBB = block.getSelectedBoundingBox(mc.getTheWorld(), mc.getTheWorld().getBlockState(blockPos), blockPos)
+            axisAlignedBB = block.getSelectedBoundingBox(mc.world.getBlockState(blockPos), mc.world, blockPos)
                     .expand(0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D)
                     .offset(-posX, -posY, -posZ);
         }
@@ -1736,18 +1721,6 @@ public final class RenderUtils extends MinecraftInstance {
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         glDepthMask(true);
         resetCaps();
-    }
-    public static void drawImage2(String image, int x, int y, int width, int height) {
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
-        glDepthMask(false);
-        OpenGlHelper.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
-        glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        mc.getTextureManager().bindTexture(classProvider.createResourceLocation(image));
-        Gui.drawModalRectWithCustomSizedTexture(x, y, 0, 0, width, height, width, height);
-        glDepthMask(true);
-        glDisable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
     }
     public static void glColor1(int color) {
 
@@ -1776,63 +1749,63 @@ public final class RenderUtils extends MinecraftInstance {
         GL11.glHint(3154, 4352);
         GL11.glHint(3155, 4352);
     }
-    public static void drawSelectionBoundingBox(IAxisAlignedBB boundingBox) {
-        ITessellator tessellator = classProvider.getTessellatorInstance();
-        IWorldRenderer worldrenderer = tessellator.getWorldRenderer();
+    public static void drawSelectionBoundingBox(AxisAlignedBB boundingBox) {
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder worldrenderer = tessellator.getBuffer();
 
-        worldrenderer.begin(GL_LINE_STRIP, classProvider.getVertexFormatEnum(WDefaultVertexFormats.POSITION));
+        worldrenderer.begin(GL_LINE_STRIP, DefaultVertexFormats.POSITION);
 
         // Lower Rectangle
-        worldrenderer.pos(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ()).endVertex();
-        worldrenderer.pos(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMaxZ()).endVertex();
-        worldrenderer.pos(boundingBox.getMaxX(), boundingBox.getMinY(), boundingBox.getMaxZ()).endVertex();
-        worldrenderer.pos(boundingBox.getMaxX(), boundingBox.getMinY(), boundingBox.getMinZ()).endVertex();
-        worldrenderer.pos(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ()).endVertex();
+        worldrenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex();
+        worldrenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex();
+        worldrenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex();
 
         // Upper Rectangle
-        worldrenderer.pos(boundingBox.getMinX(), boundingBox.getMaxY(), boundingBox.getMinZ()).endVertex();
-        worldrenderer.pos(boundingBox.getMinX(), boundingBox.getMaxY(), boundingBox.getMaxZ()).endVertex();
-        worldrenderer.pos(boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ()).endVertex();
-        worldrenderer.pos(boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMinZ()).endVertex();
-        worldrenderer.pos(boundingBox.getMinX(), boundingBox.getMaxY(), boundingBox.getMinZ()).endVertex();
+        worldrenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex();
+        worldrenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex();
+        worldrenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex();
 
         // Upper Rectangle
-        worldrenderer.pos(boundingBox.getMinX(), boundingBox.getMaxY(), boundingBox.getMaxZ()).endVertex();
-        worldrenderer.pos(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMaxZ()).endVertex();
+        worldrenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex();
+        worldrenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex();
 
-        worldrenderer.pos(boundingBox.getMaxX(), boundingBox.getMinY(), boundingBox.getMaxZ()).endVertex();
-        worldrenderer.pos(boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ()).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ).endVertex();
 
-        worldrenderer.pos(boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMinZ()).endVertex();
-        worldrenderer.pos(boundingBox.getMaxX(), boundingBox.getMinY(), boundingBox.getMinZ()).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex();
 
         tessellator.draw();
     }
 
-    public static void drawEntityBox(final IEntity entity, final Color color, final boolean outline) {
-        final IRenderManager renderManager = mc.getRenderManager();
-        final ITimer timer = mc.getTimer();
+    public static void drawEntityBox(final Entity entity, final Color color, final boolean outline) {
+        final RenderManager renderManager = mc.getRenderManager();
+        final Timer timer = mc.timer;
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         enableGlCap(GL_BLEND);
         disableGlCap(GL_TEXTURE_2D, GL_DEPTH_TEST);
         glDepthMask(false);
 
-        final double x = entity.getLastTickPosX() + (entity.getPosX() - entity.getLastTickPosX()) * timer.getRenderPartialTicks()
-                - renderManager.getRenderPosX();
-        final double y = entity.getLastTickPosY() + (entity.getPosY() - entity.getLastTickPosY()) * timer.getRenderPartialTicks()
-                - renderManager.getRenderPosY();
-        final double z = entity.getLastTickPosZ() + (entity.getPosZ() - entity.getLastTickPosZ()) * timer.getRenderPartialTicks()
-                - renderManager.getRenderPosZ();
+        final double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * timer.renderPartialTicks
+                - renderManager.renderPosX;
+        final double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * timer.renderPartialTicks
+                - renderManager.renderPosY;
+        final double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * timer.renderPartialTicks
+                - renderManager.renderPosZ;
 
-        final IAxisAlignedBB entityBox = entity.getEntityBoundingBox();
-        final IAxisAlignedBB axisAlignedBB = classProvider.createAxisAlignedBB(
-                entityBox.getMinX() - entity.getPosX() + x - 0.05D,
-                entityBox.getMinY() - entity.getPosY() + y,
-                entityBox.getMinZ() - entity.getPosZ() + z - 0.05D,
-                entityBox.getMaxX() - entity.getPosX() + x + 0.05D,
-                entityBox.getMaxY() - entity.getPosY() + y + 0.15D,
-                entityBox.getMaxZ() - entity.getPosZ() + z + 0.05D
+        final AxisAlignedBB entityBox = entity.getEntityBoundingBox();
+        final AxisAlignedBB axisAlignedBB = new AxisAlignedBB(
+                entityBox.minX - entity.posX + x - 0.05D,
+                entityBox.minY - entity.posY + y,
+                entityBox.minZ - entity.posZ + z - 0.05D,
+                entityBox.maxX - entity.posX + x + 0.05D,
+                entityBox.maxY - entity.posY + y + 0.15D,
+                entityBox.maxZ - entity.posZ + z + 0.05D
         );
 
         if (outline) {
@@ -1849,7 +1822,7 @@ public final class RenderUtils extends MinecraftInstance {
         resetCaps();
     }
 
-    public static void drawAxisAlignedBB(final IAxisAlignedBB axisAlignedBB, final Color color) {
+    public static void drawAxisAlignedBB(final AxisAlignedBB axisAlignedBB, final Color color) {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_BLEND);
         glLineWidth(2F);
@@ -1866,33 +1839,33 @@ public final class RenderUtils extends MinecraftInstance {
     }
 
     public static void drawPlatform(final double y, final Color color, final double size) {
-        final IRenderManager renderManager = mc.getRenderManager();
-        final double renderY = y - renderManager.getRenderPosY();
+        final RenderManager renderManager = mc.getRenderManager();
+        final double renderY = y - renderManager.renderPosY;
 
-        drawAxisAlignedBB(classProvider.createAxisAlignedBB(size, renderY + 0.02D, size, -size, renderY, -size), color);
+        drawAxisAlignedBB(new AxisAlignedBB(size, renderY + 0.02D, size, -size, renderY, -size), color);
     }
 
-    public static void drawPlatform(final IEntity entity, final Color color) {
-        final IRenderManager renderManager = mc.getRenderManager();
-        final ITimer timer = mc.getTimer();
+    public static void drawPlatform(final Entity entity, final Color color) {
+        final RenderManager renderManager = mc.getRenderManager();
+        final Timer timer = mc.timer;
 
-        final double x = entity.getLastTickPosX() + (entity.getPosX() - entity.getLastTickPosX()) * timer.getRenderPartialTicks()
-                - renderManager.getRenderPosX();
-        final double y = entity.getLastTickPosY() + (entity.getPosY() - entity.getLastTickPosY()) * timer.getRenderPartialTicks()
-                - renderManager.getRenderPosY();
-        final double z = entity.getLastTickPosZ() + (entity.getPosZ() - entity.getLastTickPosZ()) * timer.getRenderPartialTicks()
-                - renderManager.getRenderPosZ();
+        final double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * timer.renderPartialTicks
+                - renderManager.renderPosX;
+        final double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * timer.renderPartialTicks
+                - renderManager.renderPosY;
+        final double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * timer.renderPartialTicks
+                - renderManager.renderPosZ;
 
-        final IAxisAlignedBB axisAlignedBB = entity.getEntityBoundingBox()
-                .offset(-entity.getPosX(), -entity.getPosY(), -entity.getPosZ())
+        final AxisAlignedBB axisAlignedBB = entity.getEntityBoundingBox()
+                .offset(-entity.posX, -entity.posY, -entity.posZ)
                 .offset(x, y, z);
 
         drawAxisAlignedBB(
-                classProvider.createAxisAlignedBB(axisAlignedBB.getMinX(), axisAlignedBB.getMaxY() + 0.2, axisAlignedBB.getMinZ(), axisAlignedBB.getMaxX(), axisAlignedBB.getMaxY() + 0.26, axisAlignedBB.getMaxZ()),
+                new AxisAlignedBB(axisAlignedBB.minX, axisAlignedBB.maxY + 0.2, axisAlignedBB.minZ, axisAlignedBB.maxX, axisAlignedBB.maxY + 0.26, axisAlignedBB.maxZ),
                 color
         );
     }
-    public static void drawFilledCircle2(final IEntity entity, final Color color) {
+    public static void drawFilledCircle2(final Entity entity, final Color color) {
         int sections = 50;
         double dAngle = 2 * Math.PI / sections;
         float x, y;
@@ -1914,65 +1887,65 @@ public final class RenderUtils extends MinecraftInstance {
 
         glPopAttrib();
     }
-    public static void drawFilledBox(final IAxisAlignedBB axisAlignedBB) {
-        final ITessellator tessellator = classProvider.getTessellatorInstance();
-        final IWorldRenderer worldRenderer = tessellator.getWorldRenderer();
+    public static void drawFilledBox(final AxisAlignedBB axisAlignedBB) {
+        final Tessellator tessellator = Tessellator.getInstance();
+        final BufferBuilder worldRenderer = tessellator.getBuffer();
 
-        worldRenderer.begin(7, classProvider.getVertexFormatEnum(WDefaultVertexFormats.POSITION));
+        worldRenderer.begin(7, DefaultVertexFormats.POSITION);
 
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMinY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMinY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMinY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMinY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMaxZ()).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
 
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMinY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMinY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMinY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMinY(), axisAlignedBB.getMaxZ()).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
 
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMinZ()).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
 
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMinY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMinY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMinY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMinY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMinY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMinY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMinY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMinY(), axisAlignedBB.getMinZ()).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
 
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMinY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMinY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMinY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMinY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMinZ()).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
 
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMinY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMinX(), axisAlignedBB.getMinY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMinY(), axisAlignedBB.getMinZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMaxY(), axisAlignedBB.getMaxZ()).endVertex();
-        worldRenderer.pos(axisAlignedBB.getMaxX(), axisAlignedBB.getMinY(), axisAlignedBB.getMaxZ()).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex();
+        worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex();
         tessellator.draw();
     }
 
@@ -2169,9 +2142,9 @@ public final class RenderUtils extends MinecraftInstance {
         glColor4f(1F, 1F, 1F, 1F);
     }
     public static void drawCircle(float x, float y, float radius, int start, int end) {
-        classProvider.getGlStateManager().enableBlend();
-        classProvider.getGlStateManager().disableTexture2D();
-        classProvider.getGlStateManager().tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
         glColor(Color.WHITE);
 
         glEnable(GL_LINE_SMOOTH);
@@ -2183,8 +2156,8 @@ public final class RenderUtils extends MinecraftInstance {
         glEnd();
         glDisable(GL_LINE_SMOOTH);
 
-        classProvider.getGlStateManager().enableTexture2D();
-        classProvider.getGlStateManager().disableBlend();
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
     }
 
     public static void drawCircle(float x, float y, float radius, int color) {
@@ -2205,9 +2178,9 @@ public final class RenderUtils extends MinecraftInstance {
         glColor4f(1F, 1F, 1F, 1F);
     }
     public static void drawCircle(float x, float y, float radius, int start, int end,final Color color) {
-        classProvider.getGlStateManager().enableBlend();
-        classProvider.getGlStateManager().disableTexture2D();
-        classProvider.getGlStateManager().tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
         glColor4f(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F);
 
         glEnable(GL_LINE_SMOOTH);
@@ -2219,8 +2192,8 @@ public final class RenderUtils extends MinecraftInstance {
         glEnd();
         glDisable(GL_LINE_SMOOTH);
 
-        classProvider.getGlStateManager().enableTexture2D();
-        classProvider.getGlStateManager().disableBlend();
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
     }
 
     public static void drawFilledCircle(final int xx, final int yy, final float radius, final Color color) {
@@ -2251,7 +2224,7 @@ public final class RenderUtils extends MinecraftInstance {
         glPopAttrib();
     }
 
-    public static void drawImage(IResourceLocation image, int x, int y, int width, int height) {
+    public static void drawImage(ResourceLocation image, int x, int y, int width, int height) {
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glDepthMask(false);
@@ -2263,13 +2236,27 @@ public final class RenderUtils extends MinecraftInstance {
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
     }
-    public static void drawImage4(String image, int x, int y, int width, int height) {
+    public static void drawImage(ResourceLocation image, float x, float y, int width, int height, float r, float g, float b, float al) {
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glDepthMask(false);
+        OpenGlHelper.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+        glColor4f(r, g, b, al);
+        glTranslatef(x, y, x);
+        mc2.getTextureManager().bindTexture(image);
+        Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, width, height, width, height);
+        glTranslatef(-x, -y, -x);
+        glDepthMask(true);
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+    }
+    public static void drawImage(String image, int x, int y, int width, int height) {
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glDepthMask(false);
         GL14.glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
         glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        mc.getTextureManager().bindTexture(classProvider.createResourceLocation(image));
+        mc.getTextureManager().bindTexture(new ResourceLocation(image));
         drawModalRectWithCustomSizedTexture(x, y, 0, 0, width, height, width, height);
         glDepthMask(true);
         glDisable(GL_BLEND);
@@ -2281,9 +2268,9 @@ public final class RenderUtils extends MinecraftInstance {
     public static void drawModalRectWithCustomSizedTexture(float x, float y, float u, float v, float width, float height, float textureWidth, float textureHeight) {
         float f = 1.0F / textureWidth;
         float f1 = 1.0F / textureHeight;
-        ITessellator tessellator = classProvider.getTessellatorInstance();
-        IWorldRenderer worldrenderer = tessellator.getWorldRenderer();
-        worldrenderer.begin(7, classProvider.getVertexFormatEnum(WDefaultVertexFormats.POSITION_TEX));
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder worldrenderer = tessellator.getBuffer();
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
         worldrenderer.pos(x, y + height, 0.0D).tex(u * f, (v + (float) height) * f1).endVertex();
         worldrenderer.pos(x + width, y + height, 0.0D).tex((u + (float) width) * f, (v + (float) height) * f1).endVertex();
         worldrenderer.pos(x + width, y, 0.0D).tex((u + (float) width) * f, v * f1).endVertex();
@@ -2299,7 +2286,7 @@ public final class RenderUtils extends MinecraftInstance {
         glColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
     }
 
-    private static void glColor(final int hex) {
+    public static void glColor(final int hex) {
         glColor(hex >> 16 & 0xFF, hex >> 8 & 0xFF, hex & 0xFF, hex >> 24 & 0xFF);
     }
     public static void glColor(final Color color, final int alpha) {
@@ -2329,10 +2316,10 @@ public final class RenderUtils extends MinecraftInstance {
 
         GlStateManager.color(red, green, blue, alpha);
     }
-    public static void draw2D(final IEntityLivingBase entity, final double posX, final double posY, final double posZ, final int color, final int backgroundColor) {
+    public static void draw2D(final EntityLivingBase entity, final double posX, final double posY, final double posZ, final int color, final int backgroundColor) {
         GL11.glPushMatrix();
         GL11.glTranslated(posX, posY, posZ);
-        GL11.glRotated(-mc.getRenderManager().getPlayerViewY(), 0F, 1F, 0F);
+        GL11.glRotated(-mc.getRenderManager().playerViewY, 0F, 1F, 0F);
         GL11.glScaled(-0.1D, -0.1D, 0.1D);
 
         glDisable(GL_DEPTH_TEST);
@@ -2350,7 +2337,7 @@ public final class RenderUtils extends MinecraftInstance {
 
         glCallList(DISPLAY_LISTS_2D[1]);
 
-        GL11.glTranslated(0, 21 + -(entity.getEntityBoundingBox().getMaxY() - entity.getEntityBoundingBox().getMinY()) * 12, 0);
+        GL11.glTranslated(0, 21 + -(entity.getEntityBoundingBox().maxY - entity.getEntityBoundingBox().minY) * 12, 0);
 
         glColor(color);
         glCallList(DISPLAY_LISTS_2D[2]);
@@ -2396,16 +2383,16 @@ public final class RenderUtils extends MinecraftInstance {
         Minecraft.getMinecraft().entityRenderer.setupCameraTransform(Minecraft.getMinecraft().timer.renderPartialTicks,
                 0);
     }
-    public static void draw2D(final WBlockPos blockPos, final int color, final int backgroundColor) {
-        final IRenderManager renderManager = mc.getRenderManager();
+    public static void draw2D(final BlockPos blockPos, final int color, final int backgroundColor) {
+        final RenderManager renderManager = mc.getRenderManager();
 
-        final double posX = (blockPos.getX() + 0.5) - renderManager.getRenderPosX();
-        final double posY = blockPos.getY() - renderManager.getRenderPosY();
-        final double posZ = (blockPos.getZ() + 0.5) - renderManager.getRenderPosZ();
+        final double posX = (blockPos.getX() + 0.5) - renderManager.renderPosX;
+        final double posY = blockPos.getY() - renderManager.renderPosY;
+        final double posZ = (blockPos.getZ() + 0.5) - renderManager.renderPosZ;
 
         GL11.glPushMatrix();
         GL11.glTranslated(posX, posY, posZ);
-        GL11.glRotated(-mc.getRenderManager().getPlayerViewY(), 0F, 1F, 0F);
+        GL11.glRotated(-mc.getRenderManager().playerViewY, 0F, 1F, 0F);
         GL11.glScaled(-0.1D, -0.1D, 0.1D);
 
         glDisable(GL_DEPTH_TEST);
@@ -2442,13 +2429,13 @@ public final class RenderUtils extends MinecraftInstance {
     }
 
     public static void renderNameTag(final String string, final double x, final double y, final double z) {
-        final IRenderManager renderManager = mc.getRenderManager();
+        final RenderManager renderManager = mc.getRenderManager();
 
         glPushMatrix();
-        glTranslated(x - renderManager.getRenderPosX(), y - renderManager.getRenderPosY(), z - renderManager.getRenderPosZ());
+        glTranslated(x - renderManager.renderPosX, y - renderManager.renderPosY, z - renderManager.renderPosZ);
         glNormal3f(0F, 1F, 0F);
-        glRotatef(-mc.getRenderManager().getPlayerViewY(), 0F, 1F, 0F);
-        glRotatef(mc.getRenderManager().getPlayerViewX(), 1F, 0F, 0F);
+        glRotatef(-mc.getRenderManager().playerViewY, 0F, 1F, 0F);
+        glRotatef(mc.getRenderManager().playerViewX, 1F, 0F, 0F);
         glScalef(-0.05F, -0.05F, 0.05F);
         setGlCap(GL_LIGHTING, false);
         setGlCap(GL_DEPTH_TEST, false);
@@ -2476,7 +2463,7 @@ public final class RenderUtils extends MinecraftInstance {
     }
 
     public static void makeScissorBox(final float x, final float y, final float x2, final float y2) {
-        final IScaledResolution scaledResolution = classProvider.createScaledResolution(mc);
+        final ScaledResolution scaledResolution = new ScaledResolution(mc);
         final int factor = scaledResolution.getScaleFactor();
         glScissor((int) (x * factor), (int) ((scaledResolution.getScaledHeight() - y2) * factor), (int) ((x2 - x) * factor), (int) ((y2 - y) * factor));
     }
@@ -2524,9 +2511,9 @@ public final class RenderUtils extends MinecraftInstance {
     public static void drawScaledCustomSizeModalRect(int x, int y, float u, float v, int uWidth, int vHeight, int width, int height, float tileWidth, float tileHeight) {
         float f = 1.0F / tileWidth;
         float f1 = 1.0F / tileHeight;
-        ITessellator tessellator = classProvider.getTessellatorInstance();
-        IWorldRenderer worldrenderer = tessellator.getWorldRenderer();
-        worldrenderer.begin(7, classProvider.getVertexFormatEnum(WDefaultVertexFormats.POSITION_TEX));
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder worldrenderer = tessellator.getBuffer();
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
         worldrenderer.pos(x, y + height, 0.0D).tex(u * f, (v + (float) vHeight) * f1).endVertex();
         worldrenderer.pos(x + width, y + height, 0.0D).tex((u + (float) uWidth) * f, (v + (float) vHeight) * f1).endVertex();
         worldrenderer.pos(x + width, y, 0.0D).tex((u + (float) uWidth) * f, v * f1).endVertex();

@@ -2,7 +2,6 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.minecraft.client.gui.IFontRenderer
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
@@ -15,7 +14,10 @@ import net.ccbluex.liquidbounce.utils.render.Stencil
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
+import net.minecraft.client.gui.FontRenderer
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 import kotlin.math.max
@@ -58,7 +60,7 @@ class Notifications(x: Double = 0.0, y: Double = 0.0, scale: Float = 1F,side: Si
             GL11.glPopMatrix()
         }
 
-        if (classProvider.isGuiHudDesigner(mc.currentScreen)) {
+        if (mc.currentScreen is GuiHudDesigner) {
             if (!LiquidBounce.hud.notifications.contains(exampleNotification)) {
                 LiquidBounce.hud.addNotification(exampleNotification)
             }
@@ -108,7 +110,7 @@ class Notification(
      * Draw notification
      */
     fun drawNotification(
-        index: Int, font: IFontRenderer, alpha: Int, blurRadius: Float, x: Float, y: Float, scale: Float,
+        index: Int, font: FontRenderer, alpha: Int, blurRadius: Float, x: Float, y: Float, scale: Float,
         contentShadow: Boolean,
         titleShadow: Boolean,
         motionBlur: Boolean,
@@ -321,10 +323,10 @@ class Notification(
         if(style.equals("Tenacity")){
             val fontRenderer = Fonts.font35
             val thisWidth=100.coerceAtLeast(fontRenderer.getStringWidth(this.title).coerceAtLeast(fontRenderer.getStringWidth(this.content)) + 40)
-            val error = MinecraftInstance.classProvider.createResourceLocation("pride/notification/error.png")
-            val successful = MinecraftInstance.classProvider.createResourceLocation("pride/notification/success.png")
-            val warn = MinecraftInstance.classProvider.createResourceLocation("pride/notification/warning.png")
-            val info = MinecraftInstance.classProvider.createResourceLocation("pride/notification/info.png")
+            val error = ResourceLocation("pride/notification/error.png")
+            val successful = ResourceLocation("pride/notification/success.png")
+            val warn = ResourceLocation("pride/notification/warning.png")
+            val info = ResourceLocation("pride/notification/info.png")
             if(type.renderColor == Color(0xFF2F2F)){
                 RenderUtils.drawRoundedCornerRect(-18F,1F,thisWidth.toFloat(),height.toFloat() - 2F,5f,Color(180,0,0,190).rgb)
                 RenderUtils.drawImage(error,-13,5,18,18)
@@ -364,13 +366,13 @@ class Notification(
             val thisWidth = 116.coerceAtLeast(font.getStringWidth(this.title).coerceAtLeast(font.getStringWidth(this.content)) + 56)
 
             if(type.renderColor == Color(0xFF2F2F)){
-                RenderUtils.drawImage(MinecraftInstance.classProvider.createResourceLocation("pride/notification/error.png"),3,5,18,18)
+                RenderUtils.drawImage(ResourceLocation("pride/notification/error.png"),3,5,18,18)
             }else if(type.renderColor == Color(0x60E092)){
-                RenderUtils.drawImage(MinecraftInstance.classProvider.createResourceLocation("pride/notification/success.png"),3,5,18,18)
+                RenderUtils.drawImage(ResourceLocation("pride/notification/success.png"),3,5,18,18)
             } else if(type.renderColor == Color(0xF5FD00)){
-                RenderUtils.drawImage(MinecraftInstance.classProvider.createResourceLocation("pride/notification/warning.png"),3,5,18,18)
+                RenderUtils.drawImage(ResourceLocation("pride/notification/warning.png"),3,5,18,18)
             } else {
-                RenderUtils.drawImage(MinecraftInstance.classProvider.createResourceLocation("pride/notification/info.png"),3,5,18,18)
+                RenderUtils.drawImage(ResourceLocation("pride/notification/info.png"),3,5,18,18)
             }
 
             if (blurRadius != 0f)
@@ -387,13 +389,13 @@ class Notification(
             val thisWidth = 116.coerceAtLeast(font.getStringWidth(this.title).coerceAtLeast(font.getStringWidth(this.content)) + 56)
 
             if(type.renderColor == Color(0xFF2F2F)){
-                RenderUtils.drawImage(MinecraftInstance.classProvider.createResourceLocation("pride/notification/error.png"),3,5,18,18)
+                RenderUtils.drawImage(ResourceLocation("pride/notification/error.png"),3,5,18,18)
             }else if(type.renderColor == Color(0x60E092)){
-                RenderUtils.drawImage(MinecraftInstance.classProvider.createResourceLocation("pride/notification/success.png"),3,5,18,18)
+                RenderUtils.drawImage(ResourceLocation("pride/notification/success.png"),3,5,18,18)
             } else if(type.renderColor == Color(0xF5FD00)){
-                RenderUtils.drawImage(MinecraftInstance.classProvider.createResourceLocation("pride/notification/warning.png"),3,5,18,18)
+                RenderUtils.drawImage(ResourceLocation("pride/notification/warning.png"),3,5,18,18)
             } else {
-                RenderUtils.drawImage(MinecraftInstance.classProvider.createResourceLocation("pride/notification/info.png"),3,5,18,18)
+                RenderUtils.drawImage(ResourceLocation("pride/notification/info.png"),3,5,18,18)
             }
 
 
@@ -407,10 +409,10 @@ class Notification(
 
         if(style.equals("Intellij")) {
             val notifyDir = "pride/notification/"
-            val imgSuccess = LiquidBounce.wrapper.classProvider.createResourceLocation("${notifyDir}success.png")
-            val imgError = LiquidBounce.wrapper.classProvider.createResourceLocation("${notifyDir}error.png")
-            val imgWarning = LiquidBounce.wrapper.classProvider.createResourceLocation("${notifyDir}warning.png")
-            val imgInfo = LiquidBounce.wrapper.classProvider.createResourceLocation("${notifyDir}info.png")
+            val imgSuccess = ResourceLocation("${notifyDir}success.png")
+            val imgError = ResourceLocation("${notifyDir}error.png")
+            val imgWarning = ResourceLocation("${notifyDir}warning.png")
+            val imgInfo = ResourceLocation("${notifyDir}info.png")
 
             val dist = (x + 1 + 26F) - (x - 8 - textLength)
             val kek = -x - 1 - 20F

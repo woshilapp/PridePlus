@@ -6,21 +6,24 @@
 
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.minecraft.entity.EntityLivingBase
 import net.ccbluex.liquidbounce.event.AttackEvent
-import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.features.module.Module
+import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.minecraft.util.EnumParticleTypes
-import net.minecraft.init.Blocks
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.block.Block
+import net.minecraft.client.audio.PositionedSoundRecord
+import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.effect.EntityLightningBolt
+import net.minecraft.init.Blocks
 import net.minecraft.network.play.server.SPacketSpawnGlobalEntity
+import net.minecraft.util.EnumParticleTypes
+import net.minecraft.util.ResourceLocation
+import net.minecraft.util.SoundEvent
 
 @ModuleInfo(name = "AttackEffects", description = "Rise.", category = ModuleCategory.RENDER)
 class AttackEffects : Module() {
@@ -38,13 +41,13 @@ class AttackEffects : Module() {
     @EventTarget
     fun onMotion(event: MotionEvent) {
         if (event.isPre()) {
-            if (target != null && target!!.hurtTime >= 9 && mc.thePlayer!!.getDistance(
+            if (target != null && target!!.hurtTime >= 9 && mc.player!!.getDistance(
                     target!!.posX,
                     target!!.posY,
                     target!!.posZ
                 ) < 10
             ) {
-                if (mc.thePlayer!!.ticksExisted > 3) {
+                if (mc.player!!.ticksExisted > 3) {
                     when (mode.get().toLowerCase()) {
                         "blood" -> {
                             var i = 0
@@ -79,7 +82,7 @@ class AttackEffects : Module() {
                             }
                         }
                         "lighting" -> {
-                            mc.netHandler2.handleSpawnGlobalEntity(SPacketSpawnGlobalEntity(EntityLightningBolt(
+                            mc.connection!!.handleSpawnGlobalEntity(SPacketSpawnGlobalEntity(EntityLightningBolt(
                                 mc2.world,
                                 target!!.posX,
                                 target!!.posY,
@@ -87,7 +90,7 @@ class AttackEffects : Module() {
                                 target!!.preventEntitySpawning
                             )))
                             if(lightingSoundValue.get()) {
-                                mc.soundHandler.playSound("random.explode", 0.5f )
+                                mc.soundHandler.playSound(PositionedSoundRecord.getRecord(SoundEvent(ResourceLocation("random.explode")), 0.5F, 10F))
                             }
                         }
                         "smoke" -> mc2.effectRenderer.emitParticleAtEntity(target, EnumParticleTypes.FLAME)

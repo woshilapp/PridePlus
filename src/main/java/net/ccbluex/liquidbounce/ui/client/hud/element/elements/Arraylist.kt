@@ -13,6 +13,7 @@ import me.utils.render.VisualUtils
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.value.*
+import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
@@ -189,7 +190,7 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
 
             if (module.array && module.slide > 0F) {
                 if (vAnimation.get().equals("Rise", ignoreCase = true) && !module.state)
-                    yPos = -fontRenderer.fontHeight - textY
+                    yPos = -fontRenderer.FONT_HEIGHT - textY
 
                 val size = modules.size * 2.0E-2f
 
@@ -358,7 +359,7 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
                             colorMode.equals("Fade", ignoreCase = true) -> FadeColor
                             colorMode.equals("Gradinet", true) ->VisualUtils.getGradientOffset(Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get(),1), Color(colorRedValue2.get(), colorGreenValue2.get(), colorBlueValue2.get(),1), (Math.abs(
                                 System.currentTimeMillis() / gidentspeed.get()
-                                    .toDouble() + (module.higt / fontRenderer.fontHeight)
+                                    .toDouble() + (module.higt / fontRenderer.FONT_HEIGHT)
                             ) / 10)).rgb
 
                             else -> customColor
@@ -374,7 +375,7 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
                             rectColorMode.equals("Fade", ignoreCase = true) -> FadeColor
                             rectColorMode.equals("Gradinet", true) ->VisualUtils.getGradientOffset(Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get(),1), Color(colorRedValue2.get(), colorGreenValue2.get(), colorBlueValue2.get(),1), (Math.abs(
                                 System.currentTimeMillis() / gidentspeed.get()
-                                    .toDouble() + (module.higt / fontRenderer.fontHeight)
+                                    .toDouble() + (module.higt / fontRenderer.FONT_HEIGHT)
                             ) / 10)).rgb
 
                             else -> rectCustomColor
@@ -458,7 +459,7 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
                                             colorMode.equals("Fade", ignoreCase = true) -> FadeColor
                                             colorMode.equals("Gradinet", true) ->VisualUtils.getGradientOffset(Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get(),1), Color(colorRedValue2.get(), colorGreenValue2.get(), colorBlueValue2.get(),1), (Math.abs(
                                                 System.currentTimeMillis() / gidentspeed.get()
-                                                    .toDouble() + (module.higt / fontRenderer.fontHeight)
+                                                    .toDouble() + (module.higt / fontRenderer.FONT_HEIGHT)
                                             ) / 10)).rgb
 
                                             else -> customColor
@@ -557,7 +558,7 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
                         colorMode.equals("Fade", ignoreCase = true) -> FadeColor
                         colorMode.equals("Gradinet", true) ->VisualUtils.getGradientOffset(Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get(),1), Color(colorRedValue2.get(), colorGreenValue2.get(), colorBlueValue2.get(),1), (Math.abs(
                             System.currentTimeMillis() / gidentspeed.get()
-                                .toDouble() + (module.higt / fontRenderer.fontHeight)
+                                .toDouble() + (module.higt / fontRenderer.FONT_HEIGHT)
                         ) / 10)).rgb
 
                         else -> customColor
@@ -572,7 +573,7 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
                             rectColorMode.equals("Fade", ignoreCase = true) -> FadeColor
                             rectColorMode.equals("Gradinet", true) ->VisualUtils.getGradientOffset(Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get(),1), Color(colorRedValue2.get(), colorGreenValue2.get(), colorBlueValue2.get(),1), (Math.abs(
                                 System.currentTimeMillis() / gidentspeed.get()
-                                    .toDouble() + (module.higt / fontRenderer.fontHeight)
+                                    .toDouble() + (module.higt / fontRenderer.FONT_HEIGHT)
                             ) / 10)).rgb
 
                             else -> rectCustomColor
@@ -592,7 +593,7 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
         }
 
         // Draw border
-        if (classProvider.isGuiHudDesigner(mc.currentScreen)) {
+        if (mc.currentScreen is GuiHudDesigner) {
             x2 = Int.MIN_VALUE
 
             if (modules.isEmpty()) {

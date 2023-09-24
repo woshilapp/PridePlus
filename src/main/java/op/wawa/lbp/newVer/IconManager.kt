@@ -1,16 +1,16 @@
 package op.wawa.lbp.newVer
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.minecraft.util.ResourceLocation
 
 object IconManager {
     @JvmField
-    val removeIcon = LiquidBounce.wrapper.classProvider.createResourceLocation("wawa/error.png")
-    val add = LiquidBounce.wrapper.classProvider.createResourceLocation("wawa/clickgui/import.png")
-    val back = LiquidBounce.wrapper.classProvider.createResourceLocation("wawa/clickgui/back.png")
-    val docs = LiquidBounce.wrapper.classProvider.createResourceLocation("wawa/clickgui/docs.png")
-    val download = LiquidBounce.wrapper.classProvider.createResourceLocation("wawa/clickgui/download.png")
-    val folder = LiquidBounce.wrapper.classProvider.createResourceLocation("wawa/clickgui/folder.png")
-    val online = LiquidBounce.wrapper.classProvider.createResourceLocation("wawa/clickgui/online.png")
-    val reload = LiquidBounce.wrapper.classProvider.createResourceLocation("wawa/clickgui/reload.png")
-    val search = LiquidBounce.wrapper.classProvider.createResourceLocation("wawa/clickgui/search.png")
+    val removeIcon = ResourceLocation("wawa/error.png")
+    val add = ResourceLocation("wawa/clickgui/import.png")
+    val back = ResourceLocation("wawa/clickgui/back.png")
+    val docs = ResourceLocation("wawa/clickgui/docs.png")
+    val download = ResourceLocation("wawa/clickgui/download.png")
+    val folder = ResourceLocation("wawa/clickgui/folder.png")
+    val online = ResourceLocation("wawa/clickgui/online.png")
+    val reload = ResourceLocation("wawa/clickgui/reload.png")
+    val search = ResourceLocation("wawa/clickgui/search.png")
 }

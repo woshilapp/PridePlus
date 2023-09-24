@@ -1,7 +1,6 @@
  package net.ccbluex.liquidbounce.features.module.modules.combat;
 
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntity
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
@@ -16,6 +15,8 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.features.value.TextValue
+import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
+import net.minecraft.entity.Entity
 import net.minecraft.network.play.server.SPacketChat
 import java.io.File
 
@@ -34,12 +35,12 @@ class AutoLFix : Module() {
 
     // Target
     private val lastAttackTimer = MSTimer()
-    var target: IEntity? = null
+    var target: Entity? = null
     private var kill = 0
     private var tempkill = 0
     private var text = ""
     private var inCombat = false
-    private val attackedEntityList = mutableListOf<IEntity>()
+    private val attackedEntityList = mutableListOf<Entity>()
     private val insultFile = File(LiquidBounce.fileManager.dir, "filter.json")
     private var insultWords = mutableListOf<String>()
     private val ms = MSTimer()
@@ -49,7 +50,7 @@ class AutoLFix : Module() {
     fun onAttack(event: AttackEvent) {
         val target = event.targetEntity
 
-        if ((target is IEntity) && EntityUtils.isSelected(target, true)) {
+        if ((target is Entity) && EntityUtils.isSelected(target, true)) {
             this.target = target
             if (!attackedEntityList.contains(target)) {
                 attackedEntityList.add(target)
@@ -73,7 +74,7 @@ class AutoLFix : Module() {
         }
 
         if (target != null) {
-            if (mc.thePlayer!!.getDistanceToEntity(target!!) > 7 || !inCombat || target!!.isDead) {
+            if (mc.player!!.getDistanceToEntityBox(target!!) > 7 || !inCombat || target!!.isDead) {
                 target = null
             } else {
                 inCombat = true
@@ -170,7 +171,7 @@ class AutoLFix : Module() {
             if (chatTotalKill.get()) text = ("$text | " + suffixTextBeforeRecord.get() + kill + suffixTextAfterRecord.get())
             if (waterMark.get()) text = ("[${LiquidBounce.CLIENT_NAME}] $text")
             if (enableHYTAtall.get()) text = ("@a$text")
-            mc.thePlayer!!.sendChatMessage(text)
+            mc.player!!.sendChatMessage(text)
         }
     }
 

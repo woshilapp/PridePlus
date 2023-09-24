@@ -1,4 +1,4 @@
-package ad.utils.Color.modules
+package me
 
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory

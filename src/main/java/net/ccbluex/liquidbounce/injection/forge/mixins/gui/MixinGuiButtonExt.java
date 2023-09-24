@@ -6,12 +6,10 @@
 
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
-import net.ccbluex.liquidbounce.injection.backend.FontRendererImpl;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
@@ -44,7 +42,7 @@ public abstract class MixinGuiButtonExt extends GuiButton {
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
         if (visible) {
             final FontRenderer fontRenderer =
-                    mc.getLanguageManager().isCurrentLocaleUnicode() ? mc.fontRenderer : ((FontRendererImpl) Fonts.fontSFUI35).getWrapped();
+                    mc.getLanguageManager().isCurrentLocaleUnicode() ? mc.fontRenderer : ( Fonts.fontSFUI35);
             hovered = (mouseX >= this.x && mouseY >= this.y &&
                     mouseX < this.x + this.width && mouseY < this.y + this.height);
 

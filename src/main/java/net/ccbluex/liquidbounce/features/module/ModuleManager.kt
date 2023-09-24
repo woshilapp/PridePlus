@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module
 
-import ad.utils.Color.modules.CustomUI
+import me.CustomUI
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.KeyEvent
@@ -39,7 +39,6 @@ class ModuleManager : Listenable {
         ClientUtils.getLogger().info("[ModuleManager] Loading modules...")
 
         registerModules(
-                AutoArmor::class.java,
                 AutoBow::class.java,
                 AutoLeave::class.java,
                 AutoPot::class.java,
@@ -76,17 +75,14 @@ class ModuleManager : Listenable {
                TargetStrafe::class.java,
                 NameTags::class.java,
                 FastUse::class.java,
-                Teleport::class.java,
                 Fullbright::class.java,
                 ItemESP::class.java,
-                StorageESP::class.java,
                 Projectiles::class.java,
                 AutoHead::class.java,
                 NoClip::class.java,
                 Nuker::class.java,
                 PingSpoof::class.java,
                 FastClimb::class.java,
-                Step::class.java,
                 NoFucker::class.java,
                 AutoRespawn::class.java,
 
@@ -135,10 +131,6 @@ class ModuleManager : Listenable {
                 ServerCrasher::class.java,
                 NoFOV::class.java,
                 FastStairs::class.java,
-                SwingAnimation::class.java,
-                ReverseStep::class.java,
-                TNTBlock::class.java,
-                InventoryCleaner::class.java,
                 TrueSight::class.java,
                 AntiBlind::class.java,
                 NoSwing::class.java,
@@ -149,7 +141,6 @@ class ModuleManager : Listenable {
                 PotionSaver::class.java,
                 CameraClip::class.java,
                 WaterSpeed::class.java,
-                Ignite::class.java,
                 SlimeJump::class.java,
                 MoreCarry::class.java,
                 NoPitchLimit::class.java,
@@ -158,10 +149,8 @@ class ModuleManager : Listenable {
                 AtAllProvider::class.java,
                 AirLadder::class.java,
                 GodMode::class.java,
-                TeleportHit::class.java,
                 ForceUnicodeChat::class.java,
                 ItemTeleport::class.java,
-                BufferSpeed::class.java,
                 SuperKnockback::class.java,
                 ProphuntESP::class.java,
                 AutoFish::class.java,
@@ -180,7 +169,6 @@ class ModuleManager : Listenable {
                 ComponentOnHover::class.java,
                 KeepAlive::class.java,
                 ResourcePackSpoof::class.java,
-                OldHitting::class.java,
                 Cape::class.java,
                 Title::class.java,
                 NoSlowBreak::class.java,
@@ -201,7 +189,8 @@ class ModuleManager : Listenable {
             ScaffoldHelper::class.java,
             CustomUI::class.java,
             Jamming::class.java,
-            Germ::class.java
+            Germ::class.java,
+            PostDisabler::class.java
         )
 
 //        for (module in ClassUtils.getClasses("${this.javaClass.`package`.name}.modules", Module::class.java)){

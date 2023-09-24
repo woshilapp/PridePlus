@@ -1,7 +1,5 @@
 package op.wawa.manager
 
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntity
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntityLivingBase
 import net.ccbluex.liquidbounce.event.AttackEvent
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Listenable
@@ -9,7 +7,9 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.MovementUtils
+import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
+import net.minecraft.entity.EntityLivingBase
 
 
 class CombatManager : Listenable, MinecraftInstance() {
@@ -17,11 +17,11 @@ class CombatManager : Listenable, MinecraftInstance() {
     var death = 0
     var inCombat=false
     private val lastAttackTimer=MSTimer()
-    var target: IEntityLivingBase? = null
+    var target: EntityLivingBase? = null
 
     @EventTarget
     fun onUpdate(event: UpdateEvent){
-        if(mc.thePlayer==null) return
+        if(mc.player == null) return
         MovementUtils.updateBlocksPerSecond()
 
         inCombat=false
@@ -31,16 +31,16 @@ class CombatManager : Listenable, MinecraftInstance() {
             return
         }
 
-        for (entity in mc.theWorld!!.loadedEntityList) {
-            if (entity is IEntityLivingBase
-                && entity.getDistanceToEntity(mc.thePlayer!!) < 7 && EntityUtils.isSelected(entity, true)) {
+        for (entity in mc.world!!.loadedEntityList) {
+            if (entity is EntityLivingBase
+                && entity.getDistanceToEntityBox(mc.player!!) < 7 && EntityUtils.isSelected(entity, true)) {
                 inCombat = true
                 break
             }
         }
 
         if(target!=null){
-            if(mc.thePlayer!!.getDistanceToEntity(target!!)>7 || !inCombat){
+            if(mc.player!!.getDistanceToEntityBox(target!!)>7 || !inCombat){
                 target=null
             }
             if (target!!.isDead){
@@ -48,24 +48,24 @@ class CombatManager : Listenable, MinecraftInstance() {
                 kill++
             }
         }
-        if (mc.thePlayer!!.isDead){
+        if (mc.player!!.isDead){
             death++
         }
     }
 
     @EventTarget
     fun onAttack(event: AttackEvent){
-        if(event.targetEntity is IEntityLivingBase && EntityUtils.isSelected(event.targetEntity,true)){
-            target = event.targetEntity as IEntityLivingBase?
+        if(event.targetEntity is EntityLivingBase && EntityUtils.isSelected(event.targetEntity,true)){
+            target = event.targetEntity
         }
         lastAttackTimer.reset()
 
     }
-    fun getNearByEntity(radius: Float):IEntityLivingBase?{
+    fun getNearByEntity(radius: Float): EntityLivingBase?{
         return try {
-            mc.theWorld!!.loadedEntityList
-                .filter { mc.thePlayer!!.getDistanceToEntity(it)<radius&&EntityUtils.isSelected(it,true) }
-                .sortedBy { it.getDistanceToEntity(mc.thePlayer!!) }[0] as IEntityLivingBase?
+            mc.world!!.loadedEntityList
+                .filter { mc.player!!.getDistanceToEntityBox(it)<radius&&EntityUtils.isSelected(it,true) }
+                .sortedBy { it.getDistanceToEntityBox(mc.player!!) }[0] as EntityLivingBase?
         }catch (e: Exception){
             null
         }

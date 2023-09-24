@@ -15,6 +15,7 @@ import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.minecraft.network.play.client.CPacketChatMessage
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
 
@@ -64,7 +65,7 @@ class AtAllProvider : Module() {
                         sendQueue.addAll(retryQueue)
                 }
 
-                mc.thePlayer!!.sendChatMessage(sendQueue.take())
+                mc.player!!.sendChatMessage(sendQueue.take())
                 msTimer.reset()
 
                 delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
@@ -76,16 +77,16 @@ class AtAllProvider : Module() {
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        if (classProvider.isCPacketChatMessage(event.packet)) {
-            val packetChatMessage = event.packet.asCPacketChatMessage()
+        if (event.packet is CPacketChatMessage) {
+            val packetChatMessage = event.packet
             val message = packetChatMessage.message
 
             if (message.contains("@a")) {
                 synchronized(sendQueue) {
-                    for (playerInfo in mc.netHandler.playerInfoMap) {
+                    for (playerInfo in mc.connection!!.playerInfoMap) {
                         val playerName = playerInfo.gameProfile.name
 
-                        if (playerName == mc.thePlayer!!.name)
+                        if (playerName == mc.player!!.name)
                             continue
 
                         sendQueue.add(message.replace("@a", playerName))

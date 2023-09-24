@@ -53,7 +53,7 @@ class Logo(x: Double = 20.33, y: Double = 16.00, scale: Float = 0.30F,
      * Draw element
      */
     override fun drawElement(): Border {
-        RenderUtils.drawImage4("pride/big.png", 0, 0, width, height)
+        RenderUtils.drawImage("pride/big.png", 0, 0, width, height)
 
         return Border(0F, 0F, width.toFloat(), height.toFloat())
     }

@@ -12,9 +12,6 @@ import net.ccbluex.liquidbounce.features.module.modules.exploit.GhostHand;
 import net.ccbluex.liquidbounce.features.module.modules.player.NoFall;
 import net.ccbluex.liquidbounce.features.module.modules.render.XRay;
 import net.ccbluex.liquidbounce.features.module.modules.world.NoSlowBreak;
-import net.ccbluex.liquidbounce.injection.backend.AxisAlignedBBImplKt;
-import net.ccbluex.liquidbounce.injection.backend.BlockImplKt;
-import net.ccbluex.liquidbounce.injection.backend.utils.BackendExtentionsKt;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockStateContainer;
@@ -61,10 +58,10 @@ public abstract class MixinBlock {
             WorldClient world = Minecraft.getMinecraft().world;
 
             if (world != null) {
-                BlockBBEvent blockBBEvent = new BlockBBEvent(BackendExtentionsKt.wrap(pos), BlockImplKt.wrap(world.getBlockState(pos).getBlock()), AxisAlignedBBImplKt.wrap(axisalignedbb));
+                BlockBBEvent blockBBEvent = new BlockBBEvent(pos, world.getBlockState(pos).getBlock(), axisalignedbb);
                 LiquidBounce.eventManager.callEvent(blockBBEvent);
 
-                axisalignedbb = blockBBEvent.getBoundingBox() == null ? null : AxisAlignedBBImplKt.unwrap(blockBBEvent.getBoundingBox());
+                axisalignedbb = blockBBEvent.getBoundingBox() == null ? null : blockBBEvent.getBoundingBox();
             }
 
             if (axisalignedbb != null && entityBox.intersects(axisalignedbb)) {
@@ -88,7 +85,7 @@ public abstract class MixinBlock {
 
         if (Objects.requireNonNull(xray).getState())
             //noinspection SuspiciousMethodCalls
-            callbackInfoReturnable.setReturnValue(xray.getXrayBlocks().contains(BlockImplKt.wrap((Block) (Object) this)));
+            callbackInfoReturnable.setReturnValue(xray.getXrayBlocks().contains((Block) (Object) this));
     }
 
     @Inject(method = "isCollidable", at = @At("HEAD"), cancellable = true)

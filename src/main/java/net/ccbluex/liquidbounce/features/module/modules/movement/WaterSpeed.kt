@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.minecraft.block.BlockLiquid
 
 @ModuleInfo(name = "WaterSpeed", description = "Allows you to swim faster.", category = ModuleCategory.MOVEMENT)
 class WaterSpeed : Module() {
@@ -19,13 +20,13 @@ class WaterSpeed : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent?) {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
-        if (thePlayer.isInWater && classProvider.isBlockLiquid(getBlock(thePlayer.position))) {
+        if (player.isInWater && (getBlock(player.position) is BlockLiquid)) {
             val speed = speedValue.get()
 
-            thePlayer.motionX *= speed
-            thePlayer.motionZ *= speed
+            player.motionX *= speed
+            player.motionZ *= speed
         }
     }
 }

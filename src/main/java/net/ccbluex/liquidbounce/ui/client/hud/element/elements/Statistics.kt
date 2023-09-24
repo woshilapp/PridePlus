@@ -209,11 +209,11 @@ class Statistics(
 
                 // Player name
                 FontLoaders.F16.drawString("Player Name", 5.0F, 0.0F, Color(textR.get(), textG.get(), textB.get(),textAlpha.get()).rgb)
-                FontLoaders.F16.drawString(mc.thePlayer!!.name, 135F - FontLoaders.F16.getStringWidth(mc.thePlayer!!.name), 0.0f, Color(infoR.get(), infoG.get(), infoB.get(),infoAlpha.get()).rgb)
+                FontLoaders.F16.drawString(mc.player!!.name, 135F - FontLoaders.F16.getStringWidth(mc.player!!.name), 0.0f, Color(infoR.get(), infoG.get(), infoB.get(),infoAlpha.get()).rgb)
 
                 // Play time
                 FontLoaders.F16.drawString("Play Time", 5.0F, 10.0F, Color(textR.get(), textG.get(), textB.get(),textAlpha.get()).rgb)
-                if (mc.theWorld!!.isRemote) FontLoaders.F16.drawString("$minute:$second", 135F - FontLoaders.F16.getStringWidth("$minute:$second"), 10.0f, Color(infoR.get(), infoG.get(), infoB.get(),infoAlpha.get()).rgb)
+                if (mc.world!!.isRemote) FontLoaders.F16.drawString("$minute:$second", 135F - FontLoaders.F16.getStringWidth("$minute:$second"), 10.0f, Color(infoR.get(), infoG.get(), infoB.get(),infoAlpha.get()).rgb)
                 else FontLoaders.F16.drawString("Singleplayer", 135F - FontLoaders.F16.getStringWidth("Singleplayer"), 10.0f, Color(textR.get(), textG.get(), textB.get(),textAlpha.get()).rgb)
 
 

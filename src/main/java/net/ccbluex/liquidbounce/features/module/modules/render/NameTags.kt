@@ -5,24 +5,26 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntityLivingBase
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot
-import net.ccbluex.liquidbounce.injection.backend.Backend
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.ui.cnfont.FontLoaders
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer
 import net.ccbluex.liquidbounce.utils.EntityUtils
+import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.extensions.getPing
+import net.ccbluex.liquidbounce.utils.extensions.toEntityEquipmentSlot
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.quickDrawBorderedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.quickDrawRect
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.minecraft.client.renderer.GlStateManager.*
+import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.player.EntityPlayer
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.roundToInt
@@ -54,11 +56,11 @@ class NameTags : Module() {
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-        for (entity in mc.theWorld!!.loadedEntityList) {
+        for (entity in mc.world!!.loadedEntityList) {
             if (!EntityUtils.isSelected(entity, false)) continue
-            if (AntiBot.isBot(entity.asEntityLivingBase()) && !botValue.get()) continue
+            if (AntiBot.isBot(entity as EntityLivingBase) && !botValue.get()) continue
 
-            renderNameTag(entity.asEntityLivingBase(),
+            renderNameTag(entity,
                     if (clearNamesValue.get())
                         ColorUtils.stripColor(entity.displayName?.unformattedText) ?: continue
                     else
@@ -73,18 +75,18 @@ class NameTags : Module() {
         glColor4f(1F, 1F, 1F, 1F)
     }
 
-    private fun renderNameTag(entity: IEntityLivingBase, tag: String) {
-        val thePlayer = mc.thePlayer ?: return
+    private fun renderNameTag(entity: EntityLivingBase, tag: String) {
+        val player = mc.player ?: return
 
         val fontRenderer = fontValue
 
         // Modify tag
         val bot = AntiBot.isBot(entity)
-        val nameColor = if (bot) "§3" else if (entity.invisible) "§6" else if (entity.sneaking) "§4" else "§7"
-        val ping = if (classProvider.isEntityPlayer(entity)) entity.asEntityPlayer().getPing() else 0
+        val nameColor = if (bot) "§3" else if (entity.isInvisible) "§6" else if (entity.isSneaking) "§4" else "§7"
+        val ping = if (entity is EntityPlayer) entity.getPing() else 0
 
-        val distanceText = if (distanceValue.get()) "§7${thePlayer.getDistanceToEntity(entity).roundToInt()}m " else ""
-        val pingText = if (pingValue.get() && classProvider.isEntityPlayer(entity)) (if (ping > 200) "§c" else if (ping > 100) "§e" else "§a") + ping + "ms §7" else ""
+        val distanceText = if (distanceValue.get()) "§7${player.getDistanceToEntityBox(entity).roundToInt()}m " else ""
+        val pingText = if (pingValue.get() && entity is EntityPlayer) (if (ping > 200) "§c" else if (ping > 100) "§e" else "§a") + ping + "ms §7" else ""
         val healthText = if (healthValue.get()) "§7§c " + entity.health.toInt() + " HP" else ""
         val botText = if (bot) " §c§lBot" else ""
 
@@ -109,7 +111,7 @@ class NameTags : Module() {
 
 
         // Scale
-        var distance = thePlayer.getDistanceToEntity(entity) * 0.25f
+        var distance = player.getDistanceToEntityBox(entity).toFloat() * 0.25f
 
         if (distance < 1F)
             distance = 1F
@@ -138,13 +140,13 @@ class NameTags : Module() {
 
         AWTFontRenderer.assumeNonVolatile = false
 
-        if (armorValue.get() && classProvider.isEntityPlayer(entity)) {
+        if (armorValue.get() && entity is EntityPlayer) {
             mc.renderItem.zLevel = -147F
 
-            val indices: IntArray = if (Backend.MINECRAFT_VERSION_MINOR == 8) (0..4).toList().toIntArray() else intArrayOf(0, 1, 2, 3, 5, 4)
+            val indices: IntArray = intArrayOf(0, 1, 2, 3, 5, 4)
 
             for (index in indices) {
-                val equipmentInSlot = entity.getEquipmentInSlot(index) ?: continue
+                val equipmentInSlot = entity.getItemStackFromSlot(index.toEntityEquipmentSlot()) ?: continue
 
                 mc.renderItem.renderItemAndEffectIntoGUI(equipmentInSlot, -50 + index * 20, -22)
             }

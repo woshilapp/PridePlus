@@ -11,15 +11,17 @@ import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GlowShader
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.OutlineShader
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.FloatValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.ccbluex.liquidbounce.features.value.ListValue
+import net.minecraft.entity.item.EntityItem
+import net.minecraft.entity.projectile.EntityArrow
 import java.awt.Color
 
 @ModuleInfo(name = "ItemESP", description = "Allows you to see items through walls.", category = ModuleCategory.RENDER)
@@ -38,8 +40,8 @@ class ItemESP : Module() {
     @EventTarget
     fun onRender3D(event: Render3DEvent?) {
         val color=getColor()
-        for (entity in mc.theWorld!!.loadedEntityList) {
-            if (!(classProvider.isEntityItem(entity) || classProvider.isEntityArrow(entity))) continue
+        for (entity in mc.world!!.loadedEntityList) {
+            if (!(entity is EntityItem || entity is EntityArrow)) continue
             when (modeValue.get().toLowerCase()) {
                 "box" -> RenderUtils.drawEntityBox(entity, color, true)
                 "otherbox" -> RenderUtils.drawEntityBox(entity, color, false)
@@ -56,8 +58,8 @@ class ItemESP : Module() {
         shader.startDraw(partialTicks)
 
         try {
-            for (entity in mc.theWorld!!.loadedEntityList) {
-                if (!(classProvider.isEntityItem(entity) || classProvider.isEntityArrow(entity))) continue
+            for (entity in mc.world!!.loadedEntityList) {
+                if (!(entity is EntityItem || entity is EntityArrow)) continue
                 mc.renderManager.renderEntityStatic(entity, event.partialTicks, true)
             }
         } catch (ex: Exception) {

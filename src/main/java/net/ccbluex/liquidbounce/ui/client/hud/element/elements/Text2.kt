@@ -5,8 +5,10 @@
  */
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
+import me.utils.EntityUtils2
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.features.value.*
+import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
@@ -14,7 +16,6 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.cnfont.FontLoaders
 import net.ccbluex.liquidbounce.utils.CPSCounter
 import net.ccbluex.liquidbounce.utils.ServerUtils
-import net.ccbluex.liquidbounce.utils.extensions.getPing
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.Minecraft
@@ -79,16 +80,16 @@ class Text2(
         }
 
     private fun getReplacement(str: String): String? {
-        if (mc.thePlayer!! != null) {
+        if (mc.player!! != null) {
             when (str) {
-                "x" -> return DECIMAL_FORMAT.format(mc.thePlayer!!.posX)
-                "y" -> return DECIMAL_FORMAT.format(mc.thePlayer!!.posY)
-                "z" -> return DECIMAL_FORMAT.format(mc.thePlayer!!.posZ)
-                "xdp" -> return mc.thePlayer!!.posX.toString()
-                "ydp" -> return mc.thePlayer!!.posY.toString()
-                "zdp" -> return mc.thePlayer!!.posZ.toString()
-                "velocity" -> return DECIMAL_FORMAT.format(sqrt(mc.thePlayer!!.motionX * mc.thePlayer!!.motionX + mc.thePlayer!!.motionZ * mc.thePlayer!!.motionZ))
-                "ping" -> return mc.thePlayer!!.getPing().toString()
+                "x" -> return DECIMAL_FORMAT.format(mc.player!!.posX)
+                "y" -> return DECIMAL_FORMAT.format(mc.player!!.posY)
+                "z" -> return DECIMAL_FORMAT.format(mc.player!!.posZ)
+                "xdp" -> return mc.player!!.posX.toString()
+                "ydp" -> return mc.player!!.posY.toString()
+                "zdp" -> return mc.player!!.posZ.toString()
+                "velocity" -> return DECIMAL_FORMAT.format(sqrt(mc.player!!.motionX * mc.player!!.motionX + mc.player!!.motionZ * mc.player!!.motionZ))
+                "ping" -> return EntityUtils2.getPing(mc.player).toString()
             }
         }
 
@@ -202,12 +203,12 @@ class Text2(
             )
         }
 
-        if (editMode && classProvider.isGuiHudDesigner(mc.currentScreen) && editTicks <= 40) {
+        if (editMode && (mc.currentScreen is GuiHudDesigner) && editTicks <= 40) {
             fontRenderer.drawString("_", fontRenderer.getStringWidth(displayText) + 2F,
                 0F, Color.WHITE.rgb, shadow.get())
         }
 
-        if (editMode && !classProvider.isGuiHudDesigner(mc.currentScreen)) {
+        if (editMode && mc.currentScreen !is GuiHudDesigner) {
             editMode = false
             updateElement()
         }
@@ -240,7 +241,7 @@ class Text2(
     }
 
     override fun handleKey(c: Char, keyCode: Int) {
-        if (editMode && classProvider.isGuiHudDesigner(mc.currentScreen)) {
+        if (editMode && mc.currentScreen is GuiHudDesigner) {
             if (keyCode == Keyboard.KEY_BACK) {
                 if (displayString.get().isNotEmpty())
                     displayString.set(displayString.get().substring(0, displayString.get().length - 1))

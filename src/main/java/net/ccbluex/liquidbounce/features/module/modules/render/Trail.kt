@@ -30,7 +30,7 @@ class Trail : Module() {
     private val colorAlphaValue = IntegerValue("Alpha", 255, 0, 255)
     private val colorRainbow = BoolValue("Rainbow", false)
     private val fade = BoolValue("Fade", true)
-    private val drawThePlayer = BoolValue("DrawThePlayer", true)
+    private val drawplayer = BoolValue("Drawplayer", true)
     private val drawTargets = BoolValue("DrawTargets", true)
     private val fadeTime = IntegerValue("FadeTime", 5, 1, 20)
     private val precision = IntegerValue("Precision", 1, 1, 20)
@@ -106,10 +106,10 @@ class Trail : Module() {
                             GL11.glBegin(GL11.GL_QUADS)
                             GL11.glVertex3d(point.x - renderPosX, point.y - renderPosY, point.z - renderPosZ)
                             GL11.glVertex3d(lastPosX, lastPosY, lastPosZ)
-                            GL11.glVertex3d(lastPosX, lastPosY + mc.thePlayer!!.height, lastPosZ)
+                            GL11.glVertex3d(lastPosX, lastPosY + mc.player!!.height, lastPosZ)
                             GL11.glVertex3d(
                                 point.x - renderPosX,
-                                point.y - renderPosY + mc.thePlayer!!.height,
+                                point.y - renderPosY + mc.player!!.height,
                                 point.z - renderPosZ
                             )
                             GL11.glEnd()
@@ -148,22 +148,22 @@ class Trail : Module() {
     fun onUpdate(event: UpdateEvent) {
         // clear points for entities not exist
         points.forEach { (id, _) ->
-            if (mc.theWorld!!.getEntityByID(id) == null) {
+            if (mc.world!!.getEntityByID(id) == null) {
                 points.remove(id)
             }
         }
         // add new points
-        if (mc.thePlayer!!.ticksExisted % precision.get() != 0) {
+        if (mc.player!!.ticksExisted % precision.get() != 0) {
             return // skip if not on tick
         }
         if (drawTargets.get()) {
-            mc.theWorld!!.loadedEntityList.forEach {
+            mc.world!!.loadedEntityList.forEach {
                 if (EntityUtils.isSelected(it, true)) {
                     updatePoints(it as EntityLivingBase)
                 }
             }
         }
-        if (drawThePlayer.get()) {
+        if (drawplayer.get()) {
             updatePoints(mc2.player)
         }
     }

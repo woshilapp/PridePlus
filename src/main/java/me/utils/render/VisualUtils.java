@@ -1,8 +1,5 @@
 package me.utils.render;
 
-import net.ccbluex.liquidbounce.api.minecraft.client.IMinecraft;
-import net.ccbluex.liquidbounce.api.minecraft.renderer.entity.IRenderManager;
-import net.ccbluex.liquidbounce.api.minecraft.util.IResourceLocation;
 import net.ccbluex.liquidbounce.utils.MinecraftInstance;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -150,7 +147,7 @@ public class VisualUtils extends MinecraftInstance {
         GL11.glPushMatrix();
         GlStateManager.enableBlend();
         GlStateManager.disableAlpha();
-        mc.getTextureManager().bindTexture(classProvider.createResourceLocation ("pride/shadow/" + image + ".png"));
+        mc.getTextureManager().bindTexture(new ResourceLocation ("pride/shadow/" + image + ".png"));
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         Gui.drawModalRectWithCustomSizedTexture(x, y, 0, 0, width, height, width, height);
         GlStateManager.disableBlend();

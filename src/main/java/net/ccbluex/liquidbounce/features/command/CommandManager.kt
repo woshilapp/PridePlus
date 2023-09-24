@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.features.command.commands.*
 import net.ccbluex.liquidbounce.features.command.shortcuts.Shortcut
 import net.ccbluex.liquidbounce.features.command.shortcuts.ShortcutParser
-import net.ccbluex.liquidbounce.features.command.special.*
+import net.ccbluex.liquidbounce.features.command.special.XrayCommand
 import net.ccbluex.liquidbounce.utils.ClientUtils
 
 class CommandManager {
@@ -30,10 +30,8 @@ class CommandManager {
         registerCommand(FriendCommand())
         registerCommand(AutoSettingsCommand())
         registerCommand(LocalAutoSettingsCommand())
-        registerCommand(ServerInfoCommand())
         registerCommand(ToggleCommand())
         registerCommand(HurtCommand())
-        registerCommand(GiveCommand())
         registerCommand(UsernameCommand())
         registerCommand(TargetCommand())
         registerCommand(TacoCommand())
@@ -42,7 +40,6 @@ class CommandManager {
         registerCommand(PanicCommand())
         registerCommand(PingCommand())
         registerCommand(RenameCommand())
-        registerCommand(EnchantCommand())
         registerCommand(ReloadCommand())
         registerCommand(LoginCommand())
         registerCommand(ScriptManagerCommand())

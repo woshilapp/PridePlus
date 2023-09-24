@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.ui.client.hud.element
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.features.value.Value
+import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
 import java.awt.Color
 import kotlin.math.max
@@ -44,8 +45,8 @@ abstract class Element(var x: Double = 2.0, var y: Double = 2.0, scale: Float = 
     var renderX: Double
         get() = when (side.horizontal) {
             Side.Horizontal.LEFT -> x
-            Side.Horizontal.MIDDLE -> (classProvider.createScaledResolution(mc).scaledWidth / 2) - x
-            Side.Horizontal.RIGHT -> classProvider.createScaledResolution(mc).scaledWidth - x
+            Side.Horizontal.MIDDLE -> (ScaledResolution(mc).scaledWidth / 2) - x
+            Side.Horizontal.RIGHT -> ScaledResolution(mc).scaledWidth - x
         }
         set(value) = when (side.horizontal) {
             Side.Horizontal.LEFT -> {
@@ -59,8 +60,8 @@ abstract class Element(var x: Double = 2.0, var y: Double = 2.0, scale: Float = 
     var renderY: Double
         get() = when (side.vertical) {
             Side.Vertical.UP -> y
-            Side.Vertical.MIDDLE -> (classProvider.createScaledResolution(mc).scaledHeight / 2) - y
-            Side.Vertical.DOWN -> classProvider.createScaledResolution(mc).scaledHeight - y
+            Side.Vertical.MIDDLE -> (ScaledResolution(mc).scaledHeight / 2) - y
+            Side.Vertical.DOWN -> ScaledResolution(mc).scaledHeight - y
         }
         set(value) = when (side.vertical) {
             Side.Vertical.UP -> {

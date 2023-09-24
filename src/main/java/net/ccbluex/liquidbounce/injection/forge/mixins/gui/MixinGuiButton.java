@@ -5,12 +5,8 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
-import co.uk.hexeption.utils.OutlineUtils;
-import net.ccbluex.liquidbounce.api.minecraft.util.IResourceLocation;
-import net.ccbluex.liquidbounce.injection.backend.FontRendererImpl;
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
-import net.ccbluex.liquidbounce.utils.MinecraftInstance;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -53,7 +49,7 @@ public abstract class MixinGuiButton extends Gui {
     private float cut;
     private float alpha;
 
-    private static final IResourceLocation rs = MinecraftInstance.classProvider.createResourceLocation("pride/menu/menu-rect.png");
+    private static final ResourceLocation rs = new ResourceLocation("pride/menu/menu-rect.png");
 
     @Shadow
     protected abstract void mouseDragged(Minecraft mc, int mouseX, int mouseY);
@@ -65,7 +61,7 @@ public abstract class MixinGuiButton extends Gui {
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
         if (visible) {
             final FontRenderer fontRenderer =
-                    /*mc.getLanguageManager().isCurrentLocaleUnicode() ? mc.fontRenderer : */((FontRendererImpl) Fonts.fontSFUI35).getWrapped();
+                    /*mc.getLanguageManager().isCurrentLocaleUnicode() ? mc.fontRenderer : */Fonts.fontSFUI35;
             hovered = (mouseX >= this.x && mouseY >= this.y &&
                     mouseX < this.x + this.width && mouseY < this.y + this.height);
 

@@ -11,10 +11,11 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.utils.misc.RandomUtils
-import net.ccbluex.liquidbounce.utils.timer.TimeUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.utils.misc.RandomUtils
+import net.ccbluex.liquidbounce.utils.timer.TimeUtils
+import net.minecraft.client.settings.KeyBinding
 import kotlin.random.Random
 
 @ModuleInfo(name = "AutoClicker", description = "Constantly clicks when holding down a mouse button.", category = ModuleCategory.COMBAT)
@@ -53,16 +54,16 @@ class AutoClicker : Module() {
         // Left click
         if (mc.gameSettings.keyBindAttack.isKeyDown && leftValue.get() &&
                 System.currentTimeMillis() - leftLastSwing >= leftDelay && mc.playerController.curBlockDamageMP == 0F) {
-            mc.gameSettings.keyBindAttack.onTick(mc.gameSettings.keyBindAttack.keyCode) // Minecraft Click Handling
+            KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode) // Minecraft Click Handling
 
             leftLastSwing = System.currentTimeMillis()
             leftDelay = TimeUtils.randomClickDelay(minCPSValue.get(), maxCPSValue.get())
         }
 
         // Right click
-        if (mc.gameSettings.keyBindUseItem.isKeyDown && !mc.thePlayer!!.isUsingItem && rightValue.get() &&
+        if (mc.gameSettings.keyBindUseItem.isKeyDown && !mc.player!!.isHandActive && rightValue.get() &&
                 System.currentTimeMillis() - rightLastSwing >= rightDelay) {
-            mc.gameSettings.keyBindAttack.onTick(mc.gameSettings.keyBindUseItem.keyCode) // Minecraft Click Handling
+            KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode) // Minecraft Click Handling
 
             rightLastSwing = System.currentTimeMillis()
             rightDelay = TimeUtils.randomClickDelay(minCPSValue.get(), maxCPSValue.get())
@@ -71,20 +72,20 @@ class AutoClicker : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         if (jitterValue.get() && (leftValue.get() && mc.gameSettings.keyBindAttack.isKeyDown && mc.playerController.curBlockDamageMP == 0F
-                        || rightValue.get() && mc.gameSettings.keyBindUseItem.isKeyDown && !thePlayer.isUsingItem)) {
-            if (Random.nextBoolean()) thePlayer.rotationYaw += if (Random.nextBoolean()) -RandomUtils.nextFloat(0F, 1F) else RandomUtils.nextFloat(0F, 1F)
+                        || rightValue.get() && mc.gameSettings.keyBindUseItem.isKeyDown && !player.isHandActive)) {
+            if (Random.nextBoolean()) player.rotationYaw += if (Random.nextBoolean()) -RandomUtils.nextFloat(0F, 1F) else RandomUtils.nextFloat(0F, 1F)
 
             if (Random.nextBoolean()) {
-                thePlayer.rotationPitch += if (Random.nextBoolean()) -RandomUtils.nextFloat(0F, 1F) else RandomUtils.nextFloat(0F, 1F)
+                player.rotationPitch += if (Random.nextBoolean()) -RandomUtils.nextFloat(0F, 1F) else RandomUtils.nextFloat(0F, 1F)
 
                 // Make sure pitch is not going into unlegit values
-                if (thePlayer.rotationPitch > 90)
-                    thePlayer.rotationPitch = 90F
-                else if (thePlayer.rotationPitch < -90)
-                    thePlayer.rotationPitch = -90F
+                if (player.rotationPitch > 90)
+                    player.rotationPitch = 90F
+                else if (player.rotationPitch < -90)
+                    player.rotationPitch = -90F
             }
         }
     }

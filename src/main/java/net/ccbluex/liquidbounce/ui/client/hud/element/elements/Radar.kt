@@ -7,9 +7,11 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.enums.WDefaultVertexFormats
-import net.ccbluex.liquidbounce.api.minecraft.client.renderer.vertex.IVertexBuffer
 import net.ccbluex.liquidbounce.features.module.modules.render.ESP
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
@@ -17,10 +19,10 @@ import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.render.MiniMapRegister
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.FloatValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.ccbluex.liquidbounce.features.value.ListValue
+import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.Tessellator
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import net.minecraft.client.renderer.vertex.VertexBuffer
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.util.vector.Vector2f
 import java.awt.Color
@@ -59,7 +61,7 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
     private val borderAlphaValue = IntegerValue("Border Alpha", 150, 0, 255)
     private val borderRainbowValue = BoolValue("Border Rainbow", false)
 
-    private var fovMarkerVertexBuffer: IVertexBuffer? = null
+    private var fovMarkerVertexBuffer: VertexBuffer? = null
     private var lastFov = 0f
 
     override fun drawElement(): Border? {
@@ -123,7 +125,7 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
                         val onScreenX = (currX - floor(currX).toLong() - 1 - x) * sc
                         val onScreenZ = (currZ - floor(currZ).toLong() - 1 - z) * sc
 
-                        classProvider.getGlStateManager().bindTexture(currChunk.texture.glTextureId)
+                        GlStateManager.bindTexture(currChunk.texture.glTextureId)
 
                         glBegin(GL_QUADS)
 
@@ -142,7 +144,7 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
                 }
             }
 
-            classProvider.getGlStateManager().bindTexture(0)
+            GlStateManager.bindTexture(0)
 
             glDisable(GL_TEXTURE_2D)
         }
@@ -153,8 +155,8 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
         val triangleMode = playerShapeValue.get().equals("triangle", true)
         val circleMode = playerShapeValue.get().equals("circle", true)
 
-        val tessellator = classProvider.tessellatorInstance
-        val worldRenderer = tessellator.worldRenderer
+        val tessellator = Tessellator.getInstance()
+        val worldRenderer = tessellator.buffer
 
         if (circleMode) {
             glEnable(GL_POINT_SMOOTH)
@@ -167,12 +169,12 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
         if (triangleMode) {
             playerSize *= 2
         } else {
-            worldRenderer.begin(GL_POINTS, classProvider.getVertexFormatEnum(WDefaultVertexFormats.POSITION))
+            worldRenderer.begin(GL_POINTS, DefaultVertexFormats.POSITION)
             glPointSize(playerSize)
         }
 
-        for (entity in mc.theWorld!!.loadedEntityList) {
-            if (entity != mc.thePlayer && EntityUtils.isSelected(entity, false)) {
+        for (entity in mc.world!!.loadedEntityList) {
+            if (entity != mc.player && EntityUtils.isSelected(entity, false)) {
                 val positionRelativeToPlayer = Vector2f((renderViewEntity.posX - entity.posX).toFloat(),
                         (renderViewEntity.posZ - entity.posZ).toFloat())
 
@@ -293,11 +295,11 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
         return Border(0F, 0F, size, size)
     }
 
-    private fun createFovIndicator(angle: Float): IVertexBuffer {
+    private fun createFovIndicator(angle: Float): VertexBuffer {
         // Rendering
-        val worldRenderer = classProvider.tessellatorInstance.worldRenderer
+        val worldRenderer = Tessellator.getInstance().buffer
 
-        worldRenderer.begin(GL_TRIANGLE_FAN, classProvider.getVertexFormatEnum(WDefaultVertexFormats.POSITION))
+        worldRenderer.begin(GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION)
 
         val start = (90.0f - (angle * 0.5f)) / 180.0f * Math.PI.toFloat()
         val end = (90.0f + (angle * 0.5f)) / 180.0f * Math.PI.toFloat()
@@ -315,7 +317,7 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
 
         // Uploading to VBO
 
-        val safeVertexBuffer = classProvider.createSafeVertexBuffer(worldRenderer.vertexFormat)
+        val safeVertexBuffer = VertexBuffer(worldRenderer.vertexFormat)
 
         worldRenderer.finishDrawing()
         worldRenderer.reset()

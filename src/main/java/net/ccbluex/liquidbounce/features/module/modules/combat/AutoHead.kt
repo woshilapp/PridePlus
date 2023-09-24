@@ -1,17 +1,21 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.api.minecraft.client.settings.IKeyBinding
-import net.ccbluex.liquidbounce.api.minecraft.item.IItemStack
-import net.ccbluex.liquidbounce.api.minecraft.potion.PotionType
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.utils.timer.TimeUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.utils.timer.TimeUtils
+import net.minecraft.client.settings.KeyBinding
+import net.minecraft.init.MobEffects
+import net.minecraft.item.Item
+import net.minecraft.item.ItemStack
+import net.minecraft.network.play.client.CPacketHeldItemChange
+import net.minecraft.network.play.client.CPacketPlayerTryUseItem
+import net.minecraft.util.EnumHand
 import org.lwjgl.input.Mouse
 
 @ModuleInfo(name = "AutoHead", description = "a?", category = ModuleCategory.COMBAT)
@@ -44,29 +48,27 @@ class AutoHead : Module() {
 
     private fun repairItemPress() {
         if (mc.gameSettings != null) {
-            val keyBindUseItem: IKeyBinding = mc.gameSettings.keyBindUseItem
+            val keyBindUseItem: KeyBinding = mc.gameSettings.keyBindUseItem
             if (keyBindUseItem != null) keyBindUseItem.pressed = false
         }
     }
 
     @EventTarget
     fun onUpdate(event: MotionEvent?) {
-        if (mc.thePlayer == null) return
-        val inventory = mc.thePlayer!!.inventory
+        if (mc.player == null) return
+        val inventory = mc.player!!.inventory
         doingStuff = false
         if (!Mouse.isButtonDown(0) && !Mouse.isButtonDown(1)) {
-            val useItem: IKeyBinding = mc.gameSettings.keyBindUseItem
+            val useItem: KeyBinding = mc.gameSettings.keyBindUseItem
             if (!timer.hasReached(delay.get().toDouble())) {
                 eatingApple = false
                 repairItemPress()
                 repairItemSwitch()
                 return
             }
-            if (mc.thePlayer!!.capabilities.isCreativeMode || mc.thePlayer!!.isPotionActive(
-                    classProvider.getPotionEnum(
-                        PotionType.REGENERATION
-                    )
-                ) || mc.thePlayer!!.health >= health.get()
+            if (mc.player!!.capabilities.isCreativeMode || mc.player!!.isPotionActive(
+                    MobEffects.REGENERATION
+                ) || mc.player!!.health >= health.get()
             ) {
                 timer.reset()
                 if (eatingApple) {
@@ -98,9 +100,9 @@ class AutoHead : Module() {
                 val tempSlot = inventory.currentItem
                 doingStuff = true
                 if (doEatHeads) {
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketHeldItemChange(slot))
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerBlockPlacement(mc.thePlayer!!.inventory.getCurrentItemInHand()))
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketHeldItemChange(tempSlot))
+                    mc.connection!!.sendPacket(CPacketHeldItemChange(slot))
+                    mc.connection!!.sendPacket(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))
+                    mc.connection!!.sendPacket(CPacketHeldItemChange(tempSlot))
                     timer.reset()
                 } else {
                     inventory.currentItem = slot
@@ -114,7 +116,7 @@ class AutoHead : Module() {
     }
 
     private fun repairItemSwitch() {
-        val p = mc.thePlayer ?: return
+        val p = mc.player ?: return
         val inventory = p.inventory
         var switched = switched
         if (switched == -1) return
@@ -125,10 +127,10 @@ class AutoHead : Module() {
 
     private fun getItemFromHotbar(id: Int): Int {
         for (i in 0..8) {
-            if (mc.thePlayer!!.inventory.mainInventory[i] != null) {
-                val a: IItemStack? = mc.thePlayer!!.inventory.mainInventory[i]
+            if (mc.player!!.inventory.mainInventory[i] != null) {
+                val a: ItemStack? = mc.player!!.inventory.mainInventory[i]
                 val item = a!!.item
-                if (functions.getIdFromItem(item!!) == id) {
+                if (Item.getIdFromItem(item!!) == id) {
                     return i
                 }
             }

@@ -1,16 +1,10 @@
 package net.ccbluex.liquidbounce.utils
 
-import net.ccbluex.liquidbounce.api.minecraft.item.IItemStack
-import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.MinecraftInstance.mc
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.mc2
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.Translate
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.RenderHelper
-import net.minecraft.item.ItemStack
-import java.awt.Color
 
 class hotbarutil {
     val translate = Translate(0f , 0f)

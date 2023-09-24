@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntity
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
@@ -25,6 +24,9 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.entity.Entity
+import net.minecraft.entity.EntityLivingBase
 import org.lwjgl.opengl.GL11
 import org.lwjgl.util.vector.Vector3f
 import java.awt.Color
@@ -69,14 +71,14 @@ class ESP : Module() {
             GL11.glLoadIdentity()
             GL11.glDisable(GL11.GL_DEPTH_TEST)
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
-            classProvider.getGlStateManager().enableTexture2D()
+            GlStateManager.enableTexture2D()
             GL11.glDepthMask(true)
             GL11.glLineWidth(1.0f)
         }
         //</editor-fold>
-        for (entity in mc.theWorld!!.loadedEntityList) {
-            if (entity != mc.thePlayer && EntityUtils.isSelected(entity, false)) {
-                val entityLiving = entity.asEntityLivingBase()
+        for (entity in mc.world!!.loadedEntityList) {
+            if (entity != mc.player && EntityUtils.isSelected(entity, false)) {
+                val entityLiving = entity as EntityLivingBase
                 val color = getColor(entityLiving)
 
                 when (mode.toLowerCase()) {
@@ -98,7 +100,7 @@ class ESP : Module() {
                                 mc.renderManager.renderPosZ
 
                         GL11.glPushMatrix()
-                        GL11.glTranslatef(pX.toFloat(), (pY + if(entity.sneaking)0.8F else 1.3F).toFloat(),
+                        GL11.glTranslatef(pX.toFloat(), (pY + if(entity.isSneaking)0.8F else 1.3F).toFloat(),
                             pZ.toFloat()
                         )
                         GL11.glNormal3f(1.0F, 1.0F, 1.0F)
@@ -115,7 +117,7 @@ class ESP : Module() {
                         GL11.glPushMatrix()
                         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F)
 
-                        RenderUtils.drawImage2("pride/custom_hud_icon.png", -8, -14, 16, 16)
+                        RenderUtils.drawImage("pride/custom_hud_icon.png", -8, -14, 16, 16)
                         GL11.glPopMatrix()
                         GL11.glPopMatrix()
                     }
@@ -128,7 +130,7 @@ class ESP : Module() {
                                 mc.renderManager.renderPosZ
 
                         GL11.glPushMatrix()
-                        GL11.glTranslatef(pX.toFloat(), (pY + if(entity.sneaking)0.8F else 1.3F).toFloat(),
+                        GL11.glTranslatef(pX.toFloat(), (pY + if(entity.isSneaking)0.8F else 1.3F).toFloat(),
                             pZ.toFloat()
                         )
                         GL11.glNormal3f(1.0F, 1.0F, 1.0F)
@@ -145,7 +147,7 @@ class ESP : Module() {
                         GL11.glPushMatrix()
                         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F)
 
-                        RenderUtils.drawImage2("pride/rikka.png", -8, -14, 16, 16)
+                        RenderUtils.drawImage("pride/rikka.png", -8, -14, 16, 16)
                         GL11.glPopMatrix()
                         GL11.glPopMatrix()
                     }
@@ -202,7 +204,7 @@ class ESP : Module() {
         shader.startDraw(event.partialTicks)
         renderNameTags = false
         try {
-            for (entity in mc.theWorld!!.loadedEntityList) {
+            for (entity in mc.world!!.loadedEntityList) {
                 if (!EntityUtils.isSelected(entity, false)) continue
                 mc.renderManager.renderEntityStatic(entity, mc.timer.renderPartialTicks, true)
             }
@@ -217,10 +219,10 @@ class ESP : Module() {
     override val tag: String
         get() = modeValue.get()
 
-    fun getColor(entity: IEntity?): Color {
+    fun getColor(entity: Entity?): Color {
         run {
-            if (entity != null && classProvider.isEntityLivingBase(entity)) {
-                val entityLivingBase = entity.asEntityLivingBase()
+            if (entity != null && (entity is EntityLivingBase)) {
+                val entityLivingBase = entity
 
                 if (entityLivingBase.hurtTime > 0) return Color.RED
                 if (EntityUtils.isFriend(entityLivingBase)) return Color.BLUE

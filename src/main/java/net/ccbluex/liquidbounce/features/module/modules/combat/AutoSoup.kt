@@ -5,11 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.api.enums.EnumFacingType
-import net.ccbluex.liquidbounce.api.enums.ItemType
-import net.ccbluex.liquidbounce.api.enums.WEnumHand
-import net.ccbluex.liquidbounce.api.minecraft.network.play.client.ICPacketPlayerDigging
-import net.ccbluex.liquidbounce.api.minecraft.util.WBlockPos
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
@@ -23,6 +18,15 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.extensions.toClickType
+import net.minecraft.client.gui.inventory.GuiInventory
+import net.minecraft.init.Items
+import net.minecraft.network.play.client.CPacketCloseWindow
+import net.minecraft.network.play.client.CPacketHeldItemChange
+import net.minecraft.network.play.client.CPacketPlayerDigging
+import net.minecraft.util.EnumFacing
+import net.minecraft.util.EnumHand
+import net.minecraft.util.math.BlockPos
 
 @ModuleInfo(name = "AutoSoup", description = "Makes you automatically eat soup whenever your health is low.", category = ModuleCategory.COMBAT)
 class AutoSoup : Module() {
@@ -43,65 +47,65 @@ class AutoSoup : Module() {
         if (!timer.hasTimePassed(delayValue.get().toLong()))
             return
 
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
-        val soupInHotbar = InventoryUtils.findItem(36, 45, classProvider.getItemEnum(ItemType.MUSHROOM_STEW))
+        val soupInHotbar = InventoryUtils.findItem(36, 45, Items.MUSHROOM_STEW)
 
-        if (thePlayer.health <= healthValue.get() && soupInHotbar != -1) {
-            mc.netHandler.addToSendQueue(classProvider.createCPacketHeldItemChange(soupInHotbar - 36))
-            mc.netHandler.addToSendQueue(createUseItemPacket(thePlayer.inventory.getStackInSlot(soupInHotbar), WEnumHand.MAIN_HAND))
+        if (player.health <= healthValue.get() && soupInHotbar != -1) {
+            mc.connection!!.sendPacket(CPacketHeldItemChange(soupInHotbar - 36))
+            mc.connection!!.sendPacket(createUseItemPacket(player.inventory.getStackInSlot(soupInHotbar), EnumHand.MAIN_HAND))
 
             if (bowlValue.get().equals("Drop", true))
-                mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerDigging(ICPacketPlayerDigging.WAction.DROP_ITEM, WBlockPos.ORIGIN, classProvider.getEnumFacing(EnumFacingType.DOWN)))
+                mc.connection!!.sendPacket(CPacketPlayerDigging(CPacketPlayerDigging.Action.DROP_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
 
-            mc.netHandler.addToSendQueue(classProvider.createCPacketHeldItemChange(thePlayer.inventory.currentItem))
+            mc.connection!!.sendPacket(CPacketHeldItemChange(player.inventory.currentItem))
             timer.reset()
             return
         }
 
-        val bowlInHotbar = InventoryUtils.findItem(36, 45, classProvider.getItemEnum(ItemType.BOWL))
+        val bowlInHotbar = InventoryUtils.findItem(36, 45, Items.BOWL)
         if (bowlValue.get().equals("Move", true) && bowlInHotbar != -1) {
-            if (openInventoryValue.get() && !classProvider.isGuiInventory(mc.currentScreen))
+            if (openInventoryValue.get() && (mc.currentScreen !is GuiInventory))
                 return
 
             var bowlMovable = false
 
             for (i in 9..36) {
-                val itemStack = thePlayer.inventory.getStackInSlot(i)
+                val itemStack = player.inventory.getStackInSlot(i)
 
                 if (itemStack == null) {
                     bowlMovable = true
                     break
-                } else if (itemStack.item == classProvider.getItemEnum(ItemType.BOWL) && itemStack.stackSize < 64) {
+                } else if (itemStack.item == (Items.BOWL) && itemStack.stackSize < 64) {
                     bowlMovable = true
                     break
                 }
             }
 
             if (bowlMovable) {
-                val openInventory = !classProvider.isGuiInventory(mc.currentScreen) && simulateInventoryValue.get()
+                val openInventory = (mc.currentScreen !is GuiInventory) && simulateInventoryValue.get()
 
                 if (openInventory)
-                    mc.netHandler.addToSendQueue(createOpenInventoryPacket())
+                    mc.connection!!.sendPacket(createOpenInventoryPacket())
 
-                mc.playerController.windowClick(0, bowlInHotbar, 0, 1, thePlayer)
+                mc.playerController.windowClick(0, bowlInHotbar, 0, 1.toClickType(), player)
             }
         }
 
-        val soupInInventory = InventoryUtils.findItem(9, 36, classProvider.getItemEnum(ItemType.MUSHROOM_STEW))
+        val soupInInventory = InventoryUtils.findItem(9, 36, (Items.MUSHROOM_STEW))
 
         if (soupInInventory != -1 && InventoryUtils.hasSpaceHotbar()) {
-            if (openInventoryValue.get() && !classProvider.isGuiInventory(mc.currentScreen))
+            if (openInventoryValue.get() && (mc.currentScreen !is GuiInventory))
                 return
 
-            val openInventory = !classProvider.isGuiInventory(mc.currentScreen) && simulateInventoryValue.get()
+            val openInventory = (mc.currentScreen !is GuiInventory) && simulateInventoryValue.get()
             if (openInventory)
-                mc.netHandler.addToSendQueue(createOpenInventoryPacket())
+                mc.connection!!.sendPacket(createOpenInventoryPacket())
 
-            mc.playerController.windowClick(0, soupInInventory, 0, 1, thePlayer)
+            mc.playerController.windowClick(0, soupInInventory, 0, 1.toClickType(), player)
 
             if (openInventory)
-                mc.netHandler.addToSendQueue(classProvider.createCPacketCloseWindow())
+                mc.connection!!.sendPacket(CPacketCloseWindow())
 
             timer.reset()
         }

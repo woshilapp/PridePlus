@@ -5,32 +5,32 @@
  */
 package net.ccbluex.liquidbounce.ui.client
 
-import net.ccbluex.liquidbounce.api.minecraft.client.gui.IGuiButton
-import net.ccbluex.liquidbounce.api.minecraft.client.gui.IGuiScreen
-import net.ccbluex.liquidbounce.api.util.WrappedGuiScreen
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.minecraft.client.gui.GuiButton
+import net.minecraft.client.gui.GuiScreen
+import net.minecraftforge.fml.client.GuiModList
 import org.lwjgl.input.Keyboard
 
-class GuiModsMenu(private val prevGui: IGuiScreen) : WrappedGuiScreen() {
+class GuiModsMenu(private val prevGui: GuiScreen) : GuiScreen() {
 
     override fun initGui() {
-        representedScreen.buttonList.add(classProvider.createGuiButton(0, representedScreen.width / 2 - 100, representedScreen.height / 4 + 48, "Forge Mods"))
-        representedScreen.buttonList.add(classProvider.createGuiButton(1, representedScreen.width / 2 - 100, representedScreen.height / 4 + 48 + 25, "Scripts"))
-        representedScreen.buttonList.add(classProvider.createGuiButton(2, representedScreen.width / 2 - 100, representedScreen.height / 4 + 48 + 50, "Back"))
+        buttonList.add(GuiButton(0, width / 2 - 100, height / 4 + 48, "Forge Mods"))
+        buttonList.add(GuiButton(1, width / 2 - 100, height / 4 + 48 + 25, "Scripts"))
+        buttonList.add(GuiButton(2, width / 2 - 100, height / 4 + 48 + 50, "Back"))
     }
 
-    override fun actionPerformed(button: IGuiButton) {
+    override fun actionPerformed(button: GuiButton) {
         when (button.id) {
-            0 -> mc.displayGuiScreen(classProvider.createGuiModList(this.representedScreen))
-            1 -> mc.displayGuiScreen(classProvider.wrapGuiScreen(GuiScripts(this.representedScreen)))
+            0 -> mc.displayGuiScreen(GuiModList(this))
+            1 -> mc.displayGuiScreen((GuiScripts(this)))
             2 -> mc.displayGuiScreen(prevGui)
         }
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        representedScreen.drawBackground(0)
+        drawBackground(0)
 
-        Fonts.fontBold180.drawCenteredString("Mods", representedScreen.width / 2F, representedScreen.height / 8F + 5F, 4673984, true)
+        Fonts.fontBold180.drawCenteredString("Mods", width / 2F, height / 8F + 5F, 4673984, true)
 
         super.drawScreen(mouseX, mouseY, partialTicks)
     }

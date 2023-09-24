@@ -6,18 +6,20 @@
 package net.ccbluex.liquidbounce.features.module.modules.render;
 
 import net.ccbluex.liquidbounce.LiquidBounce;
-import net.ccbluex.liquidbounce.api.minecraft.network.IPacket;
 import net.ccbluex.liquidbounce.event.EventTarget;
 import net.ccbluex.liquidbounce.event.PacketEvent;
 import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.features.module.ModuleInfo;
-import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.*;
-import net.ccbluex.liquidbounce.utils.render.ColorUtils;
 import net.ccbluex.liquidbounce.features.value.BoolValue;
 import net.ccbluex.liquidbounce.features.value.FloatValue;
 import net.ccbluex.liquidbounce.features.value.IntegerValue;
 import net.ccbluex.liquidbounce.features.value.ListValue;
+import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui;
+import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.*;
+import net.ccbluex.liquidbounce.utils.render.ColorUtils;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.SPacketCloseWindow;
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
@@ -48,7 +50,7 @@ public class ClickGUI extends Module {
     public void onEnable() {
         updateStyle();
 
-        mc.displayGuiScreen(classProvider.wrapGuiScreen(LiquidBounce.clickGui));
+        mc.displayGuiScreen((LiquidBounce.clickGui));
     }
 
     private void updateStyle() {
@@ -76,9 +78,9 @@ public class ClickGUI extends Module {
 
     @EventTarget(ignoreCondition = true)
     public void onPacket(final PacketEvent event) {
-        final IPacket packet = event.getPacket();
+        final Packet packet = event.getPacket();
 
-        if (classProvider.isSPacketCloseWindow(packet) && classProvider.isClickGui(mc.getCurrentScreen())) {
+        if (packet instanceof SPacketCloseWindow && mc.currentScreen instanceof ClickGui) {
             event.cancelEvent();
         }
     }

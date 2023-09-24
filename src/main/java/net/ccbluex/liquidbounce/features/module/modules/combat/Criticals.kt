@@ -16,6 +16,8 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.minecraft.entity.EntityLivingBase
+import net.minecraft.network.play.client.CPacketPlayer
 
 @ModuleInfo(name = "Criticals", description = "Automatically deals critical hits.", category = ModuleCategory.COMBAT)
 class Criticals : Module() {
@@ -29,66 +31,66 @@ class Criticals : Module() {
 
     override fun onEnable() {
         if (modeValue.get().equals("NoGround", ignoreCase = true))
-            mc.thePlayer!!.jump()
+            mc.player!!.jump()
     }
 
     @EventTarget
     fun onAttack(event: AttackEvent) {
-        if (classProvider.isEntityLivingBase(event.targetEntity)) {
-            val thePlayer = mc.thePlayer ?: return
-            val entity = event.targetEntity!!.asEntityLivingBase()
+        if (event.targetEntity is EntityLivingBase) {
+            val player = mc.player ?: return
+            val entity = event.targetEntity
 
-            if (!thePlayer.onGround || thePlayer.isOnLadder || thePlayer.isInWeb || thePlayer.isInWater ||
-                thePlayer.isInLava || thePlayer.ridingEntity != null || entity.hurtTime > hurtTimeValue.get() ||
+            if (!player.onGround || player.isOnLadder || player.isInWeb || player.isInWater ||
+                player.isInLava || player.ridingEntity != null || entity.hurtTime > hurtTimeValue.get() ||
                 LiquidBounce.moduleManager[Fly::class.java].state || !msTimer.hasTimePassed(delayValue.get().toLong()))
                 return
 
-            val x = thePlayer.posX
-            val y = thePlayer.posY
-            val z = thePlayer.posZ
+            val x = player.posX
+            val y = player.posY
+            val z = player.posZ
 
             when (modeValue.get().toLowerCase()) {
                 "whenjump" -> {
-                    if (thePlayer.isAirBorne && !thePlayer.onGround) thePlayer.onCriticalHit(entity)
+                    if (player.isAirBorne && !player.onGround) player.onCriticalHit(entity)
                 }
                 "grimac" -> {
                     attacks++
                     if (attacks > 6) {
-                        mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(x,y+0.013256,z,false))
-                        mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(x,y+0.009856,z,false))
-                        mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(x, y, z, false))
+                        mc.connection!!.sendPacket(CPacketPlayer.Position(x,y+0.013256,z,false))
+                        mc.connection!!.sendPacket(CPacketPlayer.Position(x,y+0.009856,z,false))
+                        mc.connection!!.sendPacket(CPacketPlayer.Position(x, y, z, false))
                         attacks = 0
                     }
                 }
                 "packet" -> {
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(x, y + 0.0625, z, true))
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(x, y, z, false))
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(x, y + 1.1E-5, z, false))
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(x, y, z, false))
-                    thePlayer.onCriticalHit(entity)
+                    mc.connection!!.sendPacket(CPacketPlayer.Position(x, y + 0.0625, z, true))
+                    mc.connection!!.sendPacket(CPacketPlayer.Position(x, y, z, false))
+                    mc.connection!!.sendPacket(CPacketPlayer.Position(x, y + 1.1E-5, z, false))
+                    mc.connection!!.sendPacket(CPacketPlayer.Position(x, y, z, false))
+                    player.onCriticalHit(entity)
                 }
 
                 "ncppacket" -> {
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(x, y + 0.11, z, false))
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(x, y + 0.1100013579, z, false))
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(x, y + 0.0000013579, z, false))
-                    thePlayer.onCriticalHit(entity)
+                    mc.connection!!.sendPacket(CPacketPlayer.Position(x, y + 0.11, z, false))
+                    mc.connection!!.sendPacket(CPacketPlayer.Position(x, y + 0.1100013579, z, false))
+                    mc.connection!!.sendPacket(CPacketPlayer.Position(x, y + 0.0000013579, z, false))
+                    player.onCriticalHit(entity)
                 }
 
                 "hop" -> {
-                    thePlayer.motionY = 0.1
-                    thePlayer.fallDistance = 0.1f
-                    thePlayer.onGround = false
+                    player.motionY = 0.1
+                    player.fallDistance = 0.1f
+                    player.onGround = false
                 }
 
                 "tphop" -> {
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(x, y + 0.02, z, false))
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(x, y + 0.01, z, false))
-                    thePlayer.setPosition(x, y + 0.01, z)
+                    mc.connection!!.sendPacket(CPacketPlayer.Position(x, y + 0.02, z, false))
+                    mc.connection!!.sendPacket(CPacketPlayer.Position(x, y + 0.01, z, false))
+                    player.setPosition(x, y + 0.01, z)
                 }
-                "jump" -> thePlayer.motionY = 0.42
-                "lowjump" -> thePlayer.motionY = 0.3425
-                "visual" -> thePlayer.onCriticalHit(entity)
+                "jump" -> player.motionY = 0.42
+                "lowjump" -> player.motionY = 0.3425
+                "visual" -> player.onCriticalHit(entity)
             }
 
             msTimer.reset()
@@ -99,8 +101,8 @@ class Criticals : Module() {
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
 
-        if (classProvider.isCPacketPlayer(packet) && modeValue.get().equals("NoGround", ignoreCase = true))
-            packet.asCPacketPlayer().onGround = false
+        if ((packet is CPacketPlayer) && modeValue.get().equals("NoGround", ignoreCase = true))
+            packet.onGround = false
     }
 
     override val tag: String?

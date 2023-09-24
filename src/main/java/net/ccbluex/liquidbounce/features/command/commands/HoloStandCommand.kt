@@ -5,9 +5,14 @@
  */
 package net.ccbluex.liquidbounce.features.command.commands
 
-import net.ccbluex.liquidbounce.api.enums.ItemType
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.utils.misc.StringUtils
+import net.minecraft.init.Items
+import net.minecraft.item.ItemStack
+import net.minecraft.nbt.NBTTagDouble
+import net.minecraft.nbt.NBTTagList
+import net.minecraft.network.play.client.CPacketCreativeInventoryAction
+import net.minecraft.nbt.NBTTagCompound as NBTTagCompound1
 
 class HoloStandCommand : Command("holostand") {
     /**
@@ -26,22 +31,22 @@ class HoloStandCommand : Command("holostand") {
                 val z = args[3].toDouble()
                 val message = StringUtils.toCompleteString(args, 4)
 
-                val itemStack = classProvider.createItemStack(classProvider.getItemEnum(ItemType.ARMOR_STAND))
-                val base = classProvider.createNBTTagCompound()
-                val entityTag = classProvider.createNBTTagCompound()
+                val itemStack = ItemStack(Items.ARMOR_STAND)
+                val base = NBTTagCompound1()
+                val entityTag = NBTTagCompound1()
                 entityTag.setInteger("Invisible", 1)
                 entityTag.setString("CustomName", message)
                 entityTag.setInteger("CustomNameVisible", 1)
                 entityTag.setInteger("NoGravity", 1)
-                val position = classProvider.createNBTTagList()
-                position.appendTag(classProvider.createNBTTagDouble(x))
-                position.appendTag(classProvider.createNBTTagDouble(y))
-                position.appendTag(classProvider.createNBTTagDouble(z))
+                val position = NBTTagList()
+                position.appendTag(NBTTagDouble(x))
+                position.appendTag(NBTTagDouble(y))
+                position.appendTag(NBTTagDouble(z))
                 entityTag.setTag("Pos", position)
                 base.setTag("EntityTag", entityTag)
                 itemStack.tagCompound = base
                 itemStack.setStackDisplayName("§c§lHolo§eStand")
-                mc.netHandler.addToSendQueue(classProvider.createCPacketCreativeInventoryAction(36, itemStack))
+                mc.connection!!.sendPacket(CPacketCreativeInventoryAction(36, itemStack))
 
                 chat("The HoloStand was successfully added to your inventory.")
             } catch (exception: NumberFormatException) {

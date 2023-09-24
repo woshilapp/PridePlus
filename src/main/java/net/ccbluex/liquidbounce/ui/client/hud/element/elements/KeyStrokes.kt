@@ -1,7 +1,9 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-
-import net.ccbluex.liquidbounce.api.minecraft.client.gui.IFontRenderer
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.FontValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
@@ -9,10 +11,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.FloatValue
-import net.ccbluex.liquidbounce.features.value.FontValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.minecraft.client.gui.FontRenderer
 import net.minecraft.client.settings.KeyBinding
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
@@ -80,7 +79,7 @@ class KeyStroke(val key: KeyBinding, val posX: Int, val posY: Int, val width: In
         highLightPct: Float,
         outline: Boolean,
         outlineBold: Int,
-        font: IFontRenderer,
+        font: FontRenderer,
         renderX: Float,
         renderY: Float,
         scale: Float
@@ -118,7 +117,7 @@ class KeyStroke(val key: KeyBinding, val posX: Int, val posY: Int, val width: In
         }
         lastClick = key.isKeyDown
 
-        font.drawString(keyName, centerX - (font.getStringWidth(keyName) / 2) + 1, centerY - (font.fontHeight / 2) + 2, textColor.rgb)
+        font.drawString(keyName, centerX - (font.getStringWidth(keyName) / 2) + 1, centerY - (font.FONT_HEIGHT / 2) + 2, textColor.rgb)
         if (outline) {
             RenderUtils.drawRect(0F, 0F, outlineBold.toFloat(), height.toFloat(), textColor.rgb)
             RenderUtils.drawRect((width - outlineBold).toFloat(), 0F, width.toFloat(), height.toFloat(), textColor.rgb)

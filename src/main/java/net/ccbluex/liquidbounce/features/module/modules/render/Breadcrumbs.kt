@@ -64,19 +64,19 @@ class Breadcrumbs : Module() {
     @EventTarget
     fun onUpdate(event: UpdateEvent?) {
         synchronized(positions) {
-            positions.add(doubleArrayOf(mc.thePlayer!!.posX, mc.thePlayer!!.entityBoundingBox.minY, mc.thePlayer!!.posZ))
+            positions.add(doubleArrayOf(mc.player!!.posX, mc.player!!.entityBoundingBox.minY, mc.player!!.posZ))
         }
     }
 
     override fun onEnable() {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         synchronized(positions) {
-            positions.add(doubleArrayOf(thePlayer.posX,
-                    thePlayer.entityBoundingBox.minY + thePlayer.eyeHeight * 0.5f,
-                    thePlayer.posZ))
+            positions.add(doubleArrayOf(player.posX,
+                    player.entityBoundingBox.minY + player.eyeHeight * 0.5f,
+                    player.posZ))
 
-            positions.add(doubleArrayOf(thePlayer.posX, thePlayer.entityBoundingBox.minY, thePlayer.posZ))
+            positions.add(doubleArrayOf(player.posX, player.entityBoundingBox.minY, player.posZ))
         }
         super.onEnable()
     }

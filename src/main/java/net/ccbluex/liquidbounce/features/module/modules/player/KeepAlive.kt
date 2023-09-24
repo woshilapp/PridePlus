@@ -5,8 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.api.enums.ItemType
-import net.ccbluex.liquidbounce.api.enums.WEnumHand
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.features.module.Module
@@ -16,6 +14,9 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.utils.InventoryUtils
 import net.ccbluex.liquidbounce.utils.createUseItemPacket
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.minecraft.init.Items
+import net.minecraft.network.play.client.CPacketHeldItemChange
+import net.minecraft.util.EnumHand
 
 @ModuleInfo(name = "KeepAlive", description = "Tries to prevent you from dying.", category = ModuleCategory.PLAYER)
 class KeepAlive : Module() {
@@ -26,20 +27,20 @@ class KeepAlive : Module() {
 
     @EventTarget
     fun onMotion(event: MotionEvent) {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
-        if (thePlayer.isDead || thePlayer.health <= 0) {
+        if (player.isDead || player.health <= 0) {
             if (runOnce) return
 
             when (modeValue.get().toLowerCase()) {
-                "/heal" -> thePlayer.sendChatMessage("/heal")
+                "/heal" -> player.sendChatMessage("/heal")
                 "soup" -> {
-                    val soupInHotbar = InventoryUtils.findItem(36, 45, classProvider.getItemEnum(ItemType.MUSHROOM_STEW))
+                    val soupInHotbar = InventoryUtils.findItem(36, 45, Items.MUSHROOM_STEW)
 
                     if (soupInHotbar != -1) {
-                        mc.netHandler.addToSendQueue(classProvider.createCPacketHeldItemChange(soupInHotbar - 36))
-                        mc.netHandler.addToSendQueue(createUseItemPacket(thePlayer.inventory.getStackInSlot(soupInHotbar), WEnumHand.MAIN_HAND))
-                        mc.netHandler.addToSendQueue(classProvider.createCPacketHeldItemChange(thePlayer.inventory.currentItem))
+                        mc.connection!!.sendPacket(CPacketHeldItemChange(soupInHotbar - 36))
+                        mc.connection!!.sendPacket(createUseItemPacket(player.inventory.getStackInSlot(soupInHotbar), EnumHand.MAIN_HAND))
+                        mc.connection!!.sendPacket(CPacketHeldItemChange(player.inventory.currentItem))
                     }
                 }
             }

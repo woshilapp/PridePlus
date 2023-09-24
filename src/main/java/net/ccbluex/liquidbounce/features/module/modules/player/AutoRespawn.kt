@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.exploit.Ghost
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.minecraft.client.gui.GuiGameOver
 
 @ModuleInfo(name = "AutoRespawn", description = "Automatically respawns you after dying.", category = ModuleCategory.PLAYER)
 class AutoRespawn : Module() {
@@ -21,14 +22,14 @@ class AutoRespawn : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        val thePlayer = mc.thePlayer
+        val player = mc.player
 
-        if (thePlayer == null || LiquidBounce.moduleManager[Ghost::class.java]!!.state)
+        if (player == null || LiquidBounce.moduleManager[Ghost::class.java]!!.state)
             return
 
-        if (if (instantValue.get()) thePlayer.health == 0F || thePlayer.isDead else classProvider.isGuiGameOver(mc.currentScreen)
-                        && (mc.currentScreen!!.asGuiGameOver()).enableButtonsTimer >= 20) {
-            thePlayer.respawnPlayer()
+        if (if (instantValue.get()) player.health == 0F || player.isDead else (mc.currentScreen is GuiGameOver)
+                        && (mc.currentScreen!! as GuiGameOver).enableButtonsTimer >= 20) {
+            player.respawnPlayer()
             mc.displayGuiScreen(null)
         }
     }

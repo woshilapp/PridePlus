@@ -4,7 +4,6 @@ import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
-import net.ccbluex.liquidbounce.injection.backend.unwrap
 import net.minecraft.block.BlockSlab
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.play.client.CPacketPlayerDigging
@@ -16,7 +15,7 @@ class GrimVelocity : VelocityMode("GrimAC") {
     private var sendC07 = false
 
     override fun onPacket(event: PacketEvent) {
-        val packet = event.packet.unwrap()
+        val packet = event.packet
 
         if (packet is SPacketEntityVelocity && mc2.player.hurtTime > 0) {
             event.cancelEvent()

@@ -11,11 +11,16 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.injection.implementations.IMixinTimer
+import net.ccbluex.liquidbounce.utils.timer.MSTimer
+import net.minecraft.item.ItemBucketMilk
+import net.minecraft.item.ItemFood
+import net.minecraft.item.ItemPotion
+import net.minecraft.network.play.client.CPacketPlayer
 
 @ModuleInfo(name = "FastUse", description = "Allows you to use items faster.", category = ModuleCategory.PLAYER)
 class FastUse : Module() {
@@ -33,52 +38,52 @@ class FastUse : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         if (usedTimer) {
-            mc.timer.timerSpeed = 1F
+            (mc.timer as IMixinTimer).timerSpeed = 1F
             usedTimer = false
         }
 
-        if (!thePlayer.isUsingItem) {
+        if (!player.isHandActive) {
             msTimer.reset()
             return
         }
 
-        val usingItem = thePlayer.itemInUse!!.item
+        val usingItem = player.activeItemStack.item
 
-        if (classProvider.isItemFood(usingItem) || classProvider.isItemBucketMilk(usingItem) || classProvider.isItemPotion(usingItem)) {
+        if ((usingItem is ItemFood) || (usingItem is ItemBucketMilk) || (usingItem is ItemPotion)) {
             when (modeValue.get().toLowerCase()) {
                 "instant" -> {
                     repeat(35) {
-                        mc.netHandler.addToSendQueue(classProvider.createCPacketPlayer(thePlayer.onGround))
+                        mc.connection!!.sendPacket(CPacketPlayer(player.onGround))
                     }
 
-                    mc.playerController.onStoppedUsingItem(thePlayer)
+                    mc.playerController.onStoppedUsingItem(player)
                 }
 
-                "ncp" -> if (thePlayer.itemInUseDuration > 14) {
+                "ncp" -> if (player.itemInUseMaxCount > 14) {
                     repeat(20) {
-                        mc.netHandler.addToSendQueue(classProvider.createCPacketPlayer(thePlayer.onGround))
+                        mc.connection!!.sendPacket(CPacketPlayer(player.onGround))
                     }
 
-                    mc.playerController.onStoppedUsingItem(thePlayer)
+                    mc.playerController.onStoppedUsingItem(player)
                 }
 
                 "aac" -> {
-                    mc.timer.timerSpeed = 1.22F
+                    (mc.timer as IMixinTimer).timerSpeed = 1.22F
                     usedTimer = true
                 }
                 
                 "custom" -> {
-                    mc.timer.timerSpeed = customTimer.get()
+                    (mc.timer as IMixinTimer).timerSpeed = customTimer.get()
                     usedTimer = true
 
                     if (!msTimer.hasTimePassed(delayValue.get().toLong()))
                         return
 
                     repeat(customSpeedValue.get()) {
-                        mc.netHandler.addToSendQueue(classProvider.createCPacketPlayer(thePlayer.onGround))
+                        mc.connection!!.sendPacket(CPacketPlayer(player.onGround))
                     }
 
                     msTimer.reset()
@@ -89,22 +94,22 @@ class FastUse : Module() {
 
     @EventTarget
     fun onMove(event: MoveEvent?) {
-        val thePlayer = mc.thePlayer
+        val player = mc.player
 
-        if (thePlayer == null || event == null)
+        if (player == null || event == null)
             return
-        if (!state || !thePlayer.isUsingItem || !noMoveValue.get())
+        if (!state || !player.isHandActive || !noMoveValue.get())
             return
 
-        val usingItem = thePlayer.itemInUse!!.item
+        val usingItem = player.activeItemStack.item
 
-        if (classProvider.isItemFood(usingItem) || classProvider.isItemBucketMilk(usingItem) || classProvider.isItemPotion(usingItem))
+        if ((usingItem is ItemFood) || (usingItem is ItemBucketMilk) || (usingItem is ItemPotion))
             event.zero()
     }
 
     override fun onDisable() {
         if (usedTimer) {
-            mc.timer.timerSpeed = 1F
+            (mc.timer as IMixinTimer).timerSpeed = 1F
             usedTimer = false
         }
     }

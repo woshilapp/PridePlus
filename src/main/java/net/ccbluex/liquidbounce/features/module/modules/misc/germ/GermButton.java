@@ -27,7 +27,7 @@ public class GermButton {
     public void drawButton(String parentUuid, int x, int y, int mouseX, int mouseY) {
         if (isHovered(x - 50, y - 10, x + 50, y + 10, mouseX, mouseY)) {
             if (!aBoolean) {
-                mc2.getConnection().sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(new PacketBuffer(Unpooled.buffer().writeInt(13)).writeString(parentUuid).writeString(path).writeInt(2))));
+                mc.getConnection().sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(new PacketBuffer(Unpooled.buffer().writeInt(13)).writeString(parentUuid).writeString(path).writeInt(2))));
                 aBoolean = true;
             }
         } else if (aBoolean) {

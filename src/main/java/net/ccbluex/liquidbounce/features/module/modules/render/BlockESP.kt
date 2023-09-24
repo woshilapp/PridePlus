@@ -5,25 +5,25 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.api.enums.BlockType
-import net.ccbluex.liquidbounce.api.minecraft.util.WBlockPos
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.value.BlockValue
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockName
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
-import net.ccbluex.liquidbounce.features.value.BlockValue
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.ccbluex.liquidbounce.features.value.ListValue
+import net.minecraft.block.Block
+import net.minecraft.init.Blocks
+import net.minecraft.util.math.BlockPos
 import java.awt.Color
-import java.util.*
 
 @ModuleInfo(name = "BlockESP", description = "Allows you to see a selected block through walls.", category = ModuleCategory.RENDER)
 class BlockESP : Module() {
@@ -36,31 +36,31 @@ class BlockESP : Module() {
     private val colorBlueValue = IntegerValue("B", 72, 0, 255)
     private val colorRainbow = BoolValue("Rainbow", false)
     private val searchTimer = MSTimer()
-    private val posList: MutableList<WBlockPos> = ArrayList()
+    private val posList: MutableList<BlockPos> = ArrayList()
     private var thread: Thread? = null
 
     @EventTarget
     fun onUpdate(event: UpdateEvent?) {
         if (searchTimer.hasTimePassed(1000L) && (thread == null || !thread!!.isAlive)) {
             val radius = radiusValue.get()
-            val selectedBlock = functions.getBlockById(blockValue.get())
+            val selectedBlock = Block.getBlockById(blockValue.get())
 
-            if (selectedBlock == null || selectedBlock == classProvider.getBlockEnum(BlockType.AIR))
+            if (selectedBlock == null || selectedBlock == Blocks.AIR)
                 return
 
-            thread = Thread(Runnable {
-                val blockList: MutableList<WBlockPos> = ArrayList()
+            thread = Thread({
+                val blockList: MutableList<BlockPos> = ArrayList()
 
                 for (x in -radius until radius) {
                     for (y in radius downTo -radius + 1) {
                         for (z in -radius until radius) {
-                            val thePlayer = mc.thePlayer!!
+                            val player = mc.player!!
 
-                            val xPos = thePlayer.posX.toInt() + x
-                            val yPos = thePlayer.posY.toInt() + y
-                            val zPos = thePlayer.posZ.toInt() + z
+                            val xPos = player.posX.toInt() + x
+                            val yPos = player.posY.toInt() + y
+                            val zPos = player.posZ.toInt() + z
 
-                            val blockPos = WBlockPos(xPos, yPos, zPos)
+                            val blockPos = BlockPos(xPos, yPos, zPos)
                             val block = getBlock(blockPos)
 
                             if (block == selectedBlock && blockList.size < blockLimitValue.get()) blockList.add(blockPos)

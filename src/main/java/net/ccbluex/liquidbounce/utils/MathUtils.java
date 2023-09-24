@@ -81,4 +81,18 @@ public final class MathUtils {
     public static double randomNumber(double max, double min) {
         return Math.random() * (max - min) + min;
     }
+
+    public static float wrapAngleTo180_float(Float angle) {
+        float value = angle % 360.0f;
+
+        if (value >= 180.0f) {
+            value -= 360.0f;
+        }
+
+        if (value < -180.0f) {
+            value += 360.0f;
+        }
+
+        return value;
+    }
 }

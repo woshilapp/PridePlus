@@ -2,9 +2,6 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 
 
 import me.utils.PacketUtils
-import net.ccbluex.liquidbounce.api.minecraft.network.play.client.ICPacketPlayerBlockPlacement
-import net.ccbluex.liquidbounce.api.minecraft.network.play.client.ICPacketPlayerLook
-import net.ccbluex.liquidbounce.api.minecraft.network.play.client.ICPacketPlayerPosLook
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
@@ -84,9 +81,9 @@ class Disabler : Module() {
                     }
                 }
                 if (packet is SPacketPlayerPosLook) {
-                    val x = packet.x - mc.thePlayer?.posX!!
-                    val y = packet.y - mc.thePlayer?.posY!!
-                    val z = packet.z - mc.thePlayer?.posZ!!
+                    val x = packet.x - mc.player?.posX!!
+                    val y = packet.y - mc.player?.posY!!
+                    val z = packet.z - mc.player?.posZ!!
                     val diff = sqrt(x * x + y * y + z * z)
                     if (diff <= 8) {
                         event.cancelEvent()
@@ -122,11 +119,11 @@ class Disabler : Module() {
                         packetBuffer.add(packet as Packet<INetHandlerPlayServer>)
                         if (packet is CPacketAnimation) return
                     }
-                    if (fakeLagBlockValue.get() && (packet is CPacketPlayerDigging || packet is ICPacketPlayerBlockPlacement || packet is CPacketAnimation)) {
+                    if (fakeLagBlockValue.get() && (packet is CPacketPlayerDigging || packet is CPacketPlayerTryUseItemOnBlock || packet is CPacketAnimation)) {
                         event.cancelEvent()
                         packetBuffer.add(packet as Packet<INetHandlerPlayServer>)
                     }
-                    if (fakeLagPosValue.get() && (packet is CPacketPlayer || packet is CPacketPlayer.Position || packet is ICPacketPlayerLook || packet is ICPacketPlayerPosLook || packet is CPacketEntityAction)) {
+                    if (fakeLagPosValue.get() && (packet is CPacketPlayer || packet is CPacketPlayer.Position || packet is CPacketPlayer.Rotation || packet is CPacketPlayer.PositionRotation || packet is CPacketEntityAction)) {
                         event.cancelEvent()
                         packetBuffer.add(packet as Packet<INetHandlerPlayServer>)
                     }

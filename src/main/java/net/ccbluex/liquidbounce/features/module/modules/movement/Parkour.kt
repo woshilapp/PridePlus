@@ -17,11 +17,11 @@ class Parkour : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
-        if (MovementUtils.isMoving && thePlayer.onGround && !thePlayer.sneaking && !mc.gameSettings.keyBindSneak.isKeyDown && !mc.gameSettings.keyBindJump.isKeyDown &&
-                mc.theWorld!!.getCollidingBoundingBoxes(thePlayer, thePlayer.entityBoundingBox
+        if (MovementUtils.isMoving && player.onGround && !player.isSneaking && !mc.gameSettings.keyBindSneak.isKeyDown && !mc.gameSettings.keyBindJump.isKeyDown &&
+                mc.world!!.getCollisionBoxes(player, player.entityBoundingBox
                         .offset(0.0, -0.5, 0.0).expand(-0.001, 0.0, -0.001)).isEmpty())
-            thePlayer.jump()
+            player.jump()
     }
 }

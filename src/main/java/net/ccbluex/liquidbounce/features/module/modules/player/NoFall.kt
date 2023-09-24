@@ -6,12 +6,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.enums.BlockType
-import net.ccbluex.liquidbounce.api.enums.EnumFacingType
-import net.ccbluex.liquidbounce.api.enums.ItemType
-import net.ccbluex.liquidbounce.api.minecraft.util.WBlockPos
-import net.ccbluex.liquidbounce.api.minecraft.util.WVec3
-import net.ccbluex.liquidbounce.api.minecraft.util.WVec3i
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
@@ -24,6 +18,20 @@ import net.ccbluex.liquidbounce.utils.misc.FallingPlayer
 import net.ccbluex.liquidbounce.utils.timer.TickTimer
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.block.BlockUtils
+import net.ccbluex.liquidbounce.utils.extensions.sendUseItem
+import net.minecraft.block.BlockLiquid
+import net.minecraft.init.Blocks
+import net.minecraft.init.Items
+import net.minecraft.item.ItemBlock
+import net.minecraft.item.ItemBucket
+import net.minecraft.network.play.client.CPacketHeldItemChange
+import net.minecraft.network.play.client.CPacketPlayer
+import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.AxisAlignedBB
+import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.Vec3i
 import kotlin.math.ceil
 import kotlin.math.sqrt
 
@@ -38,77 +46,79 @@ class NoFall : Module() {
     private var jumped = false
     private var currentMlgRotation: VecRotation? = null
     private var currentMlgItemIndex = 0
-    private var currentMlgBlock: WBlockPos? = null
+    private var currentMlgBlock: BlockPos? = null
 
     @EventTarget(ignoreCondition = true)
     fun onUpdate(event: UpdateEvent?) {
-        if (mc.thePlayer!!.onGround)
+        if (mc.player!!.onGround)
             jumped = false
 
-        if (mc.thePlayer!!.motionY > 0)
+        if (mc.player!!.motionY > 0)
             jumped = true
 
         if (!state || LiquidBounce.moduleManager.getModule(FreeCam::class.java)!!.state)
             return
 
-        if (collideBlock(mc.thePlayer!!.entityBoundingBox, classProvider::isBlockLiquid) ||
-                collideBlock(classProvider.createAxisAlignedBB(mc.thePlayer!!.entityBoundingBox.maxX, mc.thePlayer!!.entityBoundingBox.maxY, mc.thePlayer!!.entityBoundingBox.maxZ, mc.thePlayer!!.entityBoundingBox.minX, mc.thePlayer!!.entityBoundingBox.minY - 0.01, mc.thePlayer!!.entityBoundingBox.minZ), classProvider::isBlockLiquid))
+        if (collideBlock(mc.player.entityBoundingBox) { it is BlockLiquid } || collideBlock(
+                AxisAlignedBB(mc.player.entityBoundingBox.maxX, mc.player.entityBoundingBox.maxY, mc.player.entityBoundingBox.maxZ, mc.player.entityBoundingBox.minX, mc.player.entityBoundingBox.minY - 0.01, mc.player.entityBoundingBox.minZ)
+            ) { it is BlockLiquid }) {
             return
+        }
 
         when (modeValue.get().toLowerCase()) {
             "packet" -> {
-                if (mc.thePlayer!!.fallDistance > 2f) {
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayer(true))
+                if (mc.player!!.fallDistance > 2f) {
+                    mc.connection!!.sendPacket(CPacketPlayer(true))
                 }
             }
-            "cubecraft" -> if (mc.thePlayer!!.fallDistance > 2f) {
-                mc.thePlayer!!.onGround = false
-                mc.thePlayer!!.sendQueue.addToSendQueue(classProvider.createCPacketPlayer(true))
+            "cubecraft" -> if (mc.player!!.fallDistance > 2f) {
+                mc.player!!.onGround = false
+                mc.connection!!.sendPacket(CPacketPlayer(true))
             }
             "aac" -> {
-                if (mc.thePlayer!!.fallDistance > 2f) {
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayer(true))
+                if (mc.player!!.fallDistance > 2f) {
+                    mc.connection!!.sendPacket(CPacketPlayer(true))
                     currentState = 2
-                } else if (currentState == 2 && mc.thePlayer!!.fallDistance < 2) {
-                    mc.thePlayer!!.motionY = 0.1
+                } else if (currentState == 2 && mc.player!!.fallDistance < 2) {
+                    mc.player!!.motionY = 0.1
                     currentState = 3
                     return
                 }
                 when (currentState) {
                     3 -> {
-                        mc.thePlayer!!.motionY = 0.1
+                        mc.player!!.motionY = 0.1
                         currentState = 4
                     }
                     4 -> {
-                        mc.thePlayer!!.motionY = 0.1
+                        mc.player!!.motionY = 0.1
                         currentState = 5
                     }
                     5 -> {
-                        mc.thePlayer!!.motionY = 0.1
+                        mc.player!!.motionY = 0.1
                         currentState = 1
                     }
                 }
             }
-            "laac" -> if (!jumped && mc.thePlayer!!.onGround && !mc.thePlayer!!.isOnLadder && !mc.thePlayer!!.isInWater
-                    && !mc.thePlayer!!.isInWeb) mc.thePlayer!!.motionY = (-6).toDouble()
-            "aac3.3.11" -> if (mc.thePlayer!!.fallDistance > 2) {
-                mc.thePlayer!!.motionZ = 0.0
-                mc.thePlayer!!.motionX = mc.thePlayer!!.motionZ
-                mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(mc.thePlayer!!.posX,
-                        mc.thePlayer!!.posY - 10E-4, mc.thePlayer!!.posZ, mc.thePlayer!!.onGround))
-                mc.netHandler.addToSendQueue(classProvider.createCPacketPlayer(true))
+            "laac" -> if (!jumped && mc.player!!.onGround && !mc.player!!.isOnLadder && !mc.player!!.isInWater
+                    && !mc.player!!.isInWeb) mc.player!!.motionY = (-6).toDouble()
+            "aac3.3.11" -> if (mc.player!!.fallDistance > 2) {
+                mc.player!!.motionZ = 0.0
+                mc.player!!.motionX = mc.player!!.motionZ
+                mc.connection!!.sendPacket(CPacketPlayer.Position(mc.player!!.posX,
+                        mc.player!!.posY - 10E-4, mc.player!!.posZ, mc.player!!.onGround))
+                mc.connection!!.sendPacket(CPacketPlayer(true))
             }
-            "aac3.3.15" -> if (mc.thePlayer!!.fallDistance > 2) {
-                if (!mc.isIntegratedServerRunning) mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(mc.thePlayer!!.posX, Double.NaN, mc.thePlayer!!.posZ, false))
-                mc.thePlayer!!.fallDistance = (-9999).toFloat()
+            "aac3.3.15" -> if (mc.player!!.fallDistance > 2) {
+                if (!mc.isIntegratedServerRunning) mc.connection!!.sendPacket(CPacketPlayer.Position(mc.player!!.posX, Double.NaN, mc.player!!.posZ, false))
+                mc.player!!.fallDistance = (-9999).toFloat()
             }
             "spartan" -> {
                 spartanTimer.update()
-                if (mc.thePlayer!!.fallDistance > 1.5 && spartanTimer.hasTimePassed(10)) {
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(mc.thePlayer!!.posX,
-                            mc.thePlayer!!.posY + 10, mc.thePlayer!!.posZ, true))
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerPosition(mc.thePlayer!!.posX,
-                            mc.thePlayer!!.posY - 10, mc.thePlayer!!.posZ, true))
+                if (mc.player!!.fallDistance > 1.5 && spartanTimer.hasTimePassed(10)) {
+                    mc.connection!!.sendPacket(CPacketPlayer.Position(mc.player!!.posX,
+                            mc.player!!.posY + 10, mc.player!!.posZ, true))
+                    mc.connection!!.sendPacket(CPacketPlayer.Position(mc.player!!.posX,
+                            mc.player!!.posY - 10, mc.player!!.posZ, true))
                     spartanTimer.reset()
                 }
             }
@@ -119,22 +129,22 @@ class NoFall : Module() {
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
         val mode = modeValue.get()
-        if (classProvider.isCPacketPlayer(packet)) {
-            val playerPacket = packet.asCPacketPlayer()
+        if (packet is CPacketPlayer) {
+            val playerPacket = packet
             if (mode.equals("SpoofGround", ignoreCase = true)) playerPacket.onGround = true
             if (mode.equals("NoGround", ignoreCase = true)) playerPacket.onGround = false
             if (mode.equals("Hypixel", ignoreCase = true)
-                    && mc.thePlayer != null && mc.thePlayer!!.fallDistance > 1.5) playerPacket.onGround = mc.thePlayer!!.ticksExisted % 2 == 0
+                    && mc.player != null && mc.player!!.fallDistance > 1.5) playerPacket.onGround = mc.player!!.ticksExisted % 2 == 0
         }
     }
 
     @EventTarget
     fun onMove(event: MoveEvent) {
-        if (collideBlock(mc.thePlayer!!.entityBoundingBox, classProvider::isBlockLiquid) || collideBlock(classProvider.createAxisAlignedBB(mc.thePlayer!!.entityBoundingBox.maxX, mc.thePlayer!!.entityBoundingBox.maxY, mc.thePlayer!!.entityBoundingBox.maxZ, mc.thePlayer!!.entityBoundingBox.minX, mc.thePlayer!!.entityBoundingBox.minY - 0.01, mc.thePlayer!!.entityBoundingBox.minZ), classProvider::isBlockLiquid))
+        if (collideBlock(mc.player!!.entityBoundingBox) { it is BlockLiquid } || collideBlock(AxisAlignedBB(mc.player!!.entityBoundingBox.maxX, mc.player!!.entityBoundingBox.maxY, mc.player!!.entityBoundingBox.maxZ, mc.player!!.entityBoundingBox.minX, mc.player!!.entityBoundingBox.minY - 0.01, mc.player!!.entityBoundingBox.minZ)) { it is BlockLiquid })
             return
 
         if (modeValue.get().equals("laac", ignoreCase = true)) {
-            if (!jumped && !mc.thePlayer!!.onGround && !mc.thePlayer!!.isOnLadder && !mc.thePlayer!!.isInWater && !mc.thePlayer!!.isInWeb && mc.thePlayer!!.motionY < 0.0) {
+            if (!jumped && !mc.player!!.onGround && !mc.player!!.isOnLadder && !mc.player!!.isInWater && !mc.player!!.isInWeb && mc.player!!.motionY < 0.0) {
                 event.x = 0.0
                 event.z = 0.0
             }
@@ -154,27 +164,27 @@ class NoFall : Module() {
             if (!mlgTimer.hasTimePassed(10))
                 return
 
-            if (mc.thePlayer!!.fallDistance > minFallDistance.get()) {
+            if (mc.player!!.fallDistance > minFallDistance.get()) {
                 val fallingPlayer = FallingPlayer(
-                        mc.thePlayer!!.posX,
-                        mc.thePlayer!!.posY,
-                        mc.thePlayer!!.posZ,
-                        mc.thePlayer!!.motionX,
-                        mc.thePlayer!!.motionY,
-                        mc.thePlayer!!.motionZ,
-                        mc.thePlayer!!.rotationYaw,
-                        mc.thePlayer!!.moveStrafing,
-                        mc.thePlayer!!.moveForward
+                        mc.player!!.posX,
+                        mc.player!!.posY,
+                        mc.player!!.posZ,
+                        mc.player!!.motionX,
+                        mc.player!!.motionY,
+                        mc.player!!.motionZ,
+                        mc.player!!.rotationYaw,
+                        mc.player!!.moveStrafing,
+                        mc.player!!.moveForward
                 )
 
                 val maxDist: Double = mc.playerController.blockReachDistance + 1.5
 
-                val collision = fallingPlayer.findCollision(ceil(1.0 / mc.thePlayer!!.motionY * -maxDist).toInt())
+                val collision = fallingPlayer.findCollision(ceil(1.0 / mc.player!!.motionY * -maxDist).toInt())
                         ?: return
 
-                var ok: Boolean = WVec3(mc.thePlayer!!.posX, mc.thePlayer!!.posY + mc.thePlayer!!.eyeHeight, mc.thePlayer!!.posZ).distanceTo(WVec3(collision.pos).addVector(0.5, 0.5, 0.5)) < mc.playerController.blockReachDistance + sqrt(0.75)
+                var ok: Boolean = Vec3d(mc.player!!.posX, mc.player!!.posY + mc.player!!.eyeHeight, mc.player!!.posZ).distanceTo(Vec3d(collision.pos).addVector(0.5, 0.5, 0.5)) < mc.playerController.blockReachDistance + sqrt(0.75)
 
-                if (mc.thePlayer!!.motionY < collision.pos.y + 1 - mc.thePlayer!!.posY) {
+                if (mc.player!!.motionY < collision.pos.y + 1 - mc.player!!.posY) {
                     ok = true
                 }
 
@@ -184,12 +194,12 @@ class NoFall : Module() {
                 var index = -1
 
                 for (i in 36..44) {
-                    val itemStack = mc.thePlayer!!.inventoryContainer.getSlot(i).stack
+                    val itemStack = mc.player!!.inventoryContainer.getSlot(i).stack
 
-                    if (itemStack != null && (itemStack.item == classProvider.getItemEnum(ItemType.WATER_BUCKET) || classProvider.isItemBlock(itemStack.item) && (itemStack.item?.asItemBlock())?.block == classProvider.getBlockEnum(BlockType.WEB))) {
+                    if (itemStack != null && (itemStack.item == Items.WATER_BUCKET || itemStack.item is ItemBlock && (itemStack.item as ItemBlock).block == Blocks.WEB)) {
                         index = i - 36
 
-                        if (mc.thePlayer!!.inventory.currentItem == index)
+                        if (mc.player!!.inventory.currentItem == index)
                             break
                     }
                 }
@@ -199,27 +209,27 @@ class NoFall : Module() {
                 currentMlgItemIndex = index
                 currentMlgBlock = collision.pos
 
-                if (mc.thePlayer!!.inventory.currentItem != index) {
-                    mc.thePlayer!!.sendQueue.addToSendQueue(classProvider.createCPacketHeldItemChange(index))
+                if (mc.player!!.inventory.currentItem != index) {
+                    mc.connection!!.sendPacket(CPacketHeldItemChange(index))
                 }
 
                 currentMlgRotation = RotationUtils.faceBlock(collision.pos)
-                currentMlgRotation!!.rotation.toPlayer(mc.thePlayer!!)
+                currentMlgRotation!!.rotation.toPlayer(mc.player!!)
             }
         } else if (currentMlgRotation != null) {
-            val stack = mc.thePlayer!!.inventory.getStackInSlot(currentMlgItemIndex + 36)
+            val stack = mc.player!!.inventory.getStackInSlot(currentMlgItemIndex + 36)
 
-            if (classProvider.isItemBucket(stack!!.item)) {
-                mc.playerController.sendUseItem(mc.thePlayer!!, mc.theWorld!!, stack)
+            if (stack.item is ItemBucket) {
+                mc.playerController.sendUseItem(mc.playerController, mc.player!!, mc.world!!, stack)
             } else {
-                val dirVec: WVec3i = classProvider.getEnumFacing(EnumFacingType.UP).directionVec
+                val dirVec: Vec3i = EnumFacing.UP.directionVec
 
-                if (mc.playerController.sendUseItem(mc.thePlayer!!, mc.theWorld!!, stack)) {
+                if (mc.playerController.sendUseItem(mc.playerController, mc.player!!, mc.world!!, stack)) {
                     mlgTimer.reset()
                 }
             }
-            if (mc.thePlayer!!.inventory.currentItem != currentMlgItemIndex)
-                mc.thePlayer!!.sendQueue.addToSendQueue(classProvider.createCPacketHeldItemChange(mc.thePlayer!!.inventory.currentItem))
+            if (mc.player!!.inventory.currentItem != currentMlgItemIndex)
+                mc.connection!!.sendPacket(CPacketHeldItemChange(mc.player!!.inventory.currentItem))
         }
     }
 

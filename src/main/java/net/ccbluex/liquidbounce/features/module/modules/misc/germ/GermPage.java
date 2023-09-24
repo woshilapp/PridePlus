@@ -17,7 +17,7 @@ public class GermPage extends GuiScreen {
 
     public GermPage(String uuid, ArrayList<GermButton> germModButtons) {
         this.uuid = uuid;
-        if (germModButtons.size() == 0) {
+        if (germModButtons.isEmpty()) {
             mc.displayGuiScreen(null);
             return;
         }

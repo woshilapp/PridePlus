@@ -131,7 +131,7 @@ public class NewUi extends GuiScreen {
             glDepthMask(false);
             OpenGlHelper.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
             glColor4f(1f, 1f, 1f, 1f);
-            RenderUtils.drawImage(LiquidBounce.wrapper.getClassProvider().createResourceLocation("sb"), 0, 0, 50, 50);
+            RenderUtils.drawImage(new ResourceLocation("sb"), 0, 0, 50, 50);
             glDepthMask(true);
             glDisable(GL_BLEND);
             glEnable(GL_DEPTH_TEST);

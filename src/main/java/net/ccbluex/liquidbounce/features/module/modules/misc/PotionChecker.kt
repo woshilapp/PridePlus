@@ -1,6 +1,5 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntityLivingBase
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
@@ -10,7 +9,10 @@ import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
+import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.MobEffects
 import net.minecraft.potion.Potion
 
 @ModuleInfo(name = "PotionChecker", description = "Custom.", category = ModuleCategory.MISC)
@@ -22,12 +24,13 @@ class PotionChecker : Module(){
     @EventTarget
     fun onUpdate(event : UpdateEvent){
         if(whilevalue.get()) {
-            net.ccbluex.liquidbounce.api.minecraft.potion.PotionType.MOVE_SPEED
-            for (entity in mc.theWorld!!.loadedEntityList) {
+            MobEffects.SPEED
+            for (entity in mc.world!!.loadedEntityList) {
                 if (!EntityUtils.isSelected(entity, false)) continue
-                if (AntiBot.isBot(entity.asEntityLivingBase())) continue
+                if (entity is EntityLivingBase && AntiBot.isBot(entity)) continue
+                if (entity !is EntityLivingBase) continue
 
-                check(entity.asEntityLivingBase())
+                check(entity)
             }
         }
     }
@@ -37,14 +40,15 @@ class PotionChecker : Module(){
     }
     override fun onEnable() {
         if(whilevalue.get()) return
-        for (entity in mc.theWorld!!.loadedEntityList){
+        for (entity in mc.world!!.loadedEntityList){
             if (!EntityUtils.isSelected(entity, false)) continue
-            if (AntiBot.isBot(entity.asEntityLivingBase())) continue
+            if (entity is EntityLivingBase && AntiBot.isBot(entity)) continue
+            if (entity !is EntityLivingBase) continue
 
-            check(entity.asEntityLivingBase())
+            check(entity)
         }
     }
-    fun check(entity: IEntityLivingBase){
+    fun check(entity: EntityLivingBase){
         val speed = Potion.getPotionById(1)
         val haste = Potion.getPotionById(3)
         val power = Potion.getPotionById(5)
@@ -61,7 +65,7 @@ class PotionChecker : Module(){
                             if (potion.potion.equals(power)){
                                 players++
                                 if(distancevalue.get()){
-                                    val distance = mc.thePlayer!!.getDistanceToEntity(entity)
+                                    val distance = mc.player!!.getDistanceToEntityBox(entity)
                                     ClientUtils.displayChatMessage(entity.name+" Has →"+ name + "← Effect "+"| Distance: "+distance.toString())
                                 }else {
                                     ClientUtils.displayChatMessage(entity.name + " Has →" + name + "← Effect")
@@ -72,7 +76,7 @@ class PotionChecker : Module(){
                             players++
                             if (potion.potion.equals(speed)){
                                 if(distancevalue.get()){
-                                    val distance = mc.thePlayer!!.getDistanceToEntity(entity)
+                                    val distance = mc.player!!.getDistanceToEntityBox(entity)
                                     ClientUtils.displayChatMessage(entity.name+" Has →"+ name + "← Effect "+"| Distance: "+distance.toString())
                                 }else {
                                     ClientUtils.displayChatMessage(entity.name + " Has →" + name + "← Effect")
@@ -83,7 +87,7 @@ class PotionChecker : Module(){
                             players++
                             if (potion.potion.equals(jump)){
                                 if(distancevalue.get()){
-                                    val distance = mc.thePlayer!!.getDistanceToEntity(entity)
+                                    val distance = mc.player!!.getDistanceToEntityBox(entity)
                                     ClientUtils.displayChatMessage(entity.name+" Has →"+ name + "← Effect "+"| Distance: "+distance.toString())
                                 }else {
                                     ClientUtils.displayChatMessage(entity.name + " Has →" + name + "← Effect")
@@ -94,7 +98,7 @@ class PotionChecker : Module(){
                             players++
                             if (potion.potion.equals(regen)){
                                 if(distancevalue.get()){
-                                    val distance = mc.thePlayer!!.getDistanceToEntity(entity)
+                                    val distance = mc.player!!.getDistanceToEntityBox(entity)
                                     ClientUtils.displayChatMessage(entity.name+" Has →"+ name + "← Effect "+"| Distance: "+distance.toString())
                                 }else {
                                     ClientUtils.displayChatMessage(entity.name + " Has →" + name + "← Effect")
@@ -105,7 +109,7 @@ class PotionChecker : Module(){
                             players++
                             if (potion.potion.equals(haste)){
                                 if(distancevalue.get()){
-                                    val distance = mc.thePlayer!!.getDistanceToEntity(entity)
+                                    val distance = mc.player!!.getDistanceToEntityBox(entity)
                                     ClientUtils.displayChatMessage(entity.name+" Has →"+ name + "← Effect "+"| Distance: "+distance.toString())
                                 }else {
                                     ClientUtils.displayChatMessage(entity.name + " Has →" + name + "← Effect")

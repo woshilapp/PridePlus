@@ -5,8 +5,8 @@
  */
 package net.ccbluex.liquidbounce.ui.font
 
-import net.ccbluex.liquidbounce.injection.backend.WrapperImpl.classProvider
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.texture.TextureUtil
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
@@ -88,7 +88,7 @@ class AWTFontRenderer(val font: Font, startChar: Int = 0, stopChar: Int = 255, v
         if (this.loadingScreen)
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID);
         else
-            classProvider.getGlStateManager().bindTexture(textureID)
+            GlStateManager.bindTexture(textureID)
 
         val red: Float = (color shr 16 and 0xff) / 255F
         val green: Float = (color shr 8 and 0xff) / 255F
@@ -127,15 +127,15 @@ class AWTFontRenderer(val font: Font, startChar: Int = 0, stopChar: Int = 255, v
 
                 // Ugly solution, because floating point numbers, but I think that shouldn't be that much of a problem
                 GL11.glScaled(reverse, reverse, reverse)
-                mc.fontRendererObj.drawString("$char", currX.toFloat() * scale.toFloat() + 1, 2f, color, false)
-                currX += mc.fontRendererObj.getStringWidth("$char") * reverse
+                mc.fontRenderer.drawString("$char", currX.toFloat() * scale.toFloat() + 1, 2f, color, false)
+                currX += mc.fontRenderer.getStringWidth("$char") * reverse
 
                 GL11.glScaled(scale, scale, scale)
 
                 if (this.loadingScreen)
                     GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID);
                 else
-                    classProvider.getGlStateManager().bindTexture(textureID)
+                    GlStateManager.bindTexture(textureID)
 
                 GL11.glColor4f(red, green, blue, alpha)
 

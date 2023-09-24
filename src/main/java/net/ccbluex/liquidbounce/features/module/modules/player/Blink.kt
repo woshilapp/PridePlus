@@ -14,19 +14,16 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.render.Breadcrumbs
-import net.ccbluex.liquidbounce.injection.backend.unwrap
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayClient
 import net.minecraft.network.play.client.*
 import net.minecraft.network.play.client.CPacketPlayer.Position
 import net.minecraft.network.play.client.CPacketPlayer.PositionRotation
-import net.minecraft.network.play.server.SPacketConfirmTransaction
 import net.minecraft.network.play.server.SPacketEntityVelocity
 import org.lwjgl.opengl.GL11
 import java.awt.Color
@@ -42,69 +39,49 @@ class Blink : Module() {
     private val pulseValue = BoolValue("Pulse", false)
     private val pulseDelayValue = IntegerValue("PulseDelay", 1000, 500, 5000)
     private val CancelC0f = BoolValue("CancelC0F", false)
-    private val CancelS32 = BoolValue("CancelS32", false)
-    private val CancelMode = ListValue("CancelMode",arrayOf("ClassProvider","is"),"ClassProvider")
     private val CancelAllCpacket = BoolValue("CancelAllClientPacket", false)
     private val CancelServerpacket = BoolValue("CancelServerPacket", false)
     private val inBus = LinkedList<Packet<INetHandlerPlayClient>>()
     var CanBlink: Boolean? = null
     private val pulseTimer = MSTimer()
     override fun onEnable() {
-        if (mc.thePlayer == null) return
-        val thePlayer = mc.thePlayer ?: return
+        if (mc.player == null) return
+        val player = mc.player ?: return
         pulseTimer.reset()
 
         synchronized(positions) {
-            positions.add(doubleArrayOf(thePlayer.posX, thePlayer.entityBoundingBox.minY + thePlayer.eyeHeight / 2, thePlayer.posZ))
-            positions.add(doubleArrayOf(thePlayer.posX, thePlayer.entityBoundingBox.minY, thePlayer.posZ))
+            positions.add(doubleArrayOf(player.posX, player.entityBoundingBox.minY + player.eyeHeight / 2, player.posZ))
+            positions.add(doubleArrayOf(player.posX, player.entityBoundingBox.minY, player.posZ))
         }
     }
 
     override fun onDisable() {
-        if (mc.thePlayer == null) return
+        if (mc.player == null) return
         blink()
     }
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        val packet = event.packet.unwrap()
-        if (mc.thePlayer == null || disableLogger) return
+        val packet = event.packet
+        if (mc.player == null || disableLogger) return
 
-        if (CancelMode.get() == "ClassProvider"){
-            if (classProvider.isCPacketPlayer(packet) || CancelS32.get() && packet is SPacketConfirmTransaction) // Cancel all movement stuff
-                event.cancelEvent()
-            if (classProvider.isCPacketPlayerPosition(packet) ||
-                classProvider.isCPacketPlayerPosLook(packet) ||
-                packet is CPacketPlayerTryUseItemOnBlock || classProvider.isCPacketPlayerBlockPlacement(packet) ||
-                classProvider.isCPacketAnimation(packet) ||
-                classProvider.isCPacketEntityAction(packet) || classProvider.isCPacketUseEntity(packet) || (packet::class.java.simpleName.startsWith("C", true) && CancelAllCpacket.get())
-            ) {
-                event.cancelEvent()
-                packets.add(packet)
-            }
-            if (classProvider.isCPacketConfirmTransaction(packet) && CancelC0f.get()) {
-                event.cancelEvent()
-                packets.add(packet)
-            }
-        }else{
-            if (packet is CPacketPlayer || CancelS32.get() && packet is SPacketConfirmTransaction) // Cancel all movement stuff
-                event.cancelEvent()
-            if (packet is Position || packet is PositionRotation ||
-                packet is CPacketPlayerTryUseItemOnBlock ||
-                packet is CPacketAnimation ||
-                packet is CPacketEntityAction || packet is CPacketUseEntity || (packet::class.java.simpleName.startsWith("C", true) && CancelAllCpacket.get())
-            ) {
-                event.cancelEvent()
-                packets.add(packet)
-            }
-            if (packet is CPacketConfirmTransaction && CancelC0f.get()) {
-                event.cancelEvent()
-                packets.add(packet)
-            }
+        if (packet is CPacketPlayer) // Cancel all movement stuff
+            event.cancelEvent()
+        if (packet is Position || packet is PositionRotation ||
+            packet is CPacketPlayerTryUseItemOnBlock ||
+            packet is CPacketAnimation ||
+            packet is CPacketEntityAction || packet is CPacketUseEntity || (packet::class.java.simpleName.startsWith("C", true) && CancelAllCpacket.get())
+        ) {
+            event.cancelEvent()
+            packets.add(packet)
+        }
+        if (packet is CPacketConfirmTransaction && CancelC0f.get()) {
+            event.cancelEvent()
+            packets.add(packet)
         }
 
         if(packet::class.java.getSimpleName().startsWith("S", true) && CancelServerpacket.get())
         {
-            if(packet is SPacketEntityVelocity && (mc.theWorld?.getEntityByID(packet.entityID) ?: return) == mc.thePlayer){return}
+            if(packet is SPacketEntityVelocity && (mc.world?.getEntityByID(packet.entityID) ?: return) == mc.player){return}
             event.cancelEvent()
             inBus.add(packet as Packet<INetHandlerPlayClient>)
         }
@@ -112,9 +89,9 @@ class Blink : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent?) {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
-        synchronized(positions) { positions.add(doubleArrayOf(thePlayer.posX, thePlayer.entityBoundingBox.minY, thePlayer.posZ)) }
+        synchronized(positions) { positions.add(doubleArrayOf(player.posX, player.entityBoundingBox.minY, player.posZ)) }
         if (pulseValue.get() && pulseTimer.hasTimePassed(pulseDelayValue.get().toLong())) {
             blink()
             pulseTimer.reset()

@@ -10,14 +10,14 @@ import net.ccbluex.liquidbounce.event.StrafeEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.Rotation
 import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.FloatValue
 import kotlin.random.Random
 
 @ModuleInfo(name = "Aimbot", description = "Automatically faces selected entities around you.", category = ModuleCategory.COMBAT)
@@ -41,13 +41,13 @@ class Aimbot : Module() {
         if (onClickValue.get() && clickTimer.hasTimePassed(500L))
             return
 
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         val range = rangeValue.get()
-        val entity = mc.theWorld!!.loadedEntityList
+        val entity = mc.world!!.loadedEntityList
                 .filter {
-                    EntityUtils.isSelected(it, true) && thePlayer.canEntityBeSeen(it) &&
-                            thePlayer.getDistanceToEntityBox(it) <= range && RotationUtils.getRotationDifference(it) <= fovValue.get()
+                    EntityUtils.isSelected(it, true) && player.canEntityBeSeen(it) &&
+                            player.getDistanceToEntityBox(it) <= range && RotationUtils.getRotationDifference(it) <= fovValue.get()
                 }
                 .minBy { RotationUtils.getRotationDifference(it) } ?: return
 
@@ -55,7 +55,7 @@ class Aimbot : Module() {
             return
 
         val rotation = RotationUtils.limitAngleChange(
-                Rotation(thePlayer.rotationYaw, thePlayer.rotationPitch),
+                Rotation(player.rotationYaw, player.rotationPitch),
                 if (centerValue.get())
                     RotationUtils.toRotation(RotationUtils.getCenter(entity.entityBoundingBox), true)
                 else
@@ -64,7 +64,7 @@ class Aimbot : Module() {
                 (turnSpeedValue.get() + Math.random()).toFloat()
         )
 
-        rotation.toPlayer(thePlayer)
+        rotation.toPlayer(player)
 
         if (jitterValue.get()) {
             val yaw = Random.nextBoolean()
@@ -73,14 +73,14 @@ class Aimbot : Module() {
             val pitchNegative = Random.nextBoolean()
 
             if (yaw)
-                thePlayer.rotationYaw += if (yawNegative) -RandomUtils.nextFloat(0F, 1F) else RandomUtils.nextFloat(0F, 1F)
+                player.rotationYaw += if (yawNegative) -RandomUtils.nextFloat(0F, 1F) else RandomUtils.nextFloat(0F, 1F)
 
             if (pitch) {
-                thePlayer.rotationPitch += if (pitchNegative) -RandomUtils.nextFloat(0F, 1F) else RandomUtils.nextFloat(0F, 1F)
-                if (thePlayer.rotationPitch > 90)
-                    thePlayer.rotationPitch = 90F
-                else if (thePlayer.rotationPitch < -90)
-                    thePlayer.rotationPitch = -90F
+                player.rotationPitch += if (pitchNegative) -RandomUtils.nextFloat(0F, 1F) else RandomUtils.nextFloat(0F, 1F)
+                if (player.rotationPitch > 90)
+                    player.rotationPitch = 90F
+                else if (player.rotationPitch < -90)
+                    player.rotationPitch = -90F
             }
         }
     }

@@ -5,32 +5,22 @@
  */
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-
 import me.utils.render.VisualUtils
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntityPlayerSP
-import net.ccbluex.liquidbounce.api.minecraft.item.IItemStack
-
-import net.ccbluex.liquidbounce.ui.client.hud.element.Border
-import net.ccbluex.liquidbounce.ui.client.hud.element.Element
-import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
-import net.ccbluex.liquidbounce.ui.client.hud.element.Side
-import net.ccbluex.liquidbounce.ui.font.Fonts
-
-
-
-
-import net.ccbluex.liquidbounce.utils.render.ColorUtils
-import net.ccbluex.liquidbounce.utils.render.Palette
-import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.ui.client.hud.element.Border
+import net.ccbluex.liquidbounce.ui.client.hud.element.Element
+import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
+import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.render.Palette
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.Minecraft
+import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.inventory.IInventory
-import org.lwjgl.opengl.GL11
+import net.minecraft.item.ItemStack
 import java.awt.Color
 
 /**
@@ -175,9 +165,9 @@ class Inventory(x: Double = -1.0, y: Double = 121.0, scale: Float = 1F) : Elemen
             if (lowerInv != null) {
                 this.inventoryRows = lowerInv.getSizeInventory()
             }
-            renderInventory1(mc.thePlayer)
-            renderInventory2(mc.thePlayer)
-            renderInventory3(mc.thePlayer)
+            renderInventory1(mc.player)
+            renderInventory2(mc.player)
+            renderInventory3(mc.player)
 
 
 
@@ -185,8 +175,8 @@ class Inventory(x: Double = -1.0, y: Double = 121.0, scale: Float = 1F) : Elemen
 
     }
 
-    private fun renderInventory1(player: IEntityPlayerSP?) {
-        var armourStack: IItemStack?
+    private fun renderInventory1(player: EntityPlayerSP?) {
+        var armourStack: ItemStack?
         var renderStack = player!!.inventory.mainInventory
         var xOffset = 8
         renderStack = player.inventory.mainInventory
@@ -197,8 +187,8 @@ class Inventory(x: Double = -1.0, y: Double = 121.0, scale: Float = 1F) : Elemen
         }
     }
 
-    private fun renderInventory2(player: IEntityPlayerSP?) {
-        var armourStack: IItemStack?
+    private fun renderInventory2(player: EntityPlayerSP?) {
+        var armourStack: ItemStack?
         var renderStack = player!!.inventory.mainInventory
         var xOffset = 8
         renderStack = player.inventory.mainInventory
@@ -209,8 +199,8 @@ class Inventory(x: Double = -1.0, y: Double = 121.0, scale: Float = 1F) : Elemen
         }
     }
 
-    private fun renderInventory3(player: IEntityPlayerSP?) {
-        var armourStack: IItemStack?
+    private fun renderInventory3(player: EntityPlayerSP?) {
+        var armourStack: ItemStack?
         var renderStack = player!!.inventory.mainInventory
         var xOffset = 8
         renderStack = player.inventory.mainInventory
@@ -221,14 +211,14 @@ class Inventory(x: Double = -1.0, y: Double = 121.0, scale: Float = 1F) : Elemen
         }
     }
 
-    private fun renderItemStack(stack: IItemStack, x: Int, y: Int) {
+    private fun renderItemStack(stack: ItemStack, x: Int, y: Int) {
         GlStateManager.pushMatrix()
         GlStateManager.enableRescaleNormal()
         GlStateManager.enableBlend()
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
         RenderHelper.enableGUIStandardItemLighting()
         mc.renderItem.renderItemAndEffectIntoGUI(stack, x, y)
-        mc.renderItem.renderItemOverlays(mc.fontRendererObj, stack, x, y)
+        mc.renderItem.renderItemOverlays(mc.fontRenderer, stack, x, y)
         RenderHelper.disableStandardItemLighting()
         GlStateManager.disableRescaleNormal()
         GlStateManager.disableBlend()

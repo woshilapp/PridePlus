@@ -5,29 +5,29 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.api.enums.BlockType
-import net.ccbluex.liquidbounce.api.minecraft.util.WBlockPos
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.minecraft.init.Blocks
+import net.minecraft.util.math.BlockPos
 
 @ModuleInfo(name = "Eagle", description = "Makes you eagle (aka. FastBridge).", category = ModuleCategory.PLAYER)
 class Eagle : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
-        mc.gameSettings.keyBindSneak.pressed = mc.theWorld!!.getBlockState(WBlockPos(thePlayer.posX, thePlayer.posY - 1.0, thePlayer.posZ)).block == classProvider.getBlockEnum(BlockType.AIR)
+        mc.gameSettings.keyBindSneak.pressed = mc.world!!.getBlockState(BlockPos(player.posX, player.posY - 1.0, player.posZ)).block == Blocks.AIR
     }
 
     override fun onDisable() {
-        if (mc.thePlayer == null)
+        if (mc.player == null)
             return
 
-        if (!mc.gameSettings.isKeyDown(mc.gameSettings.keyBindSneak))
+        if (!mc.gameSettings.keyBindSneak.isKeyDown)
             mc.gameSettings.keyBindSneak.pressed = false
     }
 }

@@ -5,11 +5,13 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntityLivingBase
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.item.ItemArmor
 
 @ModuleInfo(name = "Teams", description = "Prevents Killaura from attacking team mates.", category = ModuleCategory.MISC)
 class Teams : Module() {
@@ -22,24 +24,24 @@ class Teams : Module() {
     /**
      * Check if [entity] is in your own team using scoreboard, name color or team prefix
      */
-    fun isInYourTeam(entity: IEntityLivingBase): Boolean {
-        val thePlayer = mc.thePlayer ?: return false
+    fun isInYourTeam(entity: EntityLivingBase): Boolean {
+        val player = mc.player ?: return false
 
-        if (scoreboardValue.get() && thePlayer.team != null && entity.team != null &&
-            thePlayer.team!!.isSameTeam(entity.team!!))
+        if (scoreboardValue.get() && player.team != null && entity.team != null &&
+            player.team!!.isSameTeam(entity.team!!))
             return true
 
-        val displayName = thePlayer.displayName
+        val displayName = player.displayName
 
         if(armorColorValue.get()){
-            val entityPlayer = entity.asEntityPlayer()
-            if(thePlayer.inventory.armorInventory[3] != null && entityPlayer.inventory.armorInventory[3] != null){
-                val myHead = thePlayer.inventory.armorInventory[3]
-                val myItemArmor = myHead!!.item!!.asItemArmor()
+            val entityPlayer = entity as EntityPlayer
+            if(player.inventory.armorInventory[3] != null && entityPlayer.inventory.armorInventory[3] != null){
+                val myHead = player.inventory.armorInventory[3]
+                val myItemArmor = myHead!!.item!! as ItemArmor
 
 
                 val entityHead = entityPlayer.inventory.armorInventory[3]
-                val entityItemArmor = myHead.item!!.asItemArmor()
+                val entityItemArmor = myHead.item!! as ItemArmor
 
                 if(myItemArmor.getColor(myHead) == entityItemArmor.getColor(entityHead!!)){
                     return true

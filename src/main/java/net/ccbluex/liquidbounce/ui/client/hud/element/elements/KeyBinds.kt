@@ -8,7 +8,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.cnfont.FontLoaders
 import net.minecraft.client.renderer.GlStateManager
-import op.wawa.utils.render.RenderUtils
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import java.awt.Color
 
 

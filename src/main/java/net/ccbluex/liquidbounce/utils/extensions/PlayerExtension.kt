@@ -6,15 +6,20 @@
 package net.ccbluex.liquidbounce.utils.extensions
 
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntity
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntityLivingBase
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.player.IEntityPlayer
-import net.ccbluex.liquidbounce.api.minecraft.util.IAxisAlignedBB
-import net.ccbluex.liquidbounce.api.minecraft.util.WVec3
-import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.MinecraftInstance.mc
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.Entity
+import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.boss.EntityDragon
+import net.minecraft.entity.monster.*
+import net.minecraft.entity.passive.EntityAnimal
+import net.minecraft.entity.passive.EntityBat
+import net.minecraft.entity.passive.EntitySquid
+import net.minecraft.entity.passive.EntityVillager
+import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.util.math.AxisAlignedBB
+import net.minecraft.util.math.Vec3d
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -22,52 +27,49 @@ import kotlin.math.sqrt
 /**
  * Allows to get the distance between the current entity and [entity] from the nearest corner of the bounding box
  */
-fun IEntity.getDistanceToEntityBox(entity: IEntity): Double {
+fun Entity.getDistanceToEntityBox(entity: Entity): Double {
     val eyes = this.getPositionEyes(1F)
     val pos = getNearestPointBB(eyes, entity.entityBoundingBox)
-    val xDist = abs(pos.xCoord - eyes.xCoord)
-    val yDist = abs(pos.yCoord - eyes.yCoord)
-    val zDist = abs(pos.zCoord - eyes.zCoord)
+    val xDist = abs(pos.x - eyes.x)
+    val yDist = abs(pos.y - eyes.y)
+    val zDist = abs(pos.z - eyes.z)
     return sqrt(xDist.pow(2) + yDist.pow(2) + zDist.pow(2))
 }
-val IEntityLivingBase.hurtPercent: Float
+val EntityLivingBase.hurtPercent: Float
     get() = (this.renderHurtTime)/10
 
-val IEntityLivingBase.renderHurtTime: Float
+val EntityLivingBase.renderHurtTime: Float
     get() = this.hurtTime - if(this.hurtTime!=0) { Minecraft.getMinecraft().timer.renderPartialTicks } else { 0f }
 
-fun getNearestPointBB(eye: WVec3, box: IAxisAlignedBB): WVec3 {
-    val origin = doubleArrayOf(eye.xCoord, eye.yCoord, eye.zCoord)
+fun getNearestPointBB(eye: Vec3d, box: AxisAlignedBB): Vec3d {
+    val origin = doubleArrayOf(eye.x, eye.y, eye.z)
     val destMins = doubleArrayOf(box.minX, box.minY, box.minZ)
     val destMaxs = doubleArrayOf(box.maxX, box.maxY, box.maxZ)
     for (i in 0..2) {
         if (origin[i] > destMaxs[i]) origin[i] = destMaxs[i] else if (origin[i] < destMins[i]) origin[i] = destMins[i]
     }
-    return WVec3(origin[0], origin[1], origin[2])
+    return Vec3d(origin[0], origin[1], origin[2])
 }
 
-fun IEntityPlayer.getPing(): Int {
-    val playerInfo = MinecraftInstance.mc.netHandler.getPlayerInfo(uniqueID)
-    return playerInfo?.responseTime ?: 0
+fun EntityPlayer.getPing(): Int {
+    val playerInfo = mc.connection!!.getPlayerInfo(uniqueID)
+    return playerInfo.responseTime
 }
 
-fun IEntity.isAnimal(): Boolean {
-    return MinecraftInstance.classProvider.isEntityAnimal(this) ||
-            MinecraftInstance.classProvider.isEntitySquid(this) ||
-            MinecraftInstance.classProvider.isEntityGolem(this) ||
-            MinecraftInstance.classProvider.isEntityBat(this)
+fun Entity.isAnimal(): Boolean {
+    return this is EntityAnimal || this is EntitySquid || this is EntityGolem || this is EntityBat
 }
 
-fun IEntity.isMob(): Boolean {
-    return MinecraftInstance.classProvider.isEntityMob(this) ||
-            MinecraftInstance.classProvider.isEntityVillager(this) ||
-            MinecraftInstance.classProvider.isEntitySlime(this)
-            || MinecraftInstance.classProvider.isEntityGhast(this) ||
-            MinecraftInstance.classProvider.isEntityDragon(this) ||
-            MinecraftInstance.classProvider.isEntityShulker(this)
+fun Entity.isMob(): Boolean {
+    return this is EntityMob ||
+            this is EntityVillager ||
+            this is EntitySlime
+            || this is EntityGhast ||
+            this is EntityDragon ||
+            this is EntityShulker
 }
 
-fun IEntityPlayer.isClientFriend(): Boolean {
+fun EntityPlayer.isClientFriend(): Boolean {
     val entityName = name ?: return false
 
     return LiquidBounce.fileManager.friendsConfig.isFriend(stripColor(entityName))

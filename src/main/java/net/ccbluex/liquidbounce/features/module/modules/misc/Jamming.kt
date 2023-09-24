@@ -1,11 +1,14 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.AttackEvent
+import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.utils.JammingUtils
 import net.ccbluex.liquidbounce.features.value.TextValue
+import net.ccbluex.liquidbounce.utils.JammingUtils
+import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.player.EntityPlayer
 
 
 @ModuleInfo(name = "Jamming", description = "woc, esu!", category = ModuleCategory.MISC)
@@ -19,14 +22,14 @@ class Jamming : Module() {
 
     @EventTarget
     fun onAttack(event: AttackEvent){
-        if (classProvider.isEntityLivingBase(event.targetEntity)){
-            val entity = event.targetEntity!!.asEntityLivingBase()
+        if (event.targetEntity is EntityLivingBase && event.targetEntity is EntityPlayer){
+            val entity = event.targetEntity
             JammingUtils.SendMsg(
                 ip.get(),
                 port.get(),
                 text.get(),
                 name1.get(),
-                entity.asEntityPlayer()
+                entity
             )
         }
     }

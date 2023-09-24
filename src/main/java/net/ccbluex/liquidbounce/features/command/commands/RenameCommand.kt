@@ -8,6 +8,8 @@ package net.ccbluex.liquidbounce.features.command.commands
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.utils.misc.StringUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
+import net.minecraft.network.play.client.CPacketCreativeInventoryAction
+import net.minecraft.util.EnumHand
 
 class RenameCommand : Command("rename") {
     /**
@@ -20,7 +22,7 @@ class RenameCommand : Command("rename") {
                 return
             }
 
-            val item = mc.thePlayer!!.heldItem
+            val item = mc.player!!.getHeldItem(EnumHand.MAIN_HAND)
 
             if (item?.item == null) {
                 chat("§c§lError: §3You need to hold a item.")
@@ -28,7 +30,7 @@ class RenameCommand : Command("rename") {
             }
 
             item.setStackDisplayName(ColorUtils.translateAlternateColorCodes(StringUtils.toCompleteString(args, 1)))
-            mc.netHandler.addToSendQueue(classProvider.createCPacketCreativeInventoryAction(36 + mc.thePlayer!!.inventory.currentItem, item))
+            mc.connection!!.sendPacket(CPacketCreativeInventoryAction(36 + mc.player!!.inventory.currentItem, item))
             chat("§3Item renamed to '${item.displayName}§3'")
             return
         }

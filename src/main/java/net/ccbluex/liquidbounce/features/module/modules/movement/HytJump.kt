@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.utils.block.BlockUtils
 import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.minecraft.block.BlockSlime
 
 @ModuleInfo(name = "HytJump", description = "Bypass?", category = ModuleCategory.MOVEMENT)
 class HytJump : Module() {
@@ -19,9 +20,9 @@ class HytJump : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (mc.thePlayer != null && mc.theWorld != null && classProvider.isBlockSlime(BlockUtils.getBlock(mc.thePlayer!!.position.down())) && mc.thePlayer!!.onGround) {
-            mc.thePlayer!!.jump()
-            mc.thePlayer!!.motionY += yjumpvalue.get().toDouble()
+        if (mc.player != null && mc.world != null && BlockUtils.getBlock(mc.player!!.position.down()) is BlockSlime && mc.player!!.onGround) {
+            mc.player!!.jump()
+            mc.player!!.motionY += yjumpvalue.get().toDouble()
         }
     }
 }

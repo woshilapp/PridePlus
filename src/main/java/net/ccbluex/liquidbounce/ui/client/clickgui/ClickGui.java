@@ -6,12 +6,9 @@
 package net.ccbluex.liquidbounce.ui.client.clickgui;
 
 import net.ccbluex.liquidbounce.LiquidBounce;
-import net.ccbluex.liquidbounce.api.minecraft.util.IResourceLocation;
-import net.ccbluex.liquidbounce.api.util.WrappedGuiScreen;
 import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI;
-import net.ccbluex.liquidbounce.injection.backend.ScaledResolutionImpl;
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ButtonElement;
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.Element;
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ModuleElement;
@@ -20,25 +17,25 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.SlowlyStyle;
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner;
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer;
 import net.ccbluex.liquidbounce.utils.EntityUtils;
-import net.ccbluex.liquidbounce.utils.render.ColorUtils;
 import net.ccbluex.liquidbounce.utils.render.EaseUtils;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ClickGui extends WrappedGuiScreen {
+public class ClickGui extends GuiScreen {
 
     public final List<Panel> panels = new ArrayList<>();
-    private final IResourceLocation hudIcon = classProvider.createResourceLocation("pride/custom_hud_icon.png");
+    private final ResourceLocation hudIcon = new ResourceLocation("pride/custom_hud_icon.png");
     public Style style = new SlowlyStyle();
     private Panel clickedPanel;
     private int mouseX;
@@ -91,7 +88,7 @@ public class ClickGui extends WrappedGuiScreen {
                             EntityUtils.targetPlayer = !EntityUtils.targetPlayer;
                             displayName = "Players";
                             color = EntityUtils.targetPlayer ? ClickGUI.generateColor().getRGB() : Integer.MAX_VALUE;
-                            mc.getSoundHandler().playSound("gui.button.press", 1.0F);
+                            //mc.getSoundHandler().playSound("gui.button.press", 1.0F);
                         }
                     }
                 });
@@ -117,7 +114,7 @@ public class ClickGui extends WrappedGuiScreen {
                             EntityUtils.targetMobs = !EntityUtils.targetMobs;
                             displayName = "Mobs";
                             color = EntityUtils.targetMobs ? ClickGUI.generateColor().getRGB() : Integer.MAX_VALUE;
-                            mc.getSoundHandler().playSound("gui.button.press", 1.0F);
+                            //mc.getSoundHandler().playSound("gui.button.press", 1.0F);
                         }
                     }
                 });
@@ -143,7 +140,7 @@ public class ClickGui extends WrappedGuiScreen {
                             EntityUtils.targetAnimals = !EntityUtils.targetAnimals;
                             displayName = "Animals";
                             color = EntityUtils.targetAnimals ? ClickGUI.generateColor().getRGB() : Integer.MAX_VALUE;
-                            mc.getSoundHandler().playSound("gui.button.press", 1.0F);
+                            //mc.getSoundHandler().playSound("gui.button.press", 1.0F);
                         }
                     }
                 });
@@ -169,7 +166,7 @@ public class ClickGui extends WrappedGuiScreen {
                             EntityUtils.targetInvisible = !EntityUtils.targetInvisible;
                             displayName = "Invisible";
                             color = EntityUtils.targetInvisible ? ClickGUI.generateColor().getRGB() : Integer.MAX_VALUE;
-                            mc.getSoundHandler().playSound("gui.button.press", 1.0F);
+                            //mc.getSoundHandler().playSound("gui.button.press", 1.0F);
                         }
                     }
                 });
@@ -195,7 +192,7 @@ public class ClickGui extends WrappedGuiScreen {
                             EntityUtils.targetDead = !EntityUtils.targetDead;
                             displayName = "Dead";
                             color = EntityUtils.targetDead ? ClickGUI.generateColor().getRGB() : Integer.MAX_VALUE;
-                            mc.getSoundHandler().playSound("gui.button.press", 1.0F);
+                            //mc.getSoundHandler().playSound("gui.button.press", 1.0F);
                         }
                     }
                 });
@@ -227,8 +224,8 @@ public class ClickGui extends WrappedGuiScreen {
                 break;
         }
 
-        if (Mouse.isButtonDown(0) && mouseX >= 5 && mouseX <= 50 && mouseY <= representedScreen.getHeight() - 5 && mouseY >= representedScreen.getHeight() - 50)
-            mc.displayGuiScreen(classProvider.wrapGuiScreen(new GuiHudDesigner()));
+        if (Mouse.isButtonDown(0) && mouseX >= 5 && mouseX <= 50 && mouseY <= height - 5 && mouseY >= height - 50)
+            mc.displayGuiScreen((new GuiHudDesigner()));
 
         // Enable DisplayList optimization
         AWTFontRenderer.Companion.setAssumeNonVolatile(true);
@@ -245,7 +242,7 @@ public class ClickGui extends WrappedGuiScreen {
 
         switch (((ClickGUI) Objects.requireNonNull(LiquidBounce.moduleManager.getModule(ClickGUI.class))).backgroundValue.get()) {
             case "Default":
-                representedScreen.drawDefaultBackground();
+                drawDefaultBackground();
                 ScaledResolution sr = new ScaledResolution(Minecraft.getMinecraft());
                 RenderUtils.drawRect(0, sr.getScaledHeight(), sr.getScaledWidth(), sr.getScaledHeight()-scroll, -804253680 );
                 break;
@@ -253,25 +250,25 @@ public class ClickGui extends WrappedGuiScreen {
         }
 
         GlStateManager.disableAlpha();
-        RenderUtils.drawImage(hudIcon, 9, representedScreen.getHeight() - 41, 32, 32);
+        RenderUtils.drawImage(hudIcon, 9, height - 41, 32, 32);
         GlStateManager.enableAlpha();
 
         switch (((ClickGUI) Objects.requireNonNull(LiquidBounce.moduleManager.getModule(ClickGUI.class))).animationValue.get().toLowerCase()) {
             case "azura":
-                GlStateManager.translate(0, (1.0 - slide) * representedScreen.getHeight() * 2.0, 0);
+                GlStateManager.translate(0, (1.0 - slide) * height * 2.0, 0);
                 GlStateManager.scale(scale, scale + (1.0 - slide) * 2.0, scale);
                 break;
             case "slide":
             case "slidebounce":
-                GlStateManager.translate(0, (1.0 - slide) * representedScreen.getHeight() * 2.0, 0);
+                GlStateManager.translate(0, (1.0 - slide) * height * 2.0, 0);
                 GlStateManager.scale(scale, scale, scale);
                 break;
             case "zoom":
-                GlStateManager.translate((1.0 - slide) * (representedScreen.getWidth() / 2.0), (1.0 - slide) * (representedScreen.getHeight() / 2.0), (1.0 - slide) * (representedScreen.getWidth() / 2.0));
+                GlStateManager.translate((1.0 - slide) * (width / 2.0), (1.0 - slide) * (height / 2.0), (1.0 - slide) * (width / 2.0));
                 GlStateManager.scale(scale * slide, scale * slide, scale * slide);
                 break;
             case "zoombounce":
-                GlStateManager.translate((1.0 - slide) * (representedScreen.getWidth() / 2.0), (1.0 - slide) * (representedScreen.getHeight() / 2.0), 0);
+                GlStateManager.translate((1.0 - slide) * (width / 2.0), (1.0 - slide) * (height / 2.0), 0);
                 GlStateManager.scale(scale * slide, scale * slide, scale * slide);
                 break;
             case "none":
@@ -317,17 +314,17 @@ public class ClickGui extends WrappedGuiScreen {
         }
         switch (((ClickGUI) Objects.requireNonNull(LiquidBounce.moduleManager.getModule(ClickGUI.class))).animationValue.get().toLowerCase()) {
             case "azura":
-                GlStateManager.translate(0, (1.0 - slide) * representedScreen.getHeight() * -2.0, 0);
+                GlStateManager.translate(0, (1.0 - slide) * height * -2.0, 0);
                 break;
             case "slide":
             case "slidebounce":
-                GlStateManager.translate(0, (1.0 - slide) * representedScreen.getHeight() * -2.0, 0);
+                GlStateManager.translate(0, (1.0 - slide) * height * -2.0, 0);
                 break;
             case "zoom":
-                GlStateManager.translate(-1 * (1.0 - slide) * (representedScreen.getWidth() / 2.0), -1 * (1.0 - slide) * (representedScreen.getHeight() / 2.0), -1 * (1.0 - slide) * (representedScreen.getWidth() / 2.0));
+                GlStateManager.translate(-1 * (1.0 - slide) * (width / 2.0), -1 * (1.0 - slide) * (height / 2.0), -1 * (1.0 - slide) * (width / 2.0));
                 break;
             case "zoombounce":
-                GlStateManager.translate(-1 * (1.0 - slide) * (representedScreen.getWidth() / 2.0), -1 * (1.0 - slide) * (representedScreen.getHeight() / 2.0), 0);
+                GlStateManager.translate(-1 * (1.0 - slide) * (width / 2.0), -1 * (1.0 - slide) * (height / 2.0), 0);
                 break;
         }
         GlStateManager.scale(1, 1, 1);

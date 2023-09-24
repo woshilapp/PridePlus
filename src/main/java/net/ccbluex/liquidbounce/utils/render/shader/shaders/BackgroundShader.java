@@ -5,10 +5,8 @@
  */
 package net.ccbluex.liquidbounce.utils.render.shader.shaders;
 
-import net.ccbluex.liquidbounce.api.minecraft.util.IScaledResolution;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.ccbluex.liquidbounce.utils.render.shader.Shader;
-import net.minecraft.client.gui.ScaledResolution;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL20;
 

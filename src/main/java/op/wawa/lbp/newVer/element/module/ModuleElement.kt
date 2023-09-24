@@ -21,6 +21,7 @@ import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -28,7 +29,7 @@ import java.awt.Color
 class ModuleElement(val module: Module): MinecraftInstance() {
 
     companion object {
-        protected val expandIcon = LiquidBounce.wrapper.classProvider.createResourceLocation("wawa/expand.png") }
+        protected val expandIcon = ResourceLocation("wawa/expand.png") }
 
     private val toggleSwitch = ToggleSwitch()
     private val valueElements = mutableListOf<ValueElement<*>>()

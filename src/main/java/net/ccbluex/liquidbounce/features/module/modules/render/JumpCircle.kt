@@ -1,6 +1,5 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntityLivingBase
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
@@ -10,6 +9,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.minecraft.entity.EntityLivingBase
 import org.lwjgl.opengl.GL11
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -28,19 +28,19 @@ class JumpCircle : Module() {
         lastOnGround = true
         allplayerlastOnGround = true
     }
-    var allplayer: IEntityLivingBase? = null
+    var allplayer: EntityLivingBase? = null
     @EventTarget
     fun onUpdate(ignored: UpdateEvent?) {
         if (onlyself.get()) {
-            if (mc.thePlayer!!.onGround && !lastOnGround) {
+            if (mc.player!!.onGround && !lastOnGround) {
                 circles.add(
                     Circle(
-                        mc.thePlayer!!.posX,
-                        mc.thePlayer!!.posY,
-                        mc.thePlayer!!.posZ,
-                        mc.thePlayer!!.lastTickPosX,
-                        mc.thePlayer!!.lastTickPosY,
-                        mc.thePlayer!!.lastTickPosZ,
+                        mc.player!!.posX,
+                        mc.player!!.posY,
+                        mc.player!!.posZ,
+                        mc.player!!.lastTickPosX,
+                        mc.player!!.lastTickPosY,
+                        mc.player!!.lastTickPosZ,
                         widthValue.get()
                     )
                 )
@@ -60,7 +60,7 @@ class JumpCircle : Module() {
                 )
             }
         }
-        lastOnGround = mc.thePlayer!!.onGround
+        lastOnGround = mc.player!!.onGround
         allplayerlastOnGround = allplayer!!.onGround
     }
 

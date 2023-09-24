@@ -6,7 +6,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.minecraft.potion.PotionType
 import net.ccbluex.liquidbounce.event.ClientShutdownEvent
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
@@ -14,6 +13,8 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.minecraft.init.MobEffects
+import net.minecraft.potion.PotionEffect
 
 @ModuleInfo(name = "Fullbright", description = "Brightens up the world around you.", category = ModuleCategory.RENDER)
 class Fullbright : Module() {
@@ -31,7 +32,7 @@ class Fullbright : Module() {
         mc.gameSettings.gammaSetting = prevGamma
         prevGamma = -1f
 
-        mc.thePlayer?.removePotionEffectClient(classProvider.getPotionEnum(PotionType.NIGHT_VISION).id)
+        mc.player?.removeActivePotionEffect(MobEffects.NIGHT_VISION)
     }
 
     @EventTarget(ignoreCondition = true)
@@ -41,7 +42,9 @@ class Fullbright : Module() {
                 "gamma" -> when {
                     mc.gameSettings.gammaSetting <= 100f -> mc.gameSettings.gammaSetting++
                 }
-                "nightvision" -> mc.thePlayer?.addPotionEffect(classProvider.createPotionEffect(classProvider.getPotionEnum(PotionType.NIGHT_VISION).id, 1337, 1))
+                "nightvision" -> mc.player?.addPotionEffect(
+                    PotionEffect(MobEffects.NIGHT_VISION, 1337, 1)
+                )
             }
         } else if (prevGamma != -1f) {
             mc.gameSettings.gammaSetting = prevGamma

@@ -5,13 +5,14 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.api.minecraft.network.play.client.ICPacketResourcePackStatus
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.utils.ClientUtils
+import net.minecraft.network.play.client.CPacketResourcePackStatus
+import net.minecraft.network.play.server.SPacketResourcePackSend
 import java.net.URI
 import java.net.URISyntaxException
 
@@ -20,8 +21,8 @@ class ResourcePackSpoof : Module() {
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        if (classProvider.isSPacketResourcePackSend(event.packet)) {
-            val packet = event.packet.asSPacketResourcePackSend()
+        if (event.packet is SPacketResourcePackSend) {
+            val packet = event.packet
 
             val url = packet.url
             val hash = packet.hash
@@ -36,13 +37,13 @@ class ResourcePackSpoof : Module() {
                 if (isLevelProtocol && (url.contains("..") || !url.endsWith("/resources.zip")))
                     throw URISyntaxException(url, "Invalid levelstorage resourcepack path")
 
-                mc.netHandler.addToSendQueue(classProvider.createICPacketResourcePackStatus(packet.hash,
-                        ICPacketResourcePackStatus.WAction.ACCEPTED))
-                mc.netHandler.addToSendQueue(classProvider.createICPacketResourcePackStatus(packet.hash,
-                        ICPacketResourcePackStatus.WAction.SUCCESSFULLY_LOADED))
+                mc.connection!!.sendPacket(
+                    CPacketResourcePackStatus(CPacketResourcePackStatus.Action.ACCEPTED)
+                )
+                mc.connection!!.sendPacket(CPacketResourcePackStatus(CPacketResourcePackStatus.Action.SUCCESSFULLY_LOADED))
             } catch (e: URISyntaxException) {
                 ClientUtils.getLogger().error("Failed to handle resource pack", e)
-                mc.netHandler.addToSendQueue(classProvider.createICPacketResourcePackStatus(hash, ICPacketResourcePackStatus.WAction.FAILED_DOWNLOAD))
+                mc.connection!!.sendPacket(CPacketResourcePackStatus(CPacketResourcePackStatus.Action.FAILED_DOWNLOAD))
             }
         }
     }

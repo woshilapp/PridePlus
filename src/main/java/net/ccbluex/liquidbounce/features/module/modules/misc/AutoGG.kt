@@ -9,7 +9,6 @@ import net.ccbluex.liquidbounce.event.WorldEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.injection.backend.unwrap
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
@@ -43,7 +42,7 @@ class AutoGG : Module() {
                 400
             )
         )
-        if (ggValue.get()) mc.thePlayer!!.sendChatMessage(ggMessageValue.get())
+        if (ggValue.get()) mc.player!!.sendChatMessage(ggMessageValue.get())
         stateReset()
     }
 
@@ -75,7 +74,7 @@ class AutoGG : Module() {
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        val packet = event.packet.unwrap()
+        val packet = event.packet
         if (packet is SPacketChat) {
             val message = packet.chatComponent.unformattedText
             if (message.contains("游戏开始 ...") && message.startsWith("起床战争") && !message.contains(":")) gamestarted =

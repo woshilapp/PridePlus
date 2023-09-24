@@ -6,16 +6,17 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.minecraft.util.WBlockPos
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.utils.MovementUtils
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.MovementUtils
+import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
+import net.minecraft.block.BlockStairs
+import net.minecraft.util.math.BlockPos
 
 @ModuleInfo(name = "FastStairs", description = "Allows you to climb up stairs faster.", category = ModuleCategory.MOVEMENT)
 class FastStairs : Module() {
@@ -29,25 +30,25 @@ class FastStairs : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
-        if (!MovementUtils.isMoving || LiquidBounce.moduleManager[Speed::class.java]!!.state)
+        if (!MovementUtils.isMoving || LiquidBounce.moduleManager[Speed::class.java].state)
             return
 
-        if (thePlayer.fallDistance > 0 && !walkingDown)
+        if (player.fallDistance > 0 && !walkingDown)
             walkingDown = true
-        else if (thePlayer.posY > thePlayer.prevChasingPosY)
+        else if (player.posY > player.prevChasingPosY)
             walkingDown = false
 
         val mode = modeValue.get()
 
-        if (!thePlayer.onGround)
+        if (!player.onGround)
             return
 
-        val blockPos = WBlockPos(thePlayer.posX, thePlayer.entityBoundingBox.minY, thePlayer.posZ)
+        val blockPos = BlockPos(player.posX, player.entityBoundingBox.minY, player.posZ)
 
-        if (classProvider.isBlockStairs(getBlock(blockPos)) && !walkingDown) {
-            thePlayer.setPosition(thePlayer.posX, thePlayer.posY + 0.5, thePlayer.posZ)
+        if ((getBlock(blockPos) is BlockStairs) && !walkingDown) {
+            player.setPosition(player.posX, player.posY + 0.5, player.posZ)
 
             val motion = when {
                 mode.equals("NCP", ignoreCase = true) -> 1.4
@@ -56,17 +57,17 @@ class FastStairs : Module() {
                 else -> 1.0
             }
 
-            thePlayer.motionX *= motion
-            thePlayer.motionZ *= motion
+            player.motionX *= motion
+            player.motionZ *= motion
         }
 
-        if (classProvider.isBlockStairs(getBlock(blockPos.down()))) {
+        if (getBlock(blockPos.down()) is BlockStairs) {
             if (walkingDown) {
                 when {
                     mode.equals("NCP", ignoreCase = true) ->
-                        thePlayer.motionY = -1.0
+                        player.motionY = -1.0
                     mode.equals("AAC3.3.13", ignoreCase = true) ->
-                        thePlayer.motionY -= 0.014
+                        player.motionY -= 0.014
                 }
 
                 return
@@ -80,14 +81,14 @@ class FastStairs : Module() {
                 else -> 1.3
             }
 
-            thePlayer.motionX *= motion
-            thePlayer.motionZ *= motion
+            player.motionX *= motion
+            player.motionZ *= motion
             canJump = true
         } else if (mode.startsWith("AAC", ignoreCase = true) && canJump) {
             if (longJumpValue.get()) {
-                thePlayer.jump()
-                thePlayer.motionX *= 1.35
-                thePlayer.motionZ *= 1.35
+                player.jump()
+                player.motionX *= 1.35
+                player.motionZ *= 1.35
             }
 
             canJump = false

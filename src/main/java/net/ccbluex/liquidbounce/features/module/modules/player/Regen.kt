@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.api.minecraft.potion.PotionType
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
@@ -15,6 +14,9 @@ import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.injection.implementations.IMixinTimer
+import net.minecraft.init.MobEffects
+import net.minecraft.network.play.client.CPacketPlayer
 
 @ModuleInfo(name = "Regen", description = "Regenerates your health much faster.", category = ModuleCategory.PLAYER)
 class Regen : Module() {
@@ -31,39 +33,39 @@ class Regen : Module() {
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         if (resetTimer)
-            mc.timer.timerSpeed = 1F
+            (mc.timer as IMixinTimer).timerSpeed = 1F
         resetTimer = false
 
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
-        if ((!noAirValue.get() || thePlayer.onGround) && !thePlayer.capabilities.isCreativeMode &&
-                thePlayer.foodStats.foodLevel > foodValue.get() && thePlayer.entityAlive && thePlayer.health < healthValue.get()) {
-            if (potionEffectValue.get() && !thePlayer.isPotionActive(classProvider.getPotionEnum(PotionType.REGENERATION)))
+        if ((!noAirValue.get() || player.onGround) && !player.capabilities.isCreativeMode &&
+                player.foodStats.foodLevel > foodValue.get() && player.isEntityAlive && player.health < healthValue.get()) {
+            if (potionEffectValue.get() && !player.isPotionActive(MobEffects.REGENERATION))
                 return
 
             when (modeValue.get().toLowerCase()) {
                 "newspartan" -> {
-                    if (mc.thePlayer!!.ticksExisted % 5 == 0)
+                    if (mc.player!!.ticksExisted % 5 == 0)
                         resetTimer = true
-                    mc.timer.timerSpeed = 0.98F
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayer(true))
+                    (mc.timer as IMixinTimer).timerSpeed = 0.98F
+                    mc.connection!!.sendPacket(CPacketPlayer(true))
 
                 }
                 "vanilla" -> {
                     repeat(speedValue.get()) {
-                        mc.netHandler.addToSendQueue(classProvider.createCPacketPlayer(thePlayer.onGround))
+                        mc.connection!!.sendPacket(CPacketPlayer(player.onGround))
                     }
                 }
 
                 "spartan" -> {
-                    if (MovementUtils.isMoving || !thePlayer.onGround)
+                    if (MovementUtils.isMoving || !player.onGround)
                         return
 
                     repeat(9) {
-                        mc.netHandler.addToSendQueue(classProvider.createCPacketPlayer(thePlayer.onGround))
+                        mc.connection!!.sendPacket(CPacketPlayer(player.onGround))
                     }
 
-                    mc.timer.timerSpeed = 0.45F
+                    (mc.timer as IMixinTimer).timerSpeed = 0.45F
                     resetTimer = true
                 }
             }

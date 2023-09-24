@@ -34,7 +34,7 @@ public class NewGUI extends Module {
     @Override
     public void onEnable() {
         slide = progress = 0;
-        mc2.displayGuiScreen(NewUi.getInstance());
+        mc.displayGuiScreen(NewUi.getInstance());
 
     }
 

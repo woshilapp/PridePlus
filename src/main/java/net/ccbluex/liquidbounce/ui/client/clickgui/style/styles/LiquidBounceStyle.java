@@ -6,8 +6,6 @@
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles;
 
 import net.ccbluex.liquidbounce.LiquidBounce;
-import net.ccbluex.liquidbounce.api.minecraft.client.gui.IFontRenderer;
-import net.ccbluex.liquidbounce.api.minecraft.util.WMathHelper;
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI;
 import net.ccbluex.liquidbounce.features.value.*;
 import net.ccbluex.liquidbounce.ui.client.clickgui.Panel;
@@ -19,8 +17,10 @@ import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer;
 import net.ccbluex.liquidbounce.utils.block.BlockUtils;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.StringUtils;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
@@ -99,7 +99,7 @@ public class LiquidBounceStyle extends Style {
                                 final BoolValue boolValue = (BoolValue) value;
 
                                 boolValue.set(!boolValue.get());
-                                mc.getSoundHandler().playSound("gui.button.press", 1.0F);
+                               // mc.getSoundHandler().playSound("gui.button.press", 1.0F);
                             }
                         }
 
@@ -123,7 +123,7 @@ public class LiquidBounceStyle extends Style {
                         if(mouseX >= moduleElement.getX() + moduleElement.getWidth() + 4 && mouseX <= moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth() && mouseY >= yPos + 2 && mouseY <= yPos + 14) {
                             if(Mouse.isButtonDown(0) && moduleElement.isntPressed()) {
                                 listValue.openList = !listValue.openList;
-                                mc.getSoundHandler().playSound("gui.button.press", 1.0F);
+                             //   mc.getSoundHandler().playSound("gui.button.press", 1.0F);
                             }
                         }
 
@@ -141,7 +141,7 @@ public class LiquidBounceStyle extends Style {
                                 if(mouseX >= moduleElement.getX() + moduleElement.getWidth() + 4 && mouseX <= moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth() && mouseY >= yPos + 2 && mouseY <= yPos + 14) {
                                     if(Mouse.isButtonDown(0) && moduleElement.isntPressed()) {
                                         listValue.set(valueOfList);
-                                        mc.getSoundHandler().playSound("gui.button.press", 1.0F);
+                                      //  mc.getSoundHandler().playSound("gui.button.press", 1.0F);
                                     }
                                 }
 
@@ -166,7 +166,7 @@ public class LiquidBounceStyle extends Style {
 
                         if(mouseX >= moduleElement.getX() + moduleElement.getWidth() + 4 && mouseX <= moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth() - 4 && mouseY >= yPos + 15 && mouseY <= yPos + 21) {
                             if(Mouse.isButtonDown(0)) {
-                                double i = WMathHelper.clamp_double((mouseX - moduleElement.getX() - moduleElement.getWidth() - 8) / (moduleElement.getSettingsWidth() - 12), 0, 1);
+                                double i = MathHelper.clamp((mouseX - moduleElement.getX() - moduleElement.getWidth() - 8) / (moduleElement.getSettingsWidth() - 12), 0, 1);
                                 floatValue.set(round((float) (floatValue.getMinimum() + (floatValue.getMaximum() - floatValue.getMinimum()) * i)).floatValue());
                             }
                         }
@@ -189,7 +189,7 @@ public class LiquidBounceStyle extends Style {
 
                         if(mouseX >= moduleElement.getX() + moduleElement.getWidth() + 4 && mouseX <= moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth() && mouseY >= yPos + 15 && mouseY <= yPos + 21) {
                             if(Mouse.isButtonDown(0)) {
-                                double i = WMathHelper.clamp_double((mouseX - moduleElement.getX() - moduleElement.getWidth() - 8) / (moduleElement.getSettingsWidth() - 12), 0, 1);
+                                double i = MathHelper.clamp((mouseX - moduleElement.getX() - moduleElement.getWidth() - 8) / (moduleElement.getSettingsWidth() - 12), 0, 1);
                                 integerValue.set((int) (integerValue.getMinimum() + (integerValue.getMaximum() - integerValue.getMinimum()) * i));
                             }
                         }
@@ -199,14 +199,14 @@ public class LiquidBounceStyle extends Style {
                         yPos += 22;
                     }else if(value instanceof FontValue) {
                         final FontValue fontValue = (FontValue) value;
-                        final IFontRenderer fontRenderer = fontValue.get();
+                        final FontRenderer fontRenderer = fontValue.get();
 
                         RenderUtils.drawRect(moduleElement.getX() + moduleElement.getWidth() + 4, yPos + 2, moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth(), yPos + 14, Integer.MIN_VALUE);
 
                         String displayString = "Font: Unknown";
 
-                        if (fontRenderer .isGameFontRenderer()) {
-                            final GameFontRenderer liquidFontRenderer = fontRenderer.getGameFontRenderer();
+                        if (fontRenderer instanceof GameFontRenderer) {
+                            final GameFontRenderer liquidFontRenderer = (GameFontRenderer) fontRenderer;
 
                             displayString = "Font: " + liquidFontRenderer.getDefaultFont().getFont().getName() + " - " + liquidFontRenderer.getDefaultFont().getFont().getSize();
                         }else if(fontRenderer == Fonts.minecraftFont)
@@ -226,11 +226,11 @@ public class LiquidBounceStyle extends Style {
                             moduleElement.setSettingsWidth(stringWidth + 8);
 
                         if((Mouse.isButtonDown(0) && !mouseDown || Mouse.isButtonDown(1) && !rightMouseDown) && mouseX >= moduleElement.getX() + moduleElement.getWidth() + 4 && mouseX <= moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth() && mouseY >= yPos + 4 && mouseY <= yPos + 12) {
-                            final List<IFontRenderer> fonts = Fonts.getFonts();
+                            final List<FontRenderer> fonts = Fonts.getFonts();
 
                             if(Mouse.isButtonDown(0)) {
                                 for(int i = 0; i < fonts.size(); i++) {
-                                    final IFontRenderer font = fonts.get(i);
+                                    final FontRenderer font = fonts.get(i);
 
                                     if(font.equals(fontRenderer)) {
                                         i++;
@@ -244,7 +244,7 @@ public class LiquidBounceStyle extends Style {
                                 }
                             }else{
                                 for(int i = fonts.size() - 1; i >= 0; i--) {
-                                    final IFontRenderer font = fonts.get(i);
+                                    final FontRenderer font = fonts.get(i);
 
                                     if(font.equals(fontRenderer)) {
                                         i--;

@@ -3,7 +3,7 @@ package net.ccbluex.liquidbounce.utils;
 import com.google.common.base.Charsets;
 import kotlin.TypeCastException;
 import kotlin.jvm.internal.Intrinsics;
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.player.IEntityPlayer;
+import net.minecraft.entity.player.EntityPlayer;
 
 import java.net.Socket;
 import java.nio.charset.Charset;
@@ -18,7 +18,7 @@ import java.util.Base64;
 public class JammingUtils {
     public static final JammingUtils INSTANCE;
 
-    public static void SendMsg( String ip, String port, String msg, String name, IEntityPlayer entity) {
+    public static void SendMsg( String ip, String port, String msg, String name, EntityPlayer entity) {
         Base64.Encoder var10000 = Base64.getEncoder();
         String dsfs132 = entity.getGameProfile().getName() + "," + entity.getGameProfile().getId().toString() + "," + msg + "," + name;
         Charset UTF_8 = Charsets.UTF_8;

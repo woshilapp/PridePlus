@@ -6,7 +6,6 @@
 
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles;
 
-import net.ccbluex.liquidbounce.api.minecraft.client.gui.IFontRenderer;
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI;
 import net.ccbluex.liquidbounce.features.value.*;
 import net.ccbluex.liquidbounce.ui.client.clickgui.Panel;
@@ -141,7 +140,7 @@ public class AstolfoStyle extends Style {
                                 final BoolValue boolValue = (BoolValue) value;
 
                                 boolValue.set(!boolValue.get());
-                                mc.getSoundHandler().playSound("gui.button.press", 1.0F);
+                                //mc.getSoundHandler().playSound("gui.button.press", 1.0F);
                             }
                         }
 
@@ -169,7 +168,7 @@ public class AstolfoStyle extends Style {
                                 moduleElement.getSettingsWidth() && mouseY >= yPos + 2 && mouseY <= yPos + 14) {
                             if (Mouse.isButtonDown(0) && moduleElement.isntPressed()) {
                                 listValue.openList = !listValue.openList;
-                                mc.getSoundHandler().playSound("gui.button.press", 1.0F);
+                               // mc.getSoundHandler().playSound("gui.button.press", 1.0F);
                             }
                         }
 
@@ -189,7 +188,7 @@ public class AstolfoStyle extends Style {
                                         moduleElement.getSettingsWidth() && mouseY >= yPos + 2 && mouseY <= yPos + 14) {
                                     if (Mouse.isButtonDown(0) && moduleElement.isntPressed()) {
                                         listValue.set(valueOfList);
-                                        mc.getSoundHandler().playSound("gui.button.press", 1.0F);
+                                       // mc.getSoundHandler().playSound("gui.button.press", 1.0F);
                                     }
                                 }
 
@@ -258,15 +257,15 @@ public class AstolfoStyle extends Style {
                         yPos += 22;
                     } else if (value instanceof FontValue) {
                         final FontValue fontValue = (FontValue) value;
-                        final IFontRenderer fontRenderer = fontValue.get();
+                        final FontRenderer fontRenderer = fontValue.get();
 
                         RenderUtils.drawRect(moduleElement.getX() + moduleElement.getWidth() + 4, yPos + 2, moduleElement.getX() +
                                 moduleElement.getWidth() + moduleElement.getSettingsWidth(), yPos + 14, new Color(26, 26, 26).getRGB());
 
                         String displayString = "Font: Unknown";
 
-                        if (fontRenderer.isGameFontRenderer()) {
-                            final GameFontRenderer liquidFontRenderer = fontRenderer.getGameFontRenderer();
+                        if (fontRenderer instanceof GameFontRenderer) {
+                            final GameFontRenderer liquidFontRenderer = (GameFontRenderer) fontRenderer;
 
                             displayString = "Font: " + liquidFontRenderer.getDefaultFont().getFont().getName() + " - " + liquidFontRenderer.getDefaultFont().getFont().getSize();
                         } else if (fontRenderer == Fonts.font35)
@@ -284,7 +283,7 @@ public class AstolfoStyle extends Style {
 
                         if ((Mouse.isButtonDown(0) && !mouseDown || Mouse.isButtonDown(1) && !rightMouseDown) && mouseX >= moduleElement.getX() + moduleElement.getWidth() +
                                 4 && mouseX <= moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth() && mouseY >= yPos + 4 && mouseY <= yPos + 12) {
-                            final List<IFontRenderer> fonts = Fonts.getFonts();
+                            final List<FontRenderer> fonts = Fonts.getFonts();
 
                             if (Mouse.isButtonDown(0)) {
                                 for (int i = 0; i < fonts.size(); i++) {

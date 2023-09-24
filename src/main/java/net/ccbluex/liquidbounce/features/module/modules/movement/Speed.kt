@@ -21,6 +21,7 @@ import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.injection.implementations.IMixinTimer
 import java.util.*
 
 @ModuleInfo(name = "Speed", description = "Allows you to move faster.", category = ModuleCategory.MOVEMENT)
@@ -56,13 +57,13 @@ class Speed : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent?) {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
-        if (thePlayer.sneaking)
+        if (player.isSneaking)
             return
 
         if (MovementUtils.isMoving) {
-            thePlayer.sprinting = true
+            player.isSprinting = true
         }
 
         mode?.onUpdate()
@@ -70,46 +71,46 @@ class Speed : Module() {
 
     @EventTarget
     fun onMotion(event: MotionEvent) {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
-        if (thePlayer.sneaking || event.eventState != EventState.PRE)
+        if (player.isSneaking || event.eventState != EventState.PRE)
             return
 
         if (MovementUtils.isMoving)
-            thePlayer.sprinting = true
+            player.isSprinting = true
 
         mode?.onMotion(event)
     }
 
     @EventTarget
     fun onMove(event: MoveEvent?) {
-        if (mc.thePlayer!!.sneaking)
+        if (mc.player!!.isSneaking)
             return
         mode?.onMove(event!!)
     }
 
     @EventTarget
     fun onTick(event: TickEvent?) {
-        if (mc.thePlayer!!.sneaking)
+        if (mc.player!!.isSneaking)
             return
 
         mode?.onTick()
     }
 
     override fun onEnable() {
-        if (mc.thePlayer == null)
+        if (mc.player == null)
             return
 
-        mc.timer.timerSpeed = 1f
+        (mc.timer as IMixinTimer).timerSpeed = 1f
 
         mode?.onEnable()
     }
 
     override fun onDisable() {
-        if (mc.thePlayer == null)
+        if (mc.player == null)
             return
 
-        mc.timer.timerSpeed = 1f
+        (mc.timer as IMixinTimer).timerSpeed = 1f
 
         mode?.onDisable()
     }

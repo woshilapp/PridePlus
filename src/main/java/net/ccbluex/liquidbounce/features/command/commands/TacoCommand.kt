@@ -13,24 +13,26 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.util.ResourceLocation
 
 class TacoCommand : Command("taco"), Listenable {
     private var toggle = false
     private var image = 0
     private var running = 0f
     private val tacoTextures = arrayOf(
-            classProvider.createResourceLocation("pride/taco/1.png"),
-            classProvider.createResourceLocation("pride/taco/2.png"),
-            classProvider.createResourceLocation("pride/taco/3.png"),
-            classProvider.createResourceLocation("pride/taco/4.png"),
-            classProvider.createResourceLocation("pride/taco/5.png"),
-            classProvider.createResourceLocation("pride/taco/6.png"),
-            classProvider.createResourceLocation("pride/taco/7.png"),
-            classProvider.createResourceLocation("pride/taco/8.png"),
-            classProvider.createResourceLocation("pride/taco/9.png"),
-            classProvider.createResourceLocation("pride/taco/10.png"),
-            classProvider.createResourceLocation("pride/taco/11.png"),
-            classProvider.createResourceLocation("pride/taco/12.png")
+            ResourceLocation("pride/taco/1.png"),
+            ResourceLocation("pride/taco/2.png"),
+            ResourceLocation("pride/taco/3.png"),
+            ResourceLocation("pride/taco/4.png"),
+            ResourceLocation("pride/taco/5.png"),
+            ResourceLocation("pride/taco/6.png"),
+            ResourceLocation("pride/taco/7.png"),
+            ResourceLocation("pride/taco/8.png"),
+            ResourceLocation("pride/taco/9.png"),
+            ResourceLocation("pride/taco/10.png"),
+            ResourceLocation("pride/taco/11.png"),
+            ResourceLocation("pride/taco/12.png")
     )
 
     init {
@@ -51,7 +53,7 @@ class TacoCommand : Command("taco"), Listenable {
             return
 
         running += 0.15f * RenderUtils.deltaTime
-        val scaledResolution = classProvider.createScaledResolution(mc)
+        val scaledResolution = ScaledResolution(mc)
         RenderUtils.drawImage(tacoTextures[image], running.toInt(), scaledResolution.scaledHeight - 60, 64, 32)
         if (scaledResolution.scaledWidth <= running)
             running = -64f

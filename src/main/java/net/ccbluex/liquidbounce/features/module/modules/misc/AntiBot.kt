@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntityLivingBase
 import net.ccbluex.liquidbounce.event.AttackEvent
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
@@ -13,12 +12,17 @@ import net.ccbluex.liquidbounce.event.WorldEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.utils.extensions.getFullName
-import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
+import net.ccbluex.liquidbounce.utils.extensions.getFullName
+import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
+import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.network.play.server.SPacketAnimation
+import net.minecraft.network.play.server.SPacketEntity
 
 @ModuleInfo(name = "AntiBot", description = "Prevents KillAura from attacking AntiCheat bots.", category = ModuleCategory.MISC)
 object AntiBot : Module() {
@@ -53,9 +57,9 @@ object AntiBot : Module() {
     private val notAlwaysInRadius = mutableListOf<Int>()
 
     @JvmStatic // TODO: Remove as soon EntityUtils is translated to kotlin
-    fun isBot(entity: IEntityLivingBase): Boolean {
+    fun isBot(entity: EntityLivingBase): Boolean {
         // Check if entity is a player
-        if (!classProvider.isEntityPlayer(entity))
+        if (entity !is EntityPlayer)
             return false
 
         // Check if anti bot is enabled
@@ -92,7 +96,7 @@ object AntiBot : Module() {
             return true
 
         if (armorValue.get()) {
-            val player = entity.asEntityPlayer()
+            val player = entity
 
             if (player.inventory.armorInventory[0] == null && player.inventory.armorInventory[1] == null &&
                     player.inventory.armorInventory[2] == null && player.inventory.armorInventory[3] == null)
@@ -100,7 +104,7 @@ object AntiBot : Module() {
         }
 
         if (pingValue.get()) {
-            if (mc.netHandler.getPlayerInfo(entity.asEntityPlayer().uniqueID)?.responseTime == 0)
+            if (mc.connection!!.getPlayerInfo(entity.uniqueID)?.responseTime == 0)
                 return true
         }
 
@@ -115,7 +119,7 @@ object AntiBot : Module() {
             val targetName = stripColor(entity.displayName!!.formattedText)
 
             if (targetName != null) {
-                for (networkPlayerInfo in mc.netHandler.playerInfoMap) {
+                for (networkPlayerInfo in mc.connection!!.playerInfoMap) {
                     val networkName = stripColor(networkPlayerInfo.getFullName()) ?: continue
 
                     if (if (equals) targetName == networkName else targetName.contains(networkName))
@@ -127,17 +131,17 @@ object AntiBot : Module() {
         }
 
         if (duplicateInWorldValue.get() &&
-                mc.theWorld!!.loadedEntityList.filter { classProvider.isEntityPlayer(it) && it.asEntityPlayer().displayNameString == it.asEntityPlayer().displayNameString }.count() > 1)
+                mc.world.loadedEntityList.filter { (it is EntityPlayer) && it.displayNameString == it.displayNameString }.count() > 1)
             return true
 
         if (duplicateInTabValue.get() &&
-                mc.netHandler.playerInfoMap.filter { entity.name == stripColor(it.getFullName()) }.count() > 1)
+                mc.connection!!.playerInfoMap.filter { entity.name == stripColor(it.getFullName()) }.count() > 1)
             return true
 
         if (allwaysInRadiusValue.get() && !notAlwaysInRadius.contains(entity.entityId))
             return true
 
-        return entity.name!!.isEmpty() || entity.name == mc.thePlayer!!.name
+        return entity.name!!.isEmpty() || entity.name == mc.player!!.name
     }
 
     override fun onDisable() {
@@ -147,16 +151,16 @@ object AntiBot : Module() {
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        if (mc.thePlayer == null || mc.theWorld == null)
+        if (mc.player == null || mc.world == null)
             return
 
         val packet = event.packet
 
-        if (classProvider.isSPacketEntity(packet)) {
-            val packetEntity = packet.asSPacketEntity()
-            val entity = packetEntity.getEntity(mc.theWorld!!)
+        if (packet is SPacketEntity) {
+            val packetEntity = packet
+            val entity = packetEntity.getEntity(mc.world)
 
-            if (classProvider.isEntityPlayer(entity) && entity != null) {
+            if ((entity is EntityPlayer) && entity != null) {
                 if (packetEntity.onGround && !ground.contains(entity.entityId))
                     ground.add(entity.entityId)
 
@@ -174,19 +178,18 @@ object AntiBot : Module() {
                         invalidGround[entity.entityId] = currentVL
                 }
 
-                if (entity.invisible && !invisible.contains(entity.entityId))
+                if (entity.isInvisible && !invisible.contains(entity.entityId))
                     invisible.add(entity.entityId)
 
-                if (!notAlwaysInRadius.contains(entity.entityId) && mc.thePlayer!!.getDistanceToEntity(entity) > allwaysRadiusValue.get())
+                if (!notAlwaysInRadius.contains(entity.entityId) && mc.player!!.getDistanceToEntityBox(entity) > allwaysRadiusValue.get())
                     notAlwaysInRadius.add(entity.entityId);
             }
         }
 
-        if (classProvider.isSPacketAnimation(packet)) {
-            val packetAnimation = packet.asSPacketAnimation()
-            val entity = mc.theWorld!!.getEntityByID(packetAnimation.entityID)
+        if ((packet is SPacketAnimation)) {
+            val entity = mc.world!!.getEntityByID(packet.entityID)
 
-            if (entity != null && classProvider.isEntityLivingBase(entity) && packetAnimation.animationType == 0
+            if (entity != null && (entity is EntityLivingBase) && packet.animationType == 0
                     && !swing.contains(entity.entityId))
                 swing.add(entity.entityId)
         }
@@ -196,7 +199,7 @@ object AntiBot : Module() {
     fun onAttack(e: AttackEvent) {
         val entity = e.targetEntity
 
-        if (entity != null && classProvider.isEntityLivingBase(entity) && !hitted.contains(entity.entityId))
+        if (entity != null && (entity is EntityLivingBase) && !hitted.contains(entity.entityId))
             hitted.add(entity.entityId)
     }
 

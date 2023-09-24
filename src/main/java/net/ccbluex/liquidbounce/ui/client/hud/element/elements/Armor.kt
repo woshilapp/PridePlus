@@ -43,10 +43,10 @@ class Armor(x: Double = -8.0, y: Double = 57.0, scale: Float = 1F,
             RenderHelper.enableGUIStandardItemLighting()
 
             for (index in 3 downTo 0) {
-                val stack = mc.thePlayer!!.inventory.armorInventory[index] ?: continue
+                val stack = mc.player!!.inventory.armorInventory[index]
 
                 renderItem.renderItemIntoGUI(stack, x, y)
-                renderItem.renderItemOverlays(mc.fontRendererObj, stack, x, y)
+                renderItem.renderItemOverlays(mc.fontRenderer, stack, x, y)
                 if (mode.equals("Exhibition", true)) {
                     RenderUtils.drawExhiEnchants(stack, x.toFloat(), y.toFloat())
                     if (align.equals("Horizontal", true))
@@ -61,12 +61,10 @@ class Armor(x: Double = -8.0, y: Double = 57.0, scale: Float = 1F,
             }
 
             if (mode.equals("Exhibition", true)) {
-                val mainStack = mc.thePlayer!!.heldItem
-                if (mainStack?.item != null) {
-                    renderItem.renderItemIntoGUI(mainStack, x, y)
-                    renderItem.renderItemOverlays(mc.fontRendererObj, mainStack, x, y)
-                    RenderUtils.drawExhiEnchants(mainStack, x.toFloat(), y.toFloat())
-                }
+                val mainStack = mc.player!!.heldItemMainhand
+                renderItem.renderItemIntoGUI(mainStack, x, y)
+                renderItem.renderItemOverlays(mc.fontRenderer, mainStack, x, y)
+                RenderUtils.drawExhiEnchants(mainStack, x.toFloat(), y.toFloat())
             }
 
             RenderHelper.disableStandardItemLighting()

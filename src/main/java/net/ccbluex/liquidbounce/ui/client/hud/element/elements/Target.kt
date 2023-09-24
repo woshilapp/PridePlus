@@ -2,8 +2,11 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import me.utils.EntityUtils2
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntityLivingBase
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
+import net.ccbluex.liquidbounce.features.value.FontValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
@@ -13,9 +16,9 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.EaseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.features.value.FontValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.ccbluex.liquidbounce.features.value.ListValue
+import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.player.EntityPlayer
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 import java.text.DecimalFormat
@@ -23,13 +26,13 @@ import kotlin.math.roundToInt
 
 @ElementInfo(name = "Targets")
 class Target : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertical.MIDDLE)) {
-    private val modeValue = ListValue("Mode", arrayOf("Novoline","Astolfo","Liquid","Flux","Rise","Zamorozka"), "Rise")
+    private val modeValue = ListValue("Mode", arrayOf("Novoline","Astolfo","Liquid","Flux","Zamorozka"), "Novoline")
     private val switchModeValue = ListValue("SwitchMode", arrayOf("Slide","Zoom","None"), "Slide")
     private val animSpeedValue = IntegerValue("AnimSpeed",10,5,20)
     private val switchAnimSpeedValue = IntegerValue("SwitchAnimSpeed",20,5,40)
     private val fontValue = FontValue("Font", Fonts.font40)
 
-    private var prevTarget:IEntityLivingBase?=null
+    private var prevTarget: EntityLivingBase?=null
     private var lastHealth=20F
     private var lastChangeHealth=20F
     private var changeTime=System.currentTimeMillis()
@@ -37,7 +40,7 @@ class Target : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertical.
     private var lastUpdate = System.currentTimeMillis()
     private val decimalFormat = DecimalFormat("0.0")
 
-    private fun getHealth(entity: IEntityLivingBase?):Float{
+    private fun getHealth(entity: EntityLivingBase?):Float{
         return if(entity==null || entity.isDead){ 0f }else{ entity.health }
     }
 
@@ -47,8 +50,8 @@ class Target : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertical.
         val pct = (time - lastUpdate) / (switchAnimSpeedValue.get()*50f)
         lastUpdate=System.currentTimeMillis()
 
-        if (classProvider.isGuiHudDesigner(mc.currentScreen)) {
-            target=mc.thePlayer
+        if (mc.currentScreen is GuiHudDesigner) {
+            target=mc.player
         }
         if (target != null) {
             prevTarget = target
@@ -92,7 +95,7 @@ class Target : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertical.
             }
             "slide" -> {
                 val percent=EaseUtils.easeInQuint(1.0-displayPercent)
-                val xAxis= classProvider.createScaledResolution(mc).scaledWidth-renderX
+                val xAxis= ScaledResolution(mc).scaledWidth-renderX
                 GL11.glTranslated(xAxis*percent,0.0,0.0)
             }
         }
@@ -102,14 +105,13 @@ class Target : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertical.
             "astolfo" -> drawAstolfo(prevTarget!!,nowAnimHP)
             "liquid" -> drawLiquid(prevTarget!!,nowAnimHP)
             "flux" -> drawFlux(prevTarget!!,nowAnimHP)
-            "rise" -> drawRise(prevTarget!!,nowAnimHP)
             "zamorozka" -> drawZamorozka(prevTarget!!,nowAnimHP)
         }
 
         return getTBorder()
     }
 
-    private fun drawAstolfo(target: IEntityLivingBase, nowAnimHP: Float){
+    private fun drawAstolfo(target: EntityLivingBase, nowAnimHP: Float){
         val font=fontValue.get()
         val color=RenderUtils.skyRainbow(1,1F,0.9F)
         val hpPct=nowAnimHP/target.maxHealth
@@ -122,14 +124,14 @@ class Target : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertical.
         GL11.glColor4f(1f,1f,1f,1f)
         RenderUtils.drawEntityOnScreen(18,46,20,target)
 
-        font.drawStringWithShadow(target.name!!, 37, 6, -1)
+        font.drawStringWithShadow(target.name, 37F, 6F, -1)
         GL11.glPushMatrix()
         GL11.glScalef(2F,2F,2F)
         font.drawString("${getHealth(target).roundToInt()} ❤", 19,9, color.rgb)
         GL11.glPopMatrix()
     }
 
-    private fun drawNovo(target: IEntityLivingBase, nowAnimHP: Float){
+    private fun drawNovo(target: EntityLivingBase, nowAnimHP: Float){
         val font=fontValue.get()
         val color=ColorUtils.healthColor(getHealth(target),target.maxHealth)
         val darkColor=ColorUtils.darker(color,0.6F)
@@ -144,7 +146,7 @@ class Target : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertical.
         font.drawString(decimalFormat.format(getHealth(target)), 43, 30, Color.WHITE.rgb)
     }
 
-    private fun drawLiquid(target: IEntityLivingBase, easingHealth: Float){
+    private fun drawLiquid(target: EntityLivingBase, easingHealth: Float){
         val width = (38 + Fonts.font40.getStringWidth(target.name!!))
             .coerceAtLeast(118)
             .toFloat()
@@ -167,13 +169,13 @@ class Target : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertical.
 
 
         target.name.let { Fonts.font40.drawString(it!!, 36, 3, 0xffffff) }
-        Fonts.font35.drawString("Distance: ${decimalFormat.format(mc.thePlayer!!.getDistanceToEntityBox(target))}", 36, 15, 0xffffff)
+        Fonts.font35.drawString("Distance: ${decimalFormat.format(mc.player!!.getDistance(target))}", 36, 15, 0xffffff)
 
         // Draw info
         //绘制头像
         //如果target是玩家，将会绘制其头像。
-        if (classProvider.isEntityPlayer(target)) {
-            val playerInfo = mc.netHandler.getPlayerInfo(target.uniqueID)
+        if (target is EntityPlayer) {
+            val playerInfo = mc.connection!!.getPlayerInfo(target.uniqueID)
             if (playerInfo != null) {
 
                 // Draw head
@@ -182,7 +184,7 @@ class Target : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertical.
             }
             //如果target不是玩家，将会绘制你自己的头像。
         } else {
-            val playerInfo = mc.netHandler.getPlayerInfo(mc.thePlayer!!.uniqueID)
+            val playerInfo = mc.connection!!.getPlayerInfo(mc.player!!.uniqueID)
             if (playerInfo != null) {
 
                 // Draw head
@@ -190,14 +192,14 @@ class Target : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertical.
                 RenderUtils.drawHead(locationSkin, 2,2,30,30)
             }
         }
-        val playerInfo = mc.netHandler.getPlayerInfo(target.uniqueID)
+        val playerInfo = mc.connection!!.getPlayerInfo(target.uniqueID)
         if (playerInfo != null) {
             Fonts.font35.drawString("Ping: ${playerInfo.responseTime.coerceAtLeast(0)}",
                 36, 24, 0xffffff)
         }
     }
 
-    private fun drawZamorozka(target: IEntityLivingBase, easingHealth: Float){
+    private fun drawZamorozka(target: EntityLivingBase, easingHealth: Float){
         val font=fontValue.get()
 
         // Frame
@@ -213,13 +215,13 @@ class Target : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertical.
         RenderUtils.drawCircleRect(7f,45f,7+((target.health/target.maxHealth)*barLength).coerceAtLeast(5f),50f,2.5f,ColorUtils.rainbow().rgb)
 
         // Info
-        RenderUtils.drawCircleRect(43f,15f-font.fontHeight,143f,17f,(font.fontHeight+1)*0.45f,Color(0,0,0,70).rgb)
-        font.drawCenteredString("${target.name} ${if(classProvider.isEntityPlayer(target) && EntityUtils2.getPing(target.asEntityPlayer())!=-1) { "§f${EntityUtils2.getPing(target.asEntityPlayer())}ms" } else { "" }}", 93f, 16f-font.fontHeight, ColorUtils.rainbow().rgb, false)
-        font.drawString("Health: ${decimalFormat.format(easingHealth)} §7/ ${decimalFormat.format(target.maxHealth)}", 43, 11+font.fontHeight,Color.WHITE.rgb)
-        font.drawString("Distance: ${decimalFormat.format(mc.thePlayer!!.getDistanceToEntityBox(target))}", 43, 11+font.fontHeight*2,Color.WHITE.rgb)
+        RenderUtils.drawCircleRect(43f,15f-font.FONT_HEIGHT,143f,17f,(font.FONT_HEIGHT+1)*0.45f,Color(0,0,0,70).rgb)
+        font.drawString("${target.name} ${if((target is EntityPlayer) && EntityUtils2.getPing(target)!=-1) { "§f${EntityUtils2.getPing(target)}ms" } else { "" }}", 93f / 2, (16f-font.FONT_HEIGHT) / 2, ColorUtils.rainbow().rgb, false)
+        font.drawString("Health: ${decimalFormat.format(easingHealth)} §7/ ${decimalFormat.format(target.maxHealth)}", 43, 11+font.FONT_HEIGHT,Color.WHITE.rgb)
+        font.drawString("Distance: ${decimalFormat.format(mc.player!!.getDistance(target))}", 43, 11+font.FONT_HEIGHT*2,Color.WHITE.rgb)
     }
 
-    private fun drawMoon(target: IEntityLivingBase, easingHealth: Float){
+    private fun drawMoon(target: EntityLivingBase, easingHealth: Float){
         val font = fontValue.get()
         val hp = decimalFormat.format(easingHealth)
         val additionalWidth = font.getStringWidth("${target.name}  ${hp} hp").coerceAtLeast(75)
@@ -232,7 +234,7 @@ class Target : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertical.
         GL11.glBlendFunc(770, 771)
         GL11.glEnable(2848)
         GL11.glShadeModel(7425)
-        val yPos = 5 + font.fontHeight + 3f
+        val yPos = 5 + font.FONT_HEIGHT + 3f
 
         val stopPos =
             (5 + ((135 - font.getStringWidth(decimalFormat.format(target.maxHealth))) * (easingHealth / target.maxHealth))).toInt()
@@ -274,8 +276,8 @@ class Target : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertical.
         font.drawString(target.name!!, 37, 5, Color.WHITE.rgb)
         //绘制头像
         //如果target是玩家，将会绘制其头像。
-        if (classProvider.isEntityPlayer(target)) {
-            val playerInfo = mc.netHandler.getPlayerInfo(target.uniqueID)
+        if ((target is EntityPlayer)) {
+            val playerInfo = mc.connection!!.getPlayerInfo(target.uniqueID)
             if (playerInfo != null) {
 
                 // Draw head
@@ -284,7 +286,7 @@ class Target : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertical.
             }
             //如果target不是玩家，将会绘制你自己的头像。
         } else {
-            val playerInfo = mc.netHandler.getPlayerInfo(mc.thePlayer!!.uniqueID)
+            val playerInfo = mc.connection!!.getPlayerInfo(mc.player!!.uniqueID)
             if (playerInfo != null) {
 
                 // Draw head
@@ -298,77 +300,7 @@ class Target : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertical.
         }
     }
 
-
-    private fun drawRise(target: IEntityLivingBase, easingHealth: Float){
-        val font=fontValue.get()
-
-        RenderUtils.drawCircleRect(0f,0f,150f,50f,5f,Color(0,0,0,130).rgb)
-
-        val hurtPercent=target.hurtPercent
-        val scale=if(hurtPercent==0f){ 1f }
-        else if(hurtPercent<0.5f){
-            1-(0.2f*hurtPercent*2)
-        }else{
-            0.8f+(0.2f*(hurtPercent-0.5f)*2)
-        }
-        val size=30
-
-        GL11.glPushMatrix()
-        GL11.glTranslatef(5f, 5f, 0f)
-        // 受伤的缩放效果
-        GL11.glScalef(scale, scale, scale)
-        GL11.glTranslatef(((size * 0.5f * (1-scale))/scale), ((size * 0.5f * (1-scale))/scale), 0f)
-        // 受伤的红色效果
-        GL11.glColor4f(1f, 1-hurtPercent, 1-hurtPercent, 1f)
-        // 绘制头部图片
-        //绘制头像
-        //如果target是玩家，将会绘制其头像。
-        if (classProvider.isEntityPlayer(target)) {
-            val playerInfo = mc.netHandler.getPlayerInfo(target.uniqueID)
-            if (playerInfo != null) {
-
-                // Draw head
-                val locationSkin = playerInfo.locationSkin
-                RenderUtils.drawHead(locationSkin, 0,0,size,size)
-            }
-            //如果target不是玩家，将会绘制你自己的头像。
-        } else {
-            val playerInfo = mc.netHandler.getPlayerInfo(mc.thePlayer!!.uniqueID)
-            if (playerInfo != null) {
-
-                // Draw head
-                val locationSkin = playerInfo.locationSkin
-                RenderUtils.drawHead(locationSkin, 0,0,size,size)
-            }
-        }
-        GL11.glPopMatrix()
-
-        font.drawString("Name ${target.name}", 40, 11,Color.WHITE.rgb)
-        font.drawString("Distance ${decimalFormat.format(mc.thePlayer!!.getDistanceToEntityBox(target))} Hurt ${target.hurtTime}", 40, 11+font.fontHeight,Color.WHITE.rgb)
-
-        // 渐变血量条
-        GL11.glEnable(3042)
-        GL11.glDisable(3553)
-        GL11.glBlendFunc(770, 771)
-        GL11.glEnable(2848)
-        GL11.glShadeModel(7425)
-        fun renderSideway(x: Int,x1: Int){
-            RenderUtils.quickDrawGradientSideways(x.toDouble(),39.0, x1.toDouble(),45.0,ColorUtils.hslRainbow(x,indexOffset = 10).rgb,ColorUtils.hslRainbow(x1,indexOffset = 10).rgb)
-        }
-        val stopPos=(5+((135-font.getStringWidth(decimalFormat.format(target.maxHealth)))*(easingHealth/target.maxHealth))).toInt()
-        for(i in 5..stopPos step 5){
-            renderSideway(i, (i + 5).coerceAtMost(stopPos))
-        }
-        GL11.glEnable(3553)
-        GL11.glDisable(3042)
-        GL11.glDisable(2848)
-        GL11.glShadeModel(7424)
-        GL11.glColor4f(1f, 1f, 1f, 1f)
-
-        font.drawString(decimalFormat.format(easingHealth),stopPos+5,43-font.fontHeight/2,Color.WHITE.rgb)
-    }
-
-    private fun drawFlux(target: IEntityLivingBase, nowAnimHP: Float){
+    private fun drawFlux(target: EntityLivingBase, nowAnimHP: Float){
         val width = (38 + Fonts.font40.getStringWidth(target.name!!))
             .coerceAtLeast(70)
             .toFloat()
@@ -392,8 +324,8 @@ class Target : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertical.
 
         //绘制头像
         //如果target是玩家，将会绘制其头像。
-        if (classProvider.isEntityPlayer(target)) {
-            val playerInfo = mc.netHandler.getPlayerInfo(target.uniqueID)
+        if ((target is EntityPlayer )) {
+            val playerInfo = mc.connection!!.getPlayerInfo(target.uniqueID)
             if (playerInfo != null) {
 
                 // Draw head
@@ -402,7 +334,7 @@ class Target : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertical.
             }
             //如果target不是玩家，将会绘制你自己的头像。
         } else {
-            val playerInfo = mc.netHandler.getPlayerInfo(mc.thePlayer!!.uniqueID)
+            val playerInfo = mc.connection!!.getPlayerInfo(mc.player!!.uniqueID)
             if (playerInfo != null) {
 
                 // Draw head
@@ -417,11 +349,10 @@ class Target : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertical.
             "novoline" -> Border(0F,0F,140F,40F)
             "astolfo" -> Border(0F,0F,140F,60F)
             "liquid" -> Border(0F,0F
-                ,(38 + Fonts.font40.getStringWidth(mc.thePlayer!!.name!!).coerceAtLeast(118).toFloat()),36F)
-            "flux" -> Border(0F,0F,(38 +Fonts.font40.getStringWidth(mc.thePlayer!!.name!!))
+                ,(38 + Fonts.font40.getStringWidth(mc.player!!.name!!).coerceAtLeast(118).toFloat()),36F)
+            "flux" -> Border(0F,0F,(38 +Fonts.font40.getStringWidth(mc.player!!.name!!))
                 .coerceAtLeast(70)
                 .toFloat(),34F)
-            "rise" -> Border(0F,0F,150F,55F)
             "zamorozka" -> Border(0F,0F,150F,55F)
             "exhibition" -> Border(0F, 0F, 140F, 45F)
             else -> null

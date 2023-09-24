@@ -3,7 +3,6 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.aac
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
-import net.ccbluex.liquidbounce.injection.backend.unwrap
 import net.minecraft.client.Minecraft
 import net.minecraft.network.play.server.SPacketEntityVelocity
 
@@ -20,11 +19,11 @@ class AAC4ReduceVelocity : VelocityMode("AAC4Reduce") {
     }
 
     override fun onVelocityPacket(event: PacketEvent) {
-        val packet = event.packet.unwrap()
+        val packet = event.packet
         if(packet is SPacketEntityVelocity) {
             velocity.velocityInput = true
-            packet.motionX = (packet.getMotionX() * 0.6).toInt()
-            packet.motionZ = (packet.getMotionZ() * 0.6).toInt()
+            packet.motionX = (packet.motionX * 0.6).toInt()
+            packet.motionZ = (packet.motionZ * 0.6).toInt()
         }
     }
 }

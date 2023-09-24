@@ -1,14 +1,10 @@
 package net.ccbluex.liquidbounce.ui.cnfont;
 
-import net.ccbluex.liquidbounce.api.enums.WDefaultVertexFormats;
-import net.ccbluex.liquidbounce.api.minecraft.client.render.IWorldRenderer;
-import net.ccbluex.liquidbounce.injection.backend.ClassProviderImpl;
-import net.ccbluex.liquidbounce.ui.cnfont.ColorUtils;
-import net.ccbluex.liquidbounce.ui.cnfont.GLUtils;
-import net.ccbluex.liquidbounce.ui.cnfont.StringUtils;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -90,12 +86,12 @@ public final class FontDrawer {
         }
 
         Tessellator tessellator = Tessellator.getInstance();
-        IWorldRenderer worldrenderer = ClassProviderImpl.INSTANCE.getTessellatorInstance().getWorldRenderer();
+        BufferBuilder worldrenderer = Tessellator.getInstance().getBuffer();
         if (GL11.glIsEnabled(3553)) {
             GlStateManager.disableTexture2D();
         }
 
-        worldrenderer.begin(7, ClassProviderImpl.INSTANCE.getVertexFormatEnum(WDefaultVertexFormats.POSITION));
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION);
         worldrenderer.pos(left, bottom, 0.0D).endVertex();
         worldrenderer.pos(right, bottom, 0.0D).endVertex();
         worldrenderer.pos(right, top, 0.0D).endVertex();

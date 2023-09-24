@@ -2,7 +2,6 @@ package me.utils;
 
 import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.features.module.modules.render.Animations;
-import net.ccbluex.liquidbounce.features.module.modules.render.OldHitting;
 import net.ccbluex.liquidbounce.utils.MinecraftInstance;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.EnumHandSide;

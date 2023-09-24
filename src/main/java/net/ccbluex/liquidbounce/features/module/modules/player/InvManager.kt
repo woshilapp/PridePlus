@@ -5,11 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.api.enums.BlockType
-import net.ccbluex.liquidbounce.api.enums.EnchantmentType
-import net.ccbluex.liquidbounce.api.enums.WEnumHand
-import net.ccbluex.liquidbounce.api.minecraft.item.IItem
-import net.ccbluex.liquidbounce.api.minecraft.item.IItemStack
+
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
@@ -28,6 +24,17 @@ import net.ccbluex.liquidbounce.utils.timer.TimeUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.injection.implementations.IMixinItemStack
+import net.ccbluex.liquidbounce.utils.extensions.toClickType
+import net.minecraft.client.gui.inventory.GuiInventory
+import net.minecraft.init.Blocks
+import net.minecraft.init.Enchantments
+import net.minecraft.init.Enchantments.*
+import net.minecraft.inventory.EntityEquipmentSlot
+import net.minecraft.item.*
+import net.minecraft.network.play.client.CPacketCloseWindow
+import net.minecraft.network.play.client.CPacketHeldItemChange
+import net.minecraft.util.EnumHand
 import java.util.stream.Collectors
 import java.util.stream.IntStream
 
@@ -77,23 +84,23 @@ class InvManager : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
-        if (!InventoryUtils.CLICK_TIMER.hasTimePassed(delay) || !classProvider.isGuiInventory(mc.currentScreen) && invOpenValue.get() || noMoveValue.get() && isMoving || thePlayer.openContainer != null && thePlayer.openContainer!!.windowId != 0) return
+        if (!InventoryUtils.CLICK_TIMER.hasTimePassed(delay) || (mc.currentScreen !is GuiInventory) && invOpenValue.get() || noMoveValue.get() && isMoving || player.openContainer != null && player.openContainer!!.windowId != 0) return
 
         while (InventoryUtils.CLICK_TIMER.hasTimePassed(delay)) {
 
             // Find best armor
             val armorPieces = IntStream.range(0, 36).filter { i: Int ->
-                val itemStack = mc.thePlayer!!.inventory.getStackInSlot(i)
-                itemStack != null && classProvider.isItemArmor(itemStack.item) && (i < 9 || System.currentTimeMillis() - itemStack.itemDelay >= itemDelayValue.get())
+                val itemStack = mc.player!!.inventory.getStackInSlot(i)
+                itemStack != null && itemStack.item is ItemArmor && (i < 9 || System.currentTimeMillis() - (itemStack as IMixinItemStack).itemDelay >= itemDelayValue.get())
             }.mapToObj { i: Int ->
                 ArmorPiece(
-                    mc.thePlayer!!.inventory.getStackInSlot(
+                    mc.player!!.inventory.getStackInSlot(
                         i
                     ), i
                 )
-            }.collect(Collectors.groupingBy<ArmorPiece?, Int> { obj: ArmorPiece? -> obj!!.armorType })
+            }.collect(Collectors.groupingBy<ArmorPiece?, Int> { obj: ArmorPiece? -> obj!!.armorType.slotIndex })
             val bestArmor = arrayOfNulls<ArmorPiece>(4)
             for ((key, value) in armorPieces) {
                 bestArmor[key] = value.stream().max(ARMOR_COMPARATOR).orElse(null)
@@ -103,8 +110,8 @@ class InvManager : Module() {
             for (i in 0..3) {
                 val armorPiece = bestArmor[i] ?: continue
                 val armorSlot = 3 - i
-                val oldArmor = ArmorPiece(mc.thePlayer!!.inventory.armorItemInSlot(armorSlot), -1)
-                if (ItemUtils.isStackEmpty(oldArmor.itemStack) || !classProvider.isItemArmor(oldArmor.itemStack.item) || ARMOR_COMPARATOR.compare(
+                val oldArmor = ArmorPiece(mc.player!!.inventory.armorItemInSlot(armorSlot), -1)
+                if (ItemUtils.isStackEmpty(oldArmor.itemStack) || (oldArmor.itemStack.item !is ItemArmor) || ARMOR_COMPARATOR.compare(
                         oldArmor,
                         armorPiece
                     ) < 0
@@ -113,7 +120,7 @@ class InvManager : Module() {
                         locked = true
                         return
                     }
-                    if (ItemUtils.isStackEmpty(mc.thePlayer!!.inventory.armorItemInSlot(armorSlot)) && move(
+                    if (ItemUtils.isStackEmpty(mc.player!!.inventory.armorItemInSlot(armorSlot)) && move(
                             armorPiece.slot,
                             false
                         )
@@ -136,15 +143,15 @@ class InvManager : Module() {
             val garbageItem = garbageItems.firstOrNull() ?: break
 
             // Drop all useless items
-            val openInventory = !classProvider.isGuiInventory(mc.currentScreen) && simulateInventory.get()
+            val openInventory = (mc.currentScreen !is GuiInventory) && simulateInventory.get()
 
-            if (openInventory) mc.netHandler.addToSendQueue(createOpenInventoryPacket())
+            if (openInventory) mc.connection!!.sendPacket(createOpenInventoryPacket())
 
-            if (swingValue.get()) mc.thePlayer!!.swingItem()
+            if (swingValue.get()) mc.player!!.swingArm(EnumHand.MAIN_HAND)
 
-            mc.playerController.windowClick(thePlayer.openContainer!!.windowId, garbageItem, 1, 4, thePlayer)
+            mc.playerController.windowClick(player.openContainer!!.windowId, garbageItem, 1, 4.toClickType(), player)
 
-            if (openInventory) mc.netHandler.addToSendQueue(classProvider.createCPacketCloseWindow())
+            if (openInventory) mc.connection!!.sendPacket(CPacketCloseWindow())
 
             delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
         }
@@ -156,57 +163,55 @@ class InvManager : Module() {
      * @param slot Slot id of the item. If the item isn't in the inventory -1
      * @return Returns true when the item is useful
      */
-    fun isUseful(itemStack: IItemStack, slot: Int): Boolean {
+    fun isUseful(itemStack: ItemStack, slot: Int): Boolean {
         return try {
             val item = itemStack.item
 
-            if (classProvider.isItemSword(item) || classProvider.isItemTool(item)) {
-                val thePlayer = mc.thePlayer ?: return true
+            if (item is ItemSword || item is ItemTool) {
+                val player = mc.player ?: return true
 
                 if (slot >= 36 && findBetterItem(
-                        slot - 36, thePlayer.inventory.getStackInSlot(slot - 36)
+                        slot - 36, player.inventory.getStackInSlot(slot - 36)
                     ) == slot - 36
                 ) return true
 
                 for (i in 0..8) {
-                    if (type(i).equals("sword", true) && classProvider.isItemSword(item) || type(i).equals(
+                    if (type(i).equals("sword", true) && item is ItemSword || type(i).equals(
                             "pickaxe", true
-                        ) && classProvider.isItemPickaxe(item) || type(i).equals(
+                        ) && item is ItemPickaxe || type(i).equals(
                             "axe", true
-                        ) && classProvider.isItemAxe(item)
+                        ) && (item is ItemAxe)
                     ) {
-                        if (findBetterItem(i, thePlayer.inventory.getStackInSlot(i)) == null) {
+                        if (findBetterItem(i, player.inventory.getStackInSlot(i)) == null) {
                             return true
                         }
                     }
                 }
 
-                val damage = (itemStack.getAttributeModifier("generic.attackDamage").firstOrNull()?.amount
+                val damage = (itemStack.getAttributeModifiers(EntityEquipmentSlot.MAINHAND)["generic.attackDamage"].firstOrNull()?.amount
                     ?: 0.0) + 1.25 * ItemUtils.getEnchantment(
-                    itemStack, classProvider.getEnchantmentEnum(EnchantmentType.SHARPNESS)
+                    itemStack, SHARPNESS
                 )
 
                 items(0, 45).none { (_, stack) ->
-                    stack != itemStack && stack.javaClass == itemStack.javaClass && damage < (stack.getAttributeModifier(
-                        "generic.attackDamage"
-                    ).firstOrNull()?.amount ?: 0.0) + 1.25 * ItemUtils.getEnchantment(
-                        stack, classProvider.getEnchantmentEnum(EnchantmentType.SHARPNESS)
+                    stack != itemStack && stack.javaClass == itemStack.javaClass && damage < (stack.getAttributeModifiers(EntityEquipmentSlot.MAINHAND)["generic.attackDamage"].firstOrNull()?.amount ?: 0.0) + 1.25 * ItemUtils.getEnchantment(
+                        stack, SHARPNESS
                     )
                 }
-            } else if (classProvider.isItemBow(item)) {
+            } else if (item is ItemBow) {
                 val currPower =
-                    ItemUtils.getEnchantment(itemStack, classProvider.getEnchantmentEnum(EnchantmentType.POWER))
+                    ItemUtils.getEnchantment(itemStack, POWER)
 
                 items().none { (_, stack) ->
-                    itemStack != stack && classProvider.isItemBow(stack.item) && currPower < ItemUtils.getEnchantment(
-                        stack, classProvider.getEnchantmentEnum(EnchantmentType.POWER)
+                    itemStack != stack && (stack.item is ItemBow) && currPower < ItemUtils.getEnchantment(
+                        stack, POWER
                     )
                 }
-            } else if (classProvider.isItemArmor(item)) {
+            } else if (item is ItemArmor) {
                 val currArmor = ArmorPiece(itemStack, slot)
 
                 items().none { (slot, stack) ->
-                    if (stack != itemStack && classProvider.isItemArmor(stack.item)) {
+                    if (stack != itemStack && stack.item is ItemArmor) {
                         val armor = ArmorPiece(stack, slot)
 
                         if (armor.armorType != currArmor.armorType) false
@@ -215,18 +220,14 @@ class InvManager : Module() {
                 }
             } else if (itemStack.unlocalizedName == "item.compass") {
                 items(0, 45).none { (_, stack) -> itemStack != stack && stack.unlocalizedName == "item.compass" }
-            } else classProvider.isItemFood(item) || itemStack.unlocalizedName == "item.arrow" || classProvider.isItemBlock(
-                item
-            ) && !classProvider.isBlockBush(item?.asItemBlock()?.block) || classProvider.isItemBed(item) || itemStack.unlocalizedName == "item.diamond" || itemStack.unlocalizedName == "item.ingotIron" || classProvider.isItemPotion(
-                item
-            ) || classProvider.isItemEnderPearl(item) || classProvider.isItemEnchantedBook(
-                item
-            ) || classProvider.isItemBucket(item) || itemStack.unlocalizedName == "item.stick" || ignoreVehiclesValue.get() && (classProvider.isItemBoat(
-                item
-            ) || classProvider.isItemMinecart(item) || itemStack.unlocalizedName == "item.slimeball" || itemStack.unlocalizedName == "item.slimeBall")
+            } else
+                    (item is ItemFood && item is ItemAppleGold) || itemStack.unlocalizedName == "item.arrow" || itemStack.unlocalizedName == "item.slimeball" ||
+                            (item is ItemBlock && !InventoryUtils.BLOCK_BLACKLIST.contains(item.block)) ||
+                            item is ItemBed || item is ItemPotion || item is ItemEnderPearl || item is ItemBucket || itemStack.unlocalizedName == "item.stick" ||
+                            ignoreVehiclesValue.get() && (item is ItemBoat || item is ItemMinecart)
+
         } catch (ex: Exception) {
             ClientUtils.getLogger().error("(InvManager) Failed to check item: ${itemStack.unlocalizedName}.", ex)
-
             true
         }
     }
@@ -240,20 +241,20 @@ class InvManager : Module() {
      */
     private fun sortHotbar() {
         for (index in 0..8) {
-            val thePlayer = mc.thePlayer ?: return
+            val player = mc.player ?: return
 
-            val bestItem = findBetterItem(index, thePlayer.inventory.getStackInSlot(index)) ?: continue
+            val bestItem = findBetterItem(index, player.inventory.getStackInSlot(index)) ?: continue
 
             if (bestItem != index) {
-                val openInventory = !classProvider.isGuiInventory(mc.currentScreen) && simulateInventory.get()
+                val openInventory = mc.currentScreen !is GuiInventory && simulateInventory.get()
 
-                if (openInventory) mc.netHandler.addToSendQueue(createOpenInventoryPacket())
+                if (openInventory) mc.connection!!.sendPacket(createOpenInventoryPacket())
 
                 mc.playerController.windowClick(
-                    0, if (bestItem < 9) bestItem + 36 else bestItem, index, 2, thePlayer
+                    0, if (bestItem < 9) bestItem + 36 else bestItem, index, 2.toClickType(), player
                 )
 
-                if (openInventory) mc.netHandler.addToSendQueue(classProvider.createCPacketCloseWindow())
+                if (openInventory) mc.connection!!.sendPacket(CPacketCloseWindow())
 
                 delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
                 break
@@ -261,24 +262,24 @@ class InvManager : Module() {
         }
     }
 
-    private fun findBetterItem(targetSlot: Int, slotStack: IItemStack?): Int? {
+    private fun findBetterItem(targetSlot: Int, slotStack: ItemStack?): Int? {
         val type = type(targetSlot)
 
-        val thePlayer = mc.thePlayer ?: return null
+        val player = mc.player ?: return null
 
         when (type.toLowerCase()) {
             "sword", "pickaxe", "axe" -> {
-                val currentTypeChecker: ((IItem?) -> Boolean) = when {
-                    type.equals("Sword", ignoreCase = true) -> { item: IItem? -> classProvider.isItemSword(item) }
-                    type.equals("Pickaxe", ignoreCase = true) -> { obj: IItem? -> classProvider.isItemPickaxe(obj) }
-                    type.equals("Axe", ignoreCase = true) -> { obj: IItem? -> classProvider.isItemAxe(obj) }
+                val currentTypeChecker: ((Item?) -> Boolean) = when {
+                    type.equals("Sword", ignoreCase = true) -> { item: Item? -> item is ItemSword }
+                    type.equals("Pickaxe", ignoreCase = true) -> { obj: Item? -> obj is ItemPickaxe }
+                    type.equals("Axe", ignoreCase = true) -> { obj: Item? -> obj is ItemAxe }
                     else -> return null
                 }
 
                 var bestWeapon = if (currentTypeChecker(slotStack?.item)) targetSlot
                 else -1
 
-                thePlayer.inventory.mainInventory.forEachIndexed { index, itemStack ->
+                player.inventory.mainInventory.forEachIndexed { index, itemStack ->
                     if (itemStack != null && currentTypeChecker(itemStack.item) && !type(index).equals(
                             type, ignoreCase = true
                         )
@@ -287,16 +288,16 @@ class InvManager : Module() {
                             bestWeapon = index
                         } else {
                             val currDamage =
-                                (itemStack.getAttributeModifier("generic.attackDamage").firstOrNull()?.amount
+                                (itemStack.getAttributeModifiers(EntityEquipmentSlot.MAINHAND)["generic.attackDamage"].firstOrNull()?.amount
                                     ?: 0.0) + 1.25 * ItemUtils.getEnchantment(
-                                    itemStack, classProvider.getEnchantmentEnum(EnchantmentType.SHARPNESS)
+                                    itemStack, SHARPNESS
                                 )
 
-                            val bestStack = thePlayer.inventory.getStackInSlot(bestWeapon) ?: return@forEachIndexed
+                            val bestStack = player.inventory.getStackInSlot(bestWeapon) ?: return@forEachIndexed
                             val bestDamage =
-                                (bestStack.getAttributeModifier("generic.attackDamage").firstOrNull()?.amount
+                                (bestStack.getAttributeModifiers(EntityEquipmentSlot.MAINHAND)["generic.attackDamage"].firstOrNull()?.amount
                                     ?: 0.0) + 1.25 * ItemUtils.getEnchantment(
-                                    bestStack, classProvider.getEnchantmentEnum(EnchantmentType.SHARPNESS)
+                                    bestStack, SHARPNESS
                                 )
 
                             if (bestDamage < currDamage) bestWeapon = index
@@ -308,23 +309,23 @@ class InvManager : Module() {
             }
 
             "bow" -> {
-                var bestBow = if (classProvider.isItemBow(slotStack?.item)) targetSlot else -1
+                var bestBow = if (slotStack?.item is ItemBow) targetSlot else -1
                 var bestPower = if (bestBow != -1) ItemUtils.getEnchantment(
-                    slotStack, classProvider.getEnchantmentEnum(EnchantmentType.POWER)
+                    slotStack,POWER
                 )
                 else 0
 
-                thePlayer.inventory.mainInventory.forEachIndexed { index, itemStack ->
-                    if (classProvider.isItemBow(itemStack?.item) && !type(index).equals(type, ignoreCase = true)) {
+                player.inventory.mainInventory.forEachIndexed { index, itemStack ->
+                    if (slotStack?.item is ItemBow && !type(index).equals(type, ignoreCase = true)) {
                         if (bestBow == -1) {
                             bestBow = index
                         } else {
                             val power = ItemUtils.getEnchantment(
-                                itemStack, classProvider.getEnchantmentEnum(EnchantmentType.POWER)
+                                itemStack, POWER
                             )
 
                             if (ItemUtils.getEnchantment(
-                                    itemStack, classProvider.getEnchantmentEnum(EnchantmentType.POWER)
+                                    itemStack, POWER
                                 ) > bestPower
                             ) {
                                 bestBow = index
@@ -338,15 +339,15 @@ class InvManager : Module() {
             }
 
             "food" -> {
-                thePlayer.inventory.mainInventory.forEachIndexed { index, stack ->
+                player.inventory.mainInventory.forEachIndexed { index, stack ->
                     if (stack != null) {
                         val item = stack.item
 
-                        if (classProvider.isItemFood(item) && !classProvider.isItemAppleGold(item) && !type(index).equals(
+                        if (item is ItemFood && item !is ItemAppleGold && !type(index).equals(
                                 "Food", ignoreCase = true
                             )
                         ) {
-                            val replaceCurr = ItemUtils.isStackEmpty(slotStack) || !classProvider.isItemFood(item)
+                            val replaceCurr = ItemUtils.isStackEmpty(slotStack) || item !is ItemFood
 
                             return if (replaceCurr) index else null
                         }
@@ -355,15 +356,15 @@ class InvManager : Module() {
             }
 
             "block" -> {
-                thePlayer.inventory.mainInventory.forEachIndexed { index, stack ->
+                player.inventory.mainInventory.forEachIndexed { index, stack ->
                     if (stack != null) {
                         val item = stack.item!!
 
-                        if (classProvider.isItemBlock(item) && !InventoryUtils.BLOCK_BLACKLIST.contains(item.asItemBlock().block) && !type(
+                        if (item is ItemBlock && !InventoryUtils.BLOCK_BLACKLIST.contains(item.block) && !type(
                                 index
                             ).equals("Block", ignoreCase = true)
                         ) {
-                            val replaceCurr = ItemUtils.isStackEmpty(slotStack) || !classProvider.isItemBlock(item)
+                            val replaceCurr = ItemUtils.isStackEmpty(slotStack) || item !is ItemBlock
 
                             return if (replaceCurr) index else null
                         }
@@ -372,18 +373,18 @@ class InvManager : Module() {
             }
 
             "water" -> {
-                thePlayer.inventory.mainInventory.forEachIndexed { index, stack ->
+                player.inventory.mainInventory.forEachIndexed { index, stack ->
                     if (stack != null) {
-                        val item = stack.item!!
+                        val item = stack.item
 
-                        if (classProvider.isItemBucket(item) && item.asItemBucket().isFull == classProvider.getBlockEnum(
-                                BlockType.FLOWING_WATER
-                            ) && !type(index).equals("Water", ignoreCase = true)
+                        if (item is ItemBucket && item ==
+                                Blocks.FLOWING_WATER
+                             && !type(index).equals("Water", ignoreCase = true)
                         ) {
                             val replaceCurr =
-                                ItemUtils.isStackEmpty(slotStack) || !classProvider.isItemBucket(item) || (item.asItemBucket()).isFull != classProvider.getBlockEnum(
-                                    BlockType.FLOWING_WATER
-                                )
+                                ItemUtils.isStackEmpty(slotStack) || (slotStack?.item !is ItemBucket) || (item !=
+                                        Blocks.FLOWING_WATER)
+
 
                             return if (replaceCurr) index else null
                         }
@@ -392,13 +393,13 @@ class InvManager : Module() {
             }
 
             "gapple" -> {
-                thePlayer.inventory.mainInventory.forEachIndexed { index, stack ->
+                player.inventory.mainInventory.forEachIndexed { index, stack ->
                     if (stack != null) {
-                        val item = stack.item!!
+                        val item = stack.item
 
-                        if (classProvider.isItemAppleGold(item) && !type(index).equals("Gapple", ignoreCase = true)) {
+                        if (item is ItemAppleGold && !type(index).equals("Gapple", ignoreCase = true)) {
                             val replaceCurr =
-                                ItemUtils.isStackEmpty(slotStack) || !classProvider.isItemAppleGold(slotStack?.item)
+                                ItemUtils.isStackEmpty(slotStack) || slotStack?.item is ItemAppleGold
 
                             return if (replaceCurr) index else null
                         }
@@ -407,13 +408,13 @@ class InvManager : Module() {
             }
 
             "pearl" -> {
-                thePlayer.inventory.mainInventory.forEachIndexed { index, stack ->
+                player.inventory.mainInventory.forEachIndexed { index, stack ->
                     if (stack != null) {
                         val item = stack.item
 
-                        if (classProvider.isItemEnderPearl(item) && !type(index).equals("Pearl", ignoreCase = true)) {
+                        if (item is ItemEnderPearl && !type(index).equals("Pearl", ignoreCase = true)) {
                             val replaceCurr =
-                                ItemUtils.isStackEmpty(slotStack) || !classProvider.isItemEnderPearl(slotStack?.item)
+                                ItemUtils.isStackEmpty(slotStack) || slotStack?.item !is ItemEnderPearl
 
                             return if (replaceCurr) index else null
                         }
@@ -428,17 +429,17 @@ class InvManager : Module() {
     /**
      * Get items in inventory
      */
-    private fun items(start: Int = 0, end: Int = 45): Map<Int, IItemStack> {
-        val items = mutableMapOf<Int, IItemStack>()
+    private fun items(start: Int = 0, end: Int = 45): Map<Int, ItemStack> {
+        val items = mutableMapOf<Int, ItemStack>()
 
         for (i in end - 1 downTo start) {
-            val itemStack = mc.thePlayer?.inventoryContainer?.getSlot(i)?.stack ?: continue
+            val itemStack = mc.player?.inventoryContainer?.getSlot(i)?.stack ?: continue
 
             if (ItemUtils.isStackEmpty(itemStack)) continue
 
             if (i in 36..44 && type(i).equals("Ignore", ignoreCase = true)) continue
 
-            if (System.currentTimeMillis() - (itemStack).itemDelay >= itemDelayValue.get()) items[i] = itemStack
+            if (System.currentTimeMillis() - (itemStack as IMixinItemStack).itemDelay >= itemDelayValue.get()) items[i] = itemStack
         }
 
         return items
@@ -461,7 +462,7 @@ class InvManager : Module() {
     }
     @EventTarget
     fun onRender3D(event: Render3DEvent?) {
-        if (!InventoryUtils.CLICK_TIMER.hasTimePassed(delay) || mc.thePlayer == null || mc.thePlayer!!.openContainer != null && mc.thePlayer!!.openContainer!!.windowId != 0) return
+        if (!InventoryUtils.CLICK_TIMER.hasTimePassed(delay) || mc.player == null || mc.player!!.openContainer != null && mc.player!!.openContainer!!.windowId != 0) return
 
     }
 
@@ -478,28 +479,28 @@ class InvManager : Module() {
      * @return True if it is unable to move the item
      */
     private fun move(item: Int, isArmorSlot: Boolean): Boolean {
-        if (!isArmorSlot && item < 9 && !classProvider.isGuiInventory(mc.currentScreen)) {
-            mc.netHandler.addToSendQueue(classProvider.createCPacketHeldItemChange(item))
-            mc.netHandler.addToSendQueue(
+        if (!isArmorSlot && item < 9 && mc.currentScreen !is GuiInventory) {
+            mc.connection!!.sendPacket(CPacketHeldItemChange(item))
+            mc.connection!!.sendPacket(
                 createUseItemPacket(
-                    mc.thePlayer!!.inventoryContainer.getSlot(item).stack,
-                    WEnumHand.MAIN_HAND
+                    mc.player!!.inventoryContainer.getSlot(item).stack,
+                    EnumHand.MAIN_HAND
                 )
             )
-            mc.netHandler.addToSendQueue(
-                classProvider.createCPacketHeldItemChange(
-                    mc.thePlayer!!.inventory.currentItem
+            mc.connection!!.sendPacket(
+                CPacketHeldItemChange(
+                    mc.player!!.inventory.currentItem
                 )
             )
             delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
             return true
-        } else if (!(noMoveValue.get() && isMoving) && (!invOpenValue.get() || classProvider.isGuiInventory(mc.currentScreen)) && item != -1) {
-            val openInventory = simulateInventory.get() && !classProvider.isGuiInventory(mc.currentScreen)
-            if (openInventory) mc.netHandler.addToSendQueue(createOpenInventoryPacket())
+        } else if (!(noMoveValue.get() && isMoving) && (!invOpenValue.get() || mc.currentScreen is GuiInventory) && item != -1) {
+            val openInventory = simulateInventory.get() && mc.currentScreen !is GuiInventory
+            if (openInventory) mc.connection!!.sendPacket(createOpenInventoryPacket())
             var full = isArmorSlot
             if (full) {
-                for (iItemStack in mc.thePlayer!!.inventory.mainInventory) {
-                    if (ItemUtils.isStackEmpty(iItemStack)) {
+                for (ItemStack in mc.player!!.inventory.mainInventory) {
+                    if (ItemUtils.isStackEmpty(ItemStack)) {
                         full = false
                         break
                     }
@@ -507,18 +508,18 @@ class InvManager : Module() {
             }
             if (full) {
                 mc.playerController.windowClick(
-                    mc.thePlayer!!.inventoryContainer.windowId, item, 1, 4,
-                    mc.thePlayer!!
+                    mc.player!!.inventoryContainer.windowId, item, 1, 4.toClickType(),
+                    mc.player!!
                 )
             } else {
                 mc.playerController.windowClick(
-                    mc.thePlayer!!.inventoryContainer.windowId,
-                    if (isArmorSlot) item else if (item < 9) item + 36 else item, 0, 1,
-                    mc.thePlayer!!
+                    mc.player!!.inventoryContainer.windowId,
+                    if (isArmorSlot) item else if (item < 9) item + 36 else item, 0, 1.toClickType(),
+                    mc.player!!
                 )
             }
             delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
-            if (openInventory) mc.netHandler.addToSendQueue(classProvider.createCPacketCloseWindow())
+            if (openInventory) mc.connection!!.sendPacket(CPacketCloseWindow())
             return true
         }
         return false

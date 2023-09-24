@@ -6,15 +6,22 @@
 package me.utils;
 
 import net.ccbluex.liquidbounce.LiquidBounce;
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntity;
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.player.IEntityPlayer;
-import net.ccbluex.liquidbounce.api.minecraft.client.network.INetworkPlayerInfo;
-import net.ccbluex.liquidbounce.api.minecraft.scoreboard.ITeam;
 import net.ccbluex.liquidbounce.features.module.modules.combat.NoFriends;
 import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot;
 import net.ccbluex.liquidbounce.features.module.modules.misc.Teams;
 import net.ccbluex.liquidbounce.utils.MinecraftInstance;
 import net.ccbluex.liquidbounce.utils.render.ColorUtils;
+import net.minecraft.client.network.NetworkPlayerInfo;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.boss.EntityDragon;
+import net.minecraft.entity.monster.*;
+import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.entity.passive.EntityBat;
+import net.minecraft.entity.passive.EntitySquid;
+import net.minecraft.entity.passive.EntityVillager;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.scoreboard.Team;
 
 public final class EntityUtils2 extends MinecraftInstance {
 
@@ -24,11 +31,11 @@ public final class EntityUtils2 extends MinecraftInstance {
     public static boolean targetAnimals = false;
     public static boolean targetDead = false;
 
-    public static boolean isSelected(final IEntity entity, final boolean canAttackCheck) {
-        if (classProvider.isEntityLivingBase(entity) && (targetDead || entity.isEntityAlive()) && entity != null && !entity.equals(mc.getThePlayer())) {
+    public static boolean isSelected(final Entity entity, final boolean canAttackCheck) {
+        if ((entity instanceof EntityLivingBase) && (targetDead || entity.isEntityAlive()) && entity != null && !entity.equals(mc.player)) {
             if (targetInvisible || !entity.isInvisible()) {
-                if (targetPlayer && classProvider.isEntityPlayer(entity)) {
-                    IEntityPlayer entityPlayer = entity.asEntityPlayer();
+                if (targetPlayer && (entity instanceof EntityPlayer)) {
+                    EntityPlayer entityPlayer = (EntityPlayer) entity;
 
                     if (canAttackCheck) {
                         if (AntiBot.isBot(entityPlayer))
@@ -55,36 +62,36 @@ public final class EntityUtils2 extends MinecraftInstance {
         return false;
     }
 
-    public static boolean isFriend(final IEntity entity) {
-        return classProvider.isEntityPlayer(entity) && entity.getName() != null &&
+    public static boolean isFriend(final Entity entity) {
+        return (entity instanceof EntityPlayer) && entity.getName() != null &&
                 LiquidBounce.fileManager.friendsConfig.isFriend(ColorUtils.stripColor(entity.getName()));
     }
 
-    public static boolean isAnimal(final IEntity entity) {
-        return classProvider.isEntityAnimal(entity) || classProvider.isEntitySquid(entity) || classProvider.isEntityGolem(entity) ||
-                classProvider.isEntityBat(entity);
+    public static boolean isAnimal(final Entity entity) {
+        return (entity instanceof EntityAnimal) || (entity instanceof EntitySquid) || (entity instanceof EntityGolem) ||
+                (entity instanceof EntityBat);
     }
 
-    public static boolean isMob(final IEntity entity) {
-        return classProvider.isEntityMob(entity) || classProvider.isEntityVillager(entity) || classProvider.isEntitySlime(entity)
-                || classProvider.isEntityGhast(entity) || classProvider.isEntityDragon(entity) || classProvider.isEntityShulker(entity);
+    public static boolean isMob(final Entity entity) {
+        return (entity instanceof EntityMob) || (entity instanceof EntityVillager) || (entity instanceof EntitySlime)
+                || (entity instanceof EntityGhast) || (entity instanceof EntityDragon) || (entity instanceof EntityShulker);
     }
 
-    public static String getName(final INetworkPlayerInfo networkPlayerInfoIn) {
+    public static String getName(final NetworkPlayerInfo networkPlayerInfoIn) {
         if (networkPlayerInfoIn.getDisplayName() != null)
             return networkPlayerInfoIn.getDisplayName().getFormattedText();
 
-        ITeam team = networkPlayerInfoIn.getPlayerTeam();
+        Team team = networkPlayerInfoIn.getPlayerTeam();
         String name = networkPlayerInfoIn.getGameProfile().getName();
 
         return team == null ? name : team.formatString(name);
     }
 
-    public static int getPing(final IEntityPlayer entityPlayer) {
+    public static int getPing(final EntityPlayer entityPlayer) {
         if (entityPlayer == null)
             return 0;
 
-        final INetworkPlayerInfo networkPlayerInfo = mc.getNetHandler().getPlayerInfo(entityPlayer.getUniqueID());
+        final NetworkPlayerInfo networkPlayerInfo = mc.getConnection().getPlayerInfo(entityPlayer.getUniqueID());
 
         return networkPlayerInfo == null ? 0 : networkPlayerInfo.getResponseTime();
     }

@@ -9,16 +9,23 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.minecraft.network.EnumConnectionState
+import net.minecraft.network.handshake.client.C00Handshake
 import java.util.*
 
 class BungeeCordSpoof : MinecraftInstance(), Listenable {
     @EventTarget
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
-        if (classProvider.isCPacketHandshake(packet) && enabled && packet.asCPacketHandshake().requestedState.isHandshake) {
-            val handshake = packet.asCPacketHandshake()
+        if (packet is C00Handshake && enabled && packet.requestedState == EnumConnectionState.HANDSHAKING) {
 
-            handshake.ip = handshake.ip + "\u0000" + String.format("%d.%d.%d.%d", getRandomIpPart(), getRandomIpPart(), getRandomIpPart(), getRandomIpPart()) + "\u0000" + mc.session.playerId.replace("-", "")
+            packet.ip = packet.ip + "\u0000" + String.format(
+                "%d.%d.%d.%d",
+                getRandomIpPart(),
+                getRandomIpPart(),
+                getRandomIpPart(),
+                getRandomIpPart()
+            ) + "\u0000" + mc.session.playerID.replace("-", "")
         }
     }
 

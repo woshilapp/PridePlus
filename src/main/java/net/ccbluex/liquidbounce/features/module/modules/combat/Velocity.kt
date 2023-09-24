@@ -20,8 +20,10 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.injection.implementations.IMixinTimer
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
+import net.minecraft.network.play.server.SPacketEntityVelocity
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -89,7 +91,7 @@ object Velocity : Module() {
         mc2.player.capabilities.flySpeed = 0.05f
         mc2.player.noClip = false
 
-        mc.timer.timerSpeed = 1F
+        (mc.timer as IMixinTimer).timerSpeed = 1F
         mc2.player.speedInAir = 0.02F
 
         mode.onDisable()
@@ -103,7 +105,7 @@ object Velocity : Module() {
 
         mode.onUpdate(event)
         if (wasTimer) {
-            mc.timer.timerSpeed = 1f
+            (mc.timer as IMixinTimer).timerSpeed = 1f
             wasTimer = false
         }
         if(velocityInput) {
@@ -152,12 +154,11 @@ object Velocity : Module() {
         }
 
         val packet = event.packet
-        if (classProvider.isSPacketEntityVelocity(packet)) {
-            val packet1 = packet.asSPacketEntityVelocity()
-            if (mc.thePlayer == null || (mc.theWorld?.getEntityByID(packet1.entityID) ?: return) != mc.thePlayer) {
+        if (packet is SPacketEntityVelocity) {
+            if (mc.player == null || (mc.world?.getEntityByID(packet.entityID) ?: return) != mc.player) {
                 return
             }
-            // if(onlyHitVelocityValue.get() && packet.getMotionY()<400.0) return
+            // if(onlyHitVelocityValue.get() && packet.motionY<400.0) return
             if (noFireValue.get() && mc2.player.isBurning) return
             velocityTimer.reset()
             velocityTick = 0
@@ -170,11 +171,11 @@ object Velocity : Module() {
                         mc2.player.rotationYaw + overrideDirectionYawValue.get() + 90
                     }.toDouble()
                 )
-                val dist = sqrt((packet1.motionX * packet1.motionX + packet1.motionZ * packet1.motionZ).toDouble())
+                val dist = sqrt((packet.motionX * packet.motionX + packet.motionZ * packet.motionZ).toDouble())
                 val x = cos(yaw) * dist
                 val z = sin(yaw) * dist
-                packet1.motionX = x.toInt()
-                packet1.motionZ = z.toInt()
+                packet.motionX = x.toInt()
+                packet.motionZ = z.toInt()
             }
 
             mode.onVelocityPacket(event)

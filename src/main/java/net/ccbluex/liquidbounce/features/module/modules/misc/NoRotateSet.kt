@@ -10,8 +10,10 @@ import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.utils.RotationUtils
+import net.minecraft.network.play.client.CPacketPlayer
+import net.minecraft.network.play.server.SPacketPlayerPosLook
 
 @ModuleInfo(name = "NoRotateSet", description = "Prevents the server from rotating your head.", category = ModuleCategory.MISC)
 class NoRotateSet : Module() {
@@ -21,10 +23,10 @@ class NoRotateSet : Module() {
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
-        if (classProvider.isSPacketPlayerPosLook(event.packet)) {
-            val packet = event.packet.asSPacketPosLook()
+        if (event.packet is SPacketPlayerPosLook) {
+            val packet = event.packet
 
             if (noZeroValue.get() && packet.yaw == 0F && packet.pitch == 0F)
                 return
@@ -34,11 +36,11 @@ class NoRotateSet : Module() {
                     packet.pitch != RotationUtils.serverRotation.pitch) {
 
                 if (confirmValue.get())
-                    mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerLook(packet.yaw, packet.pitch, thePlayer.onGround))
+                    mc.connection!!.sendPacket(CPacketPlayer.Rotation(packet.yaw, packet.pitch, player.onGround))
             }
 
-            packet.yaw = thePlayer.rotationYaw
-            packet.pitch = thePlayer.rotationPitch
+            packet.yaw = player.rotationYaw
+            packet.pitch = player.rotationPitch
         }
     }
 

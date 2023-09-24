@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.api.minecraft.client.settings.IKeyBinding
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
@@ -17,6 +16,8 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.minecraft.client.settings.KeyBinding
+import net.minecraft.util.EnumHand
 
 @ModuleInfo(name = "AntiAFK", description = "Prevents you from getting kicked for being AFK.", category = ModuleCategory.PLAYER)
 class AntiAFK : Module() {
@@ -40,14 +41,14 @@ class AntiAFK : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         when (modeValue.get().toLowerCase()) {
             "old" -> {
                 mc.gameSettings.keyBindForward.pressed = true
 
                 if (delayTimer.hasTimePassed(500)) {
-                    thePlayer.rotationYaw += 180F
+                    player.rotationYaw += 180F
                     delayTimer.reset()
                 }
             }
@@ -59,11 +60,11 @@ class AntiAFK : Module() {
                 randomTimerDelay = 500L
                 when (RandomUtils.nextInt(0, 6)) {
                     0 -> {
-                        if (thePlayer.onGround) thePlayer.jump()
+                        if (player.onGround) player.jump()
                         delayTimer.reset()
                     }
                     1 -> {
-                        if (!thePlayer.isSwingInProgress) thePlayer.swingItem()
+                        if (!player.isSwingInProgress) player.swingArm(EnumHand.MAIN_HAND)
                             delayTimer.reset()
                         }
                         2 -> {
@@ -72,17 +73,17 @@ class AntiAFK : Module() {
                             delayTimer.reset()
                         }
                         3 -> {
-                            thePlayer.inventory.currentItem = RandomUtils.nextInt(0, 9)
+                            player.inventory.currentItem = RandomUtils.nextInt(0, 9)
                             mc.playerController.updateController()
                             delayTimer.reset()
                         }
                         4 -> {
-                            thePlayer.rotationYaw += RandomUtils.nextFloat(-180.0F, 180.0F)
+                            player.rotationYaw += RandomUtils.nextFloat(-180.0F, 180.0F)
                             delayTimer.reset()
                         }
                         5 -> {
-                            if (thePlayer.rotationPitch <= -90 || thePlayer.rotationPitch >= 90) thePlayer.rotationPitch = 0F
-                            thePlayer.rotationPitch += RandomUtils.nextFloat(-10.0F, 10.0F)
+                            if (player.rotationPitch <= -90 || player.rotationPitch >= 90) player.rotationPitch = 0F
+                            player.rotationPitch += RandomUtils.nextFloat(-10.0F, 10.0F)
                             delayTimer.reset()
                         }
                     }
@@ -91,25 +92,25 @@ class AntiAFK : Module() {
                 if (moveValue.get())
                     mc.gameSettings.keyBindForward.pressed = true
 
-                if (jumpValue.get() && thePlayer.onGround)
-                    thePlayer.jump()
+                if (jumpValue.get() && player.onGround)
+                    player.jump()
 
                 if (rotateValue.get() && delayTimer.hasTimePassed(rotationDelayValue.get().toLong())) {
-                    thePlayer.rotationYaw += rotationAngleValue.get()
-                    if (thePlayer.rotationPitch <= -90 || thePlayer.rotationPitch >= 90) thePlayer.rotationPitch = 0F
-                    thePlayer.rotationPitch += RandomUtils.nextFloat(0F, 1F) * 2 - 1
+                    player.rotationYaw += rotationAngleValue.get()
+                    if (player.rotationPitch <= -90 || player.rotationPitch >= 90) player.rotationPitch = 0F
+                    player.rotationPitch += RandomUtils.nextFloat(0F, 1F) * 2 - 1
                     delayTimer.reset()
                 }
 
-                if (swingValue.get() && !thePlayer.isSwingInProgress && swingDelayTimer.hasTimePassed(swingDelayValue.get().toLong())) {
-                    thePlayer.swingItem()
+                if (swingValue.get() && !player.isSwingInProgress && swingDelayTimer.hasTimePassed(swingDelayValue.get().toLong())) {
+                    player.swingArm(EnumHand.MAIN_HAND)
                     swingDelayTimer.reset()
                 }
             }
         }
     }
 
-    private fun getRandomMoveKeyBind(): IKeyBinding? {
+    private fun getRandomMoveKeyBind(): KeyBinding? {
         when (RandomUtils.nextInt(0, 4)) {
             0 -> {
                 return mc.gameSettings.keyBindRight
@@ -130,7 +131,7 @@ class AntiAFK : Module() {
     }
 
     override fun onDisable() {
-        if (!mc.gameSettings.isKeyDown(mc.gameSettings.keyBindForward))
+        if (!mc.gameSettings.keyBindForward.isKeyDown)
             mc.gameSettings.keyBindForward.pressed = false
     }
 }

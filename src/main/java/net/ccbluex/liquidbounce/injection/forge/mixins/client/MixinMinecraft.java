@@ -6,17 +6,11 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.client;
 
 import net.ccbluex.liquidbounce.LiquidBounce;
-import net.ccbluex.liquidbounce.api.util.WrappedGuiScreen;
 import net.ccbluex.liquidbounce.event.*;
 import net.ccbluex.liquidbounce.features.module.modules.combat.AutoClicker;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.AbortBreaking;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.MultiActions;
 import net.ccbluex.liquidbounce.features.module.modules.world.FastPlace;
-import net.ccbluex.liquidbounce.injection.backend.EnumFacingImplKt;
-import net.ccbluex.liquidbounce.injection.backend.GuiScreenImplKt;
-import net.ccbluex.liquidbounce.injection.backend.WorldClientImplKt;
-import net.ccbluex.liquidbounce.injection.backend.WrapperImpl;
-import net.ccbluex.liquidbounce.injection.backend.utils.BackendExtentionsKt;
 import net.ccbluex.liquidbounce.ui.client.GuiMainMenu;
 
 import net.ccbluex.liquidbounce.utils.CPSCounter;
@@ -93,12 +87,6 @@ public abstract class MixinMinecraft {
             displayHeight = 622;
     }
 
-    @Inject(method = "<init>", at = @At(value = "RETURN"))
-    private void injectWrapperInitializator(CallbackInfo ci) {
-        // Set Wrapper
-        LiquidBounce.wrapper = WrapperImpl.INSTANCE;
-    }
-
     @Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;checkGLError(Ljava/lang/String;)V", ordinal = 2, shift = At.Shift.AFTER))
     private void startGame(CallbackInfo callbackInfo) {
         LiquidBounce.INSTANCE.startClient();
@@ -116,14 +104,14 @@ public abstract class MixinMinecraft {
     @Inject(method = "displayGuiScreen", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;currentScreen:Lnet/minecraft/client/gui/GuiScreen;", shift = At.Shift.AFTER))
     private void displayGuiScreen(CallbackInfo callbackInfo) {
         if (currentScreen instanceof net.minecraft.client.gui.GuiMainMenu || (currentScreen != null && currentScreen.getClass().getName().startsWith("net.labymod") && currentScreen.getClass().getSimpleName().equals("ModGuiMainMenu"))) {
-            currentScreen = GuiScreenImplKt.unwrap(LiquidBounce.wrapper.getClassProvider().wrapGuiScreen(new GuiMainMenu()));
+            currentScreen = new GuiMainMenu();
 
             ScaledResolution scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
             currentScreen.setWorldAndResolution(Minecraft.getMinecraft(), scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight());
             skipRenderWorld = false;
         }
 
-        LiquidBounce.eventManager.callEvent(new ScreenEvent(currentScreen == null ? null : GuiScreenImplKt.wrap(currentScreen)));
+        LiquidBounce.eventManager.callEvent(new ScreenEvent(currentScreen == null ? null : currentScreen));
     }
 
     @Inject(method = "runGameLoop", at = @At("HEAD"))
@@ -155,7 +143,7 @@ public abstract class MixinMinecraft {
         IBlockState blockState = world.getBlockState(objectMouseOver.getBlockPos());
 
         if (this.leftClickCounter == 0 && blockState.getBlock().getMaterial(blockState) != Material.AIR) {
-            LiquidBounce.eventManager.callEvent(new ClickBlockEvent(BackendExtentionsKt.wrap(objectMouseOver.getBlockPos()), EnumFacingImplKt.wrap(this.objectMouseOver.sideHit)));
+            LiquidBounce.eventManager.callEvent(new ClickBlockEvent(objectMouseOver.getBlockPos(), this.objectMouseOver.sideHit));
         }
     }
 
@@ -204,7 +192,7 @@ public abstract class MixinMinecraft {
             MiniMapRegister.INSTANCE.unloadAllChunks();
         }
 
-        LiquidBounce.eventManager.callEvent(new WorldEvent(p_loadWorld_1_ == null ? null : WorldClientImplKt.wrap(p_loadWorld_1_)));
+        LiquidBounce.eventManager.callEvent(new WorldEvent(p_loadWorld_1_ == null ? null : p_loadWorld_1_));
     }
 
     /**
@@ -220,7 +208,7 @@ public abstract class MixinMinecraft {
                 BlockPos blockPos = this.objectMouseOver.getBlockPos();
 
                 if (this.leftClickCounter == 0)
-                    LiquidBounce.eventManager.callEvent(new ClickBlockEvent(BackendExtentionsKt.wrap(blockPos), EnumFacingImplKt.wrap(this.objectMouseOver.sideHit)));
+                    LiquidBounce.eventManager.callEvent(new ClickBlockEvent(blockPos, this.objectMouseOver.sideHit));
 
 
                 IBlockState bs = this.world.getBlockState(blockPos);

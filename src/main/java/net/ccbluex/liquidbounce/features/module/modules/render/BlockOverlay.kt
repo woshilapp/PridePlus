@@ -5,14 +5,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.api.minecraft.util.WBlockPos
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.injection.backend.Backend
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.canBeClicked
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
@@ -20,6 +18,11 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.minecraft.block.Block
+import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.init.Blocks
+import net.minecraft.util.math.BlockPos
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
@@ -31,11 +34,11 @@ class BlockOverlay : Module() {
     private val colorRainbow = BoolValue("Rainbow", false)
     val infoValue = BoolValue("Info", false)
 
-    val currentBlock: WBlockPos?
+    val currentBlock: BlockPos?
         get() {
             val blockPos = mc.objectMouseOver?.blockPos ?: return null
 
-            if (canBeClicked(blockPos) && mc.theWorld!!.worldBorder.contains(blockPos))
+            if (canBeClicked(blockPos) && mc.world!!.worldBorder.contains(blockPos))
                 return blockPos
 
             return null
@@ -45,40 +48,35 @@ class BlockOverlay : Module() {
     fun onRender3D(event: Render3DEvent) {
         val blockPos = currentBlock ?: return
 
-        val block = mc.theWorld!!.getBlockState(blockPos).block
+        val block = mc.world!!.getBlockState(blockPos).block
         val partialTicks = event.partialTicks
 
         val color = if (colorRainbow.get()) rainbow(0.4F) else Color(colorRedValue.get(),
                 colorGreenValue.get(), colorBlueValue.get(), (0.4F * 255).toInt())
 
-        classProvider.getGlStateManager().enableBlend()
-        classProvider.getGlStateManager().tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO)
+        GlStateManager.enableBlend()
+        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO)
         RenderUtils.glColor(color)
         GL11.glLineWidth(2F)
-        classProvider.getGlStateManager().disableTexture2D()
+        GlStateManager.disableTexture2D()
         GL11.glDepthMask(false)
 
-        @Suppress("ConstantConditionIf")
-        if (Backend.MINECRAFT_VERSION_MINOR < 12) {
-            block.setBlockBoundsBasedOnState(mc.theWorld!!, blockPos)
-        }
+        val player = mc.player ?: return
 
-        val thePlayer = mc.thePlayer ?: return
+        val x = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks
+        val y = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks
+        val z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks
 
-        val x = thePlayer.lastTickPosX + (thePlayer.posX - thePlayer.lastTickPosX) * partialTicks
-        val y = thePlayer.lastTickPosY + (thePlayer.posY - thePlayer.lastTickPosY) * partialTicks
-        val z = thePlayer.lastTickPosZ + (thePlayer.posZ - thePlayer.lastTickPosZ) * partialTicks
-
-        val axisAlignedBB = block.getSelectedBoundingBox(mc.theWorld!!, mc.theWorld!!.getBlockState(blockPos), blockPos)
+        val axisAlignedBB = block.getSelectedBoundingBox(mc.world!!.getBlockState(blockPos), mc.world!!, blockPos)
                 .expand(0.0020000000949949026, 0.0020000000949949026, 0.0020000000949949026)
                 .offset(-x, -y, -z)
 
         RenderUtils.drawSelectionBoundingBox(axisAlignedBB)
         RenderUtils.drawFilledBox(axisAlignedBB)
         GL11.glDepthMask(true)
-        classProvider.getGlStateManager().enableTexture2D()
-        classProvider.getGlStateManager().disableBlend()
-        classProvider.getGlStateManager().resetColor()
+        GlStateManager.enableTexture2D()
+        GlStateManager.disableBlend()
+        GlStateManager.resetColor()
     }
 
     @EventTarget
@@ -87,8 +85,8 @@ class BlockOverlay : Module() {
             val blockPos = currentBlock ?: return
             val block = getBlock(blockPos) ?: return
 
-            val info = "${block.localizedName} §7ID: ${functions.getIdFromBlock(block)}"
-            val scaledResolution = classProvider.createScaledResolution(mc)
+            val info = "${block.localizedName} §7ID: ${Block.getIdFromBlock(block)}"
+            val scaledResolution = ScaledResolution(mc)
 
             RenderUtils.drawBorderedRect(
                     scaledResolution.scaledWidth / 2 - 2F,
@@ -98,7 +96,7 @@ class BlockOverlay : Module() {
                     3F, Color.BLACK.rgb, Color.BLACK.rgb
             )
 
-            classProvider.getGlStateManager().resetColor()
+            GlStateManager.resetColor()
             Fonts.font40.drawString(info, scaledResolution.scaledWidth / 2f, scaledResolution.scaledHeight / 2f + 7f, Color.WHITE.rgb, false)
         }
     }

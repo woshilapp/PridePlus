@@ -1,6 +1,5 @@
 package me.utils;
 
-import net.ccbluex.liquidbounce.api.minecraft.network.IPacket
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayServer
@@ -20,7 +19,7 @@ object PacketUtils : MinecraftInstance() {
     @JvmStatic
     fun sendPacketNoEvent(packet: Packet<INetHandlerPlayServer>) {
         packets.add(packet)
-        mc.netHandler.addToSendQueue(packet as IPacket)
+        mc.connection!!.sendPacket(packet)
     }
 
     @JvmStatic

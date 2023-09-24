@@ -3,7 +3,6 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.aac
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
-import net.ccbluex.liquidbounce.injection.backend.unwrap
 import net.minecraft.client.Minecraft
 import net.minecraft.network.play.client.CPacketPlayer
 import net.minecraft.network.play.server.SPacketEntityVelocity
@@ -39,7 +38,7 @@ class AAC520CombatVelocity : VelocityMode("AAC5.2.0Combat") {
     }
 
     override fun onVelocityPacket(event: PacketEvent) {
-        val packet = event.packet.unwrap()
+        val packet = event.packet
         if(packet is SPacketEntityVelocity) {
             event.cancelEvent()
             velocity.velocityInput = true

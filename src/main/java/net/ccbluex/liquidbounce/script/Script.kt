@@ -12,7 +12,6 @@ import jdk.nashorn.api.scripting.ScriptUtils
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.injection.backend.unwrap
 import net.ccbluex.liquidbounce.script.api.ScriptCommand
 import net.ccbluex.liquidbounce.script.api.ScriptModule
 import net.ccbluex.liquidbounce.script.api.ScriptTab
@@ -20,7 +19,10 @@ import net.ccbluex.liquidbounce.script.api.global.Chat
 import net.ccbluex.liquidbounce.script.api.global.Item
 import net.ccbluex.liquidbounce.script.api.global.Setting
 import net.ccbluex.liquidbounce.utils.ClientUtils
+import net.ccbluex.liquidbounce.utils.InventoryUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.MovementUtils
+import op.wawa.utils.PacketUtils
 import java.io.File
 import java.util.function.Function
 import javax.script.ScriptEngine
@@ -52,15 +54,17 @@ class Script(val scriptFile: File) : MinecraftInstance() {
         scriptEngine.put("Item", StaticClass.forClass(Item::class.java))
 
         // Global instances
-        scriptEngine.put("mc", mc.unwrap())
+        scriptEngine.put("mc", mc)
 
         scriptEngine.put("moduleManager", LiquidBounce.moduleManager)
         scriptEngine.put("commandManager", LiquidBounce.commandManager)
         scriptEngine.put("scriptManager", LiquidBounce.scriptManager)
 
-        // Cross version instances
-        scriptEngine.put("imc", mc)
-        scriptEngine.put("classProvider", classProvider)
+        // Utils
+        scriptEngine.put("MovementUtils", MovementUtils)
+        scriptEngine.put("PacketUtils", PacketUtils)
+        scriptEngine.put("InventoryUtils", InventoryUtils())
+        scriptEngine.put("ClientUtils", ClientUtils())
 
         // Global functions
         scriptEngine.put("registerScript", RegisterScript())

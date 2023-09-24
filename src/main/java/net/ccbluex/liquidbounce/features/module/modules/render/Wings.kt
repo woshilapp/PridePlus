@@ -25,7 +25,7 @@ object Wings : Module() {
 
     @EventTarget
     fun onRenderPlayer(event: Render3DEvent) {
-        if (onlyThirdPerson.get() && mc2.gameSettings.thirdPersonView == 0) return
+        if (onlyThirdPerson.get() && mc.gameSettings.thirdPersonView == 0) return
         val renderWings = RenderWings()
         renderWings.renderWings(event.partialTicks)
     }

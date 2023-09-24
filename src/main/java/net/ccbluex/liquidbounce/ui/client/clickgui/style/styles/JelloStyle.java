@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles;
 
-import net.ccbluex.liquidbounce.api.minecraft.client.gui.IFontRenderer;
 import net.ccbluex.liquidbounce.features.value.*;
 import net.ccbluex.liquidbounce.ui.client.clickgui.Panel;
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ButtonElement;
@@ -15,6 +14,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer;
 import net.ccbluex.liquidbounce.utils.block.BlockUtils;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.StringUtils;
@@ -24,7 +24,7 @@ import java.awt.*;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static net.ccbluex.liquidbounce.api.minecraft.util.WMathHelper.clamp_double;
+import static net.minecraft.util.math.MathHelper.clamp;
 
 
 public class JelloStyle extends Style {
@@ -42,7 +42,7 @@ public class JelloStyle extends Style {
         RenderUtils.drawFilledCircle((int) sliderValue, y + 1, 3, color);
 
         if (mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + 3 && Mouse.isButtonDown(0)) {
-            double i = clamp_double(((double) mouseX - (double) x) / ((double) width - 3), 0, 1);
+            double i = clamp(((double) mouseX - (double) x) / ((double) width - 3), 0, 1);
 
             BigDecimal bigDecimal = new BigDecimal(Double.toString((min + (max - min) * i)));
             bigDecimal = bigDecimal.setScale(2, 4);
@@ -118,7 +118,7 @@ public class JelloStyle extends Style {
                             final BoolValue boolValue = (BoolValue) value;
 
                             boolValue.set(!boolValue.get());
-                            mc.getSoundHandler().playSound("gui.button.press", 1.0F);
+                            //mc.getSoundHandler().playSound("gui.button.press", 1.0F);
                         }
                         Fonts.font35.drawString(text, moduleElement.getX() + moduleElement.getWidth() + 6, moduleElement.slowlySettingsYPos + 2, ((BoolValue) value).get() ? Color.BLACK.getRGB() : new Color(120, 120, 120).getRGB());
                         moduleElement.slowlySettingsYPos += 11;
@@ -136,7 +136,7 @@ public class JelloStyle extends Style {
 
                         if (mouseX >= moduleElement.getX() + moduleElement.getWidth() + 4 && mouseX <= moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth() && mouseY >= moduleElement.slowlySettingsYPos && mouseY <= moduleElement.slowlySettingsYPos + Fonts.font35.getFontHeight() && Mouse.isButtonDown(0) && moduleElement.isntPressed()) {
                             listValue.openList = !listValue.openList;
-                            mc.getSoundHandler().playSound("gui.button.press", 1.0F);
+                           // mc.getSoundHandler().playSound("gui.button.press", 1.0F);
                         }
 
                         moduleElement.slowlySettingsYPos += Fonts.font35.getFontHeight() + 1;
@@ -150,7 +150,7 @@ public class JelloStyle extends Style {
                             if (listValue.openList) {
                                 if (mouseX >= moduleElement.getX() + moduleElement.getWidth() + 4 && mouseX <= moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth() && mouseY >= moduleElement.slowlySettingsYPos + 2 && mouseY <= moduleElement.slowlySettingsYPos + 14 && Mouse.isButtonDown(0) && moduleElement.isntPressed()) {
                                     listValue.set(valueOfList);
-                                    mc.getSoundHandler().playSound("gui.button.press", 1.0F);
+                                   // mc.getSoundHandler().playSound("gui.button.press", 1.0F);
                                 }
 
                                 GlStateManager.resetColor();
@@ -194,12 +194,12 @@ public class JelloStyle extends Style {
                         moduleElement.slowlySettingsYPos += 19;
                     } else if (value instanceof FontValue) {
                         final FontValue fontValue = (FontValue) value;
-                        final IFontRenderer fontRenderer = fontValue.get();
+                        final FontRenderer fontRenderer = fontValue.get();
 
                         String displayString = "Font: Unknown";
 
-                        if (fontRenderer.isGameFontRenderer()) {
-                            final GameFontRenderer liquidFontRenderer = fontRenderer.getGameFontRenderer();
+                        if (fontRenderer instanceof GameFontRenderer) {
+                            final GameFontRenderer liquidFontRenderer = (GameFontRenderer) fontRenderer;
 
                             displayString = "Font: " + liquidFontRenderer.getDefaultFont().getFont().getName() + " - " + liquidFontRenderer.getDefaultFont().getFont().getSize();
                         } else if (fontRenderer == Fonts.minecraftFont)
@@ -219,11 +219,11 @@ public class JelloStyle extends Style {
                             moduleElement.setSettingsWidth(stringWidth + 8);
 
                         if ((Mouse.isButtonDown(0) && !mouseDown || Mouse.isButtonDown(1) && !rightMouseDown) && mouseX >= moduleElement.getX() + moduleElement.getWidth() + 4 && mouseX <= moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth() && mouseY >= moduleElement.slowlySettingsYPos && mouseY <= moduleElement.slowlySettingsYPos + 12) {
-                            final List<IFontRenderer> fonts = Fonts.getFonts();
+                            final List<FontRenderer> fonts = Fonts.getFonts();
 
                             if (Mouse.isButtonDown(0)) {
                                 for (int i = 0; i < fonts.size(); i++) {
-                                    final IFontRenderer font = fonts.get(i);
+                                    final FontRenderer font = fonts.get(i);
 
                                     if (font == fontRenderer) {
                                         i++;
@@ -237,7 +237,7 @@ public class JelloStyle extends Style {
                                 }
                             } else {
                                 for (int i = fonts.size() - 1; i >= 0; i--) {
-                                    final IFontRenderer font = fonts.get(i);
+                                    final FontRenderer font = fonts.get(i);
 
                                     if (font == fontRenderer) {
                                         i--;

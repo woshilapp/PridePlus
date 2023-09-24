@@ -11,9 +11,10 @@ import net.ccbluex.liquidbounce.event.WorldEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.injection.implementations.IMixinTimer
+import net.ccbluex.liquidbounce.utils.MovementUtils
 
 @ModuleInfo(name = "Timer", description = "Changes the speed of the entire game.", category = ModuleCategory.WORLD)
 class Timer : Module() {
@@ -22,20 +23,20 @@ class Timer : Module() {
     private val onMoveValue = BoolValue("OnMove", true)
 
     override fun onDisable() {
-        if (mc.thePlayer == null)
+        if (mc.player == null)
             return
 
-        mc.timer.timerSpeed = 1F
+        (mc.timer as IMixinTimer).timerSpeed = 1F
     }
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         if(MovementUtils.isMoving || !onMoveValue.get()) {
-            mc.timer.timerSpeed = speedValue.get()
+            (mc.timer as IMixinTimer).timerSpeed = speedValue.get()
             return
         }
 
-        mc.timer.timerSpeed = 1F
+        (mc.timer as IMixinTimer).timerSpeed = 1F
     }
 
     @EventTarget

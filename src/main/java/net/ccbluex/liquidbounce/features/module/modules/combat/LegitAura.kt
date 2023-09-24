@@ -20,6 +20,7 @@ import net.ccbluex.liquidbounce.utils.timer.TimeUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.minecraft.client.settings.KeyBinding
 import kotlin.random.Random
 
 @ModuleInfo(name = "LegitAura", description = "wawa", category = ModuleCategory.COMBAT)
@@ -59,7 +60,7 @@ class LegitAura : Module() {
     fun runAttack1() {
         // Left click
         if (System.currentTimeMillis() - leftLastSwing >= leftDelay && mc.playerController.curBlockDamageMP == 0F) {
-            mc.gameSettings.keyBindAttack.onTick(mc.gameSettings.keyBindAttack.keyCode) // Minecraft Click Handling
+            KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode) // Minecraft Click Handling
 
             leftLastSwing = System.currentTimeMillis()
             leftDelay = TimeUtils.randomClickDelay(minCPSValue.get(), maxCPSValue.get())
@@ -73,17 +74,17 @@ class LegitAura : Module() {
             clickTimer.reset()
 
 
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
         val range = rangeValue.get()
-        val entity = mc.theWorld!!.loadedEntityList
+        val entity = mc.world!!.loadedEntityList
                 .filter {
-                    EntityUtils.isSelected(it, true) && thePlayer.canEntityBeSeen(it) &&
-                            thePlayer.getDistanceToEntityBox(it) <= range && RotationUtils.getRotationDifference(it) <= fovValue.get()
+                    EntityUtils.isSelected(it, true) && player.canEntityBeSeen(it) &&
+                            player.getDistanceToEntityBox(it) <= range && RotationUtils.getRotationDifference(it) <= fovValue.get()
                 }
                 .minBy { RotationUtils.getRotationDifference(it) } ?: return
 
-        if(thePlayer.getDistanceToEntityBox(entity) <= range)runAttack1()
+        if(player.getDistanceToEntityBox(entity) <= range)runAttack1()
 
         if (!lockValue.get() && RotationUtils.isFaced(entity, range.toDouble()))
             return
@@ -101,7 +102,7 @@ class LegitAura : Module() {
         ) ?: return
 
         val rotation = RotationUtils.limitAngleChange(
-                Rotation(thePlayer.rotationYaw, thePlayer.rotationPitch),
+                Rotation(player.rotationYaw, player.rotationPitch),
                 if (centerValue.get())
                     RotationUtils.toRotation(RotationUtils.getCenter(entity.entityBoundingBox),false)
                 else
@@ -109,7 +110,7 @@ class LegitAura : Module() {
                 (turnSpeedValue.get() + Math.random()).toFloat()
         )
 
-        rotation.toPlayer(thePlayer)
+        rotation.toPlayer(player)
 
         if (jitterValue.get()) {
             val yaw = Random.nextBoolean()
@@ -118,14 +119,14 @@ class LegitAura : Module() {
             val pitchNegative = Random.nextBoolean()
 
             if (yaw)
-                thePlayer.rotationYaw += if (yawNegative) -RandomUtils.nextFloat(0F, 1F) else RandomUtils.nextFloat(0F, 1F)
+                player.rotationYaw += if (yawNegative) -RandomUtils.nextFloat(0F, 1F) else RandomUtils.nextFloat(0F, 1F)
 
             if (pitch) {
-                thePlayer.rotationPitch += if (pitchNegative) -RandomUtils.nextFloat(0F, 1F) else RandomUtils.nextFloat(0F, 1F)
-                if (thePlayer.rotationPitch > 90)
-                    thePlayer.rotationPitch = 90F
-                else if (thePlayer.rotationPitch < -90)
-                    thePlayer.rotationPitch = -90F
+                player.rotationPitch += if (pitchNegative) -RandomUtils.nextFloat(0F, 1F) else RandomUtils.nextFloat(0F, 1F)
+                if (player.rotationPitch > 90)
+                    player.rotationPitch = 90F
+                else if (player.rotationPitch < -90)
+                    player.rotationPitch = -90F
             }
         }
     }

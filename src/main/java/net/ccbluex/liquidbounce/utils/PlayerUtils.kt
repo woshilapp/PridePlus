@@ -1,13 +1,10 @@
 package net.ccbluex.liquidbounce.utils
 
-import net.ccbluex.liquidbounce.api.minecraft.client.block.IBlock
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntityLivingBase
-import net.ccbluex.liquidbounce.api.minecraft.util.IAxisAlignedBB
-import net.ccbluex.liquidbounce.api.minecraft.util.WBlockPos
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.mc
-import net.minecraft.item.ItemBucketMilk
-import net.minecraft.item.ItemFood
-import net.minecraft.item.ItemPotion
+import net.minecraft.block.Block
+import net.minecraft.entity.EntityLivingBase
+import net.minecraft.util.math.AxisAlignedBB
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 
 object PlayerUtils {
@@ -22,20 +19,14 @@ object PlayerUtils {
         }
         return stringBuilder.toString()
     }
-    fun isUsingFood(): Boolean {
-        val usingItem = mc.thePlayer!!.itemInUse!!.item
-        return if (mc.thePlayer!!.itemInUse != null) {
-            mc.thePlayer!!.isUsingItem && (usingItem is ItemFood || usingItem is ItemBucketMilk || usingItem is ItemPotion)
-        } else false
-    }
     fun isBlockUnder(): Boolean {
-        if (mc.thePlayer!!.posY < 0) return false
+        if (mc.player.posY < 0) return false
         var off = 0
-        while (off < mc.thePlayer!!.posY.toInt() + 2) {
-            val bb: IAxisAlignedBB = mc.thePlayer!!.entityBoundingBox
+        while (off < mc.player.posY.toInt() + 2) {
+            val bb: AxisAlignedBB = mc.player.entityBoundingBox
                 .offset(0.0, -off.toDouble(), 0.0)
-            if (mc.theWorld!!.getCollidingBoundingBoxes(
-                    mc.thePlayer!!,
+            if (mc.world!!.getCollisionBoxes(
+                    mc.player,
                     bb
                 ).isNotEmpty()
             ) {
@@ -45,17 +36,17 @@ object PlayerUtils {
         }
         return false
     }
-    fun getAr(player : IEntityLivingBase):Double{
-        var arPercentage: Double = (player!!.totalArmorValue / player!!.maxHealth).toDouble()
+    fun getAr(player : EntityLivingBase):Double{
+        var arPercentage: Double = (player.totalArmorValue / player.maxHealth).toDouble()
         arPercentage = MathHelper.clamp(arPercentage, 0.0, 1.0)
         return 100 * arPercentage
     }
-    fun getBlockRelativeToPlayer(offsetX: Double, offsetY: Double, offsetZ: Double): IBlock? {
-        return mc.theWorld!!.getBlockState(
-            WBlockPos(
-                mc.thePlayer!!.posX + offsetX,
-                mc.thePlayer!!.posY + offsetY,
-                mc.thePlayer!!.posZ + offsetZ
+    fun getBlockRelativeToPlayer(offsetX: Double, offsetY: Double, offsetZ: Double): Block? {
+        return mc.world!!.getBlockState(
+            BlockPos(
+                mc.player!!.posX + offsetX,
+                mc.player!!.posY + offsetY,
+                mc.player!!.posZ + offsetZ
             )
         ).block
     }

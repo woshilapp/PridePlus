@@ -6,19 +6,22 @@
 package net.ccbluex.liquidbounce.ui.font
 
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.util.IWrappedFontRenderer
 import net.ccbluex.liquidbounce.event.TextEvent
 import net.ccbluex.liquidbounce.features.module.modules.render.HUD
-import net.ccbluex.liquidbounce.injection.backend.WrapperImpl.classProvider
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowFontShader
+import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL20.glUseProgram
 import java.awt.Color
 import java.awt.Font
 
-class GameFontRenderer(font: Font) : IWrappedFontRenderer {
+class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameSettings,
+    ResourceLocation("textures/font/ascii.png"), Minecraft.getMinecraft().textureManager, false) {
 
     val fontHeight: Int
     var defaultFont = AWTFontRenderer(font)
@@ -41,13 +44,13 @@ class GameFontRenderer(font: Font) : IWrappedFontRenderer {
         return drawString(text, x, y, color)
     }
 
-    override fun drawString(s: String?, x: Float, y: Float, color: Int) = drawString(s, x, y, color, false)
+    fun drawString(s: String?, x: Float, y: Float, color: Int) = drawString(s, x, y, color, false)
 
     override fun drawStringWithShadow(text: String?, x: Float, y: Float, color: Int) = drawString(text, x, y, color, true)
 
-    override fun drawCenteredString(s: String, x: Float, y: Float, color: Int, shadow: Boolean) = drawString(s, x - getStringWidth(s) / 2F, y, color, shadow)
+    fun drawCenteredString(s: String, x: Float, y: Float, color: Int, shadow: Boolean) = drawString(s, x - getStringWidth(s) / 2F, y, color, shadow)
 
-    override fun drawCenteredString(s: String, x: Float, y: Float, color: Int) =
+    fun drawCenteredString(s: String, x: Float, y: Float, color: Int) =
             drawStringWithShadow(s, x - getStringWidth(s) / 2F, y, color)
 
     override fun drawString(text: String?, x: Float, y: Float, color: Int, shadow: Boolean): Int {
@@ -99,10 +102,10 @@ class GameFontRenderer(font: Font) : IWrappedFontRenderer {
             glUseProgram(rainbowShaderId)
 
         GL11.glTranslated(x - 1.5, y + 0.5, 0.0)
-        classProvider.getGlStateManager().enableAlpha()
-        classProvider.getGlStateManager().enableBlend()
-        classProvider.getGlStateManager().tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO)
-        classProvider.getGlStateManager().enableTexture2D()
+        GlStateManager.enableAlpha()
+        GlStateManager.enableBlend()
+        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO)
+        GlStateManager.enableTexture2D()
 
         var currentColor = color
 
@@ -204,7 +207,7 @@ class GameFontRenderer(font: Font) : IWrappedFontRenderer {
             defaultFont.drawString(text, 0.0, 0.0, currentColor)
         }
 
-        classProvider.getGlStateManager().disableBlend()
+        GlStateManager.disableBlend()
         GL11.glTranslated(-(x - 1.5), -(y + 0.5), 0.0)
         GL11.glColor4f(1f, 1f, 1f, 1f)
 

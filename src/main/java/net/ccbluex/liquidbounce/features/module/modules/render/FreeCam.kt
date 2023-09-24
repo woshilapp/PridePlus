@@ -5,16 +5,18 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.player.IEntityOtherPlayerMP
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.utils.MovementUtils
+import net.minecraft.client.entity.EntityOtherPlayerMP
+import net.minecraft.network.play.client.CPacketEntityAction
+import net.minecraft.network.play.client.CPacketPlayer
 
 @ModuleInfo(name = "FreeCam", description = "Allows you to move out of your body.", category = ModuleCategory.RENDER)
 class FreeCam : Module() {
@@ -22,72 +24,72 @@ class FreeCam : Module() {
     private val flyValue = BoolValue("Fly", true)
     private val noClipValue = BoolValue("NoClip", true)
 
-    private var fakePlayer: IEntityOtherPlayerMP? = null
+    private var fakePlayer: EntityOtherPlayerMP? = null
 
     private var oldX = 0.0
     private var oldY = 0.0
     private var oldZ = 0.0
 
     override fun onEnable() {
-        val thePlayer = mc.thePlayer ?: return
+        val player = mc.player ?: return
 
-        oldX = thePlayer.posX
-        oldY = thePlayer.posY
-        oldZ = thePlayer.posZ
+        oldX = player.posX
+        oldY = player.posY
+        oldZ = player.posZ
 
-        val playerMP = classProvider.createEntityOtherPlayerMP(mc.theWorld!!, thePlayer.gameProfile)
+        val playerMP = EntityOtherPlayerMP(mc.world!!, player.gameProfile)
 
 
-        playerMP.rotationYawHead = thePlayer.rotationYawHead;
-        playerMP.renderYawOffset = thePlayer.renderYawOffset;
-        playerMP.rotationYawHead = thePlayer.rotationYawHead
-        playerMP.copyLocationAndAnglesFrom(thePlayer)
+        playerMP.rotationYawHead = player.rotationYawHead
+        playerMP.renderYawOffset = player.renderYawOffset
+        playerMP.rotationYawHead = player.rotationYawHead
+        playerMP.copyLocationAndAnglesFrom(player)
 
-        mc.theWorld!!.addEntityToWorld(-1000, playerMP)
+        mc.world!!.addEntityToWorld(-1000, playerMP)
 
         if (noClipValue.get())
-            thePlayer.noClip = true
+            player.noClip = true
 
         fakePlayer = playerMP
     }
 
     override fun onDisable() {
-        val thePlayer = mc.thePlayer
+        val player = mc.player
 
-        if (thePlayer == null || fakePlayer == null)
+        if (player == null || fakePlayer == null)
             return
 
-        thePlayer.setPositionAndRotation(oldX, oldY, oldZ, thePlayer.rotationYaw, thePlayer.rotationPitch)
+        player.setPositionAndRotation(oldX, oldY, oldZ, player.rotationYaw, player.rotationPitch)
 
-        mc.theWorld!!.removeEntityFromWorld(fakePlayer!!.entityId)
+        mc.world!!.removeEntityFromWorld(fakePlayer!!.entityId)
         fakePlayer = null
 
-        thePlayer.motionX = 0.0
-        thePlayer.motionY = 0.0
-        thePlayer.motionZ = 0.0
+        player.motionX = 0.0
+        player.motionY = 0.0
+        player.motionZ = 0.0
     }
 
     @EventTarget
     fun onUpdate(event: UpdateEvent?) {
-        val thePlayer = mc.thePlayer!!
+        val player = mc.player!!
 
         if (noClipValue.get())
-            thePlayer.noClip = true
+            player.noClip = true
 
-        thePlayer.fallDistance = 0.0f
+        player.fallDistance = 0.0f
 
         if (flyValue.get()) {
             val value = speedValue.get()
 
-            thePlayer.motionY = 0.0
-            thePlayer.motionX = 0.0
-            thePlayer.motionZ = 0.0
+            player.motionY = 0.0
+            player.motionX = 0.0
+            player.motionZ = 0.0
 
             if (mc.gameSettings.keyBindJump.isKeyDown)
-                thePlayer.motionY += value
+                player.motionY += value
 
             if (mc.gameSettings.keyBindSneak.isKeyDown)
-                thePlayer.motionY -= value
+                player.motionY -= value
 
             MovementUtils.strafe(value)
         }
@@ -97,7 +99,7 @@ class FreeCam : Module() {
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
 
-        if (classProvider.isCPacketPlayer(packet) || classProvider.isCPacketEntityAction(packet))
+        if (packet is CPacketPlayer || packet is CPacketEntityAction)
             event.cancelEvent()
     }
 }

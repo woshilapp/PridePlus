@@ -1,7 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.minecraft.network.play.client.ICPacketEntityAction
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
@@ -13,8 +12,11 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.TextValue
+import net.ccbluex.liquidbounce.utils.extensions.toClickType
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.client.gui.inventory.GuiInventory
+import net.minecraft.network.play.client.CPacketCloseWindow
+import net.minecraft.network.play.client.CPacketEntityAction
 
 @ModuleInfo(name = "AutoLobby", description = "Bypas", category = ModuleCategory.MISC)
 class AutoLobby : Module(){
@@ -31,7 +33,7 @@ class AutoLobby : Module(){
         val killAura = LiquidBounce.moduleManager[KillAura::class.java] as KillAura
         val velocity = LiquidBounce.moduleManager[Velocity::class.java] as Velocity
         val speed = LiquidBounce.moduleManager[Speed::class.java] as Speed
-        if (mc.thePlayer!!.health < health.get()){
+        if (mc.player!!.health < health.get()){
             if(keepArmor.get()) {
                 for (i in 0..3) {
                     val armorSlot = 3 - i
@@ -39,16 +41,16 @@ class AutoLobby : Module(){
                 }
             }
             if(canhubchat.get()){
-                mc.thePlayer!!.sendChatMessage(hubchattext.get())
+                mc.player!!.sendChatMessage(hubchattext.get())
             }
             if(randomhub.get()){
                 if(hubDelayTime.hasTimePassed(300)) {
-                    mc.thePlayer!!.sendChatMessage("/hub " + (Math.random() * 100 + 1).toInt())
+                    mc.player!!.sendChatMessage("/hub " + (Math.random() * 100 + 1).toInt())
                     hubDelayTime.reset()
                 }
             }else{
                 if(hubDelayTime.hasTimePassed(300)) {
-                    mc.thePlayer!!.sendChatMessage("/hub")
+                    mc.player!!.sendChatMessage("/hub")
                     hubDelayTime.reset()
                 }
             }
@@ -63,12 +65,12 @@ class AutoLobby : Module(){
     private fun move(item: Int, isArmorSlot: Boolean) { //By Gk
         if (item != -1) {
             val openInventory = mc.currentScreen !is GuiInventory
-            if (openInventory) mc.netHandler.addToSendQueue(classProvider.createCPacketEntityAction(mc.thePlayer!!,
-                ICPacketEntityAction.WAction.OPEN_INVENTORY))
+            if (openInventory) mc.connection!!.sendPacket(CPacketEntityAction(mc.player!!,
+                CPacketEntityAction.Action.OPEN_INVENTORY))
             mc.playerController.windowClick(
-                mc.thePlayer!!.inventoryContainer.windowId, if (isArmorSlot) item else if (item < 9) item + 36 else item, 0, 1, mc.thePlayer!!
+                mc.player!!.inventoryContainer.windowId, if (isArmorSlot) item else if (item < 9) item + 36 else item, 0, 1.toClickType(), mc.player!!
             )
-            if (openInventory) mc.netHandler.addToSendQueue(classProvider.createCPacketCloseWindow())
+            if (openInventory) mc.connection!!.sendPacket(CPacketCloseWindow())
         }
     }
 

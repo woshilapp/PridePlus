@@ -1,7 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntityLivingBase
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.features.module.Module
@@ -11,6 +10,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.EntityUtils
+import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.*
 import net.minecraft.entity.EntityLivingBase
@@ -34,11 +34,11 @@ object FollowTargetHud : Module() {
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
-        if(mc.thePlayer == null)
+        if(mc.player == null)
             return
-        for (entity in mc.theWorld!!.loadedEntityList) {
+        for (entity in mc.world!!.loadedEntityList) {
             if (EntityUtils.isSelected(entity, false)) {
-                renderNameTag(entity.asEntityLivingBase(), (entity.displayName ?: continue).unformattedText)
+                renderNameTag(entity as EntityLivingBase, (entity.displayName ?: continue).unformattedText)
             }
         }
     }
@@ -47,7 +47,7 @@ object FollowTargetHud : Module() {
         return entity.displayName.formattedText
     }
 
-    private fun renderNameTag(entity: IEntityLivingBase, tag: String) {
+    private fun renderNameTag(entity: EntityLivingBase, tag: String) {
         xChange = translateX.get() * 20
 
         val killAura = LiquidBounce.moduleManager.getModule(KillAura::class.java) as KillAura
@@ -93,7 +93,7 @@ object FollowTargetHud : Module() {
         glRotatef(mc.renderManager.playerViewX, 1F, 0F, 0F)
 
         // Scale
-        var distance = mc.thePlayer!!.getDistanceToEntity(entity) / 4F
+        var distance = mc.player!!.getDistanceToEntityBox(entity).toFloat() / 4F
 
         if (distance < 1F) {
             distance = 1F
@@ -108,7 +108,7 @@ object FollowTargetHud : Module() {
         enableGlCap(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-        val name = entity.displayName!!.unformattedText
+        val name = entity.displayName.unformattedText
         var healthPercent = entity.health / entity.maxHealth
         // render hp bar
         if (healthPercent> 1) {
@@ -133,7 +133,7 @@ object FollowTargetHud : Module() {
                 val healthString = ( ( ( entity.health * 10f ).toInt() ).toFloat() * 0.1f ).toString() + " / 20"
                 fontRenderer.drawString(healthString, -28 - fontRenderer.getStringWidth(healthString).toInt() + xChange.toInt(), 22, Color.WHITE.rgb)
 
-                val distanceString = "⤢" + ( ( ( mc.thePlayer!!.getDistanceToEntity(entity) * 10f ).toInt() ).toFloat() * 0.1f ).toString()
+                val distanceString = "⤢" + ( ( ( mc.player!!.getDistanceToEntityBox(entity) * 10f ).toInt() ).toFloat() * 0.1f ).toString()
                 fontRenderer.drawString(distanceString, -28 - fontRenderer.getStringWidth(distanceString).toInt() + xChange.toInt(), 10, Color.WHITE.rgb)
 
                 // draw health bars
@@ -169,7 +169,7 @@ object FollowTargetHud : Module() {
                 }
 
                 // hp bar
-                val yPos = 5 + font.fontHeight + 3f
+                val yPos = 5 + font.FONT_HEIGHT + 3f
                 drawRect(40f + xChange, yPos,     40 + xChange + (healthPercent) * additionalWidth, yPos + 4, Color.GREEN.rgb)
                 //drawRect(40f + xChange, yPos + 9, 40 + xChange + (entity.totalArmorValue / 20F) * additionalWidth, yPos + 13, Color(77, 128, 255).rgb)
             }
@@ -184,17 +184,17 @@ object FollowTargetHud : Module() {
 
                 // text
                 fontRenderer.drawString(name, -30 + xChange.toInt(), 5, Color.WHITE.rgb)
-                fontRenderer.drawString("Health ${entity.health.toInt()}", -30 + xChange.toInt(), 5 + font.fontHeight, Color.WHITE.rgb)
+                fontRenderer.drawString("Health ${entity.health.toInt()}", -30 + xChange.toInt(), 5 + font.FONT_HEIGHT, Color.WHITE.rgb)
 
                 // hp bar
-                drawRoundedCornerRect(-30f + xChange, (5 + font.fontHeight * 2).toFloat(), -30f + xChange + healthPercent * 95f, 37f, 3f, ColorUtils.rainbow().rgb)
+                drawRoundedCornerRect(-30f + xChange, (5 + font.FONT_HEIGHT * 2).toFloat(), -30f + xChange + healthPercent * 95f, 37f, 3f, ColorUtils.rainbow().rgb)
 
             }
 
             "jello" -> {
                 // colors
                 var hpBarColor = Color(255, 255, 255, jelloAlphaValue.get())
-                val name = entity.displayName!!.unformattedText
+                val name = entity.displayName.unformattedText
                 if (jelloColorValue.get() && name.startsWith("§")) {
                     hpBarColor = ColorUtils.colorCode(name.substring(1, 2), jelloAlphaValue.get())
                 }
@@ -205,7 +205,7 @@ object FollowTargetHud : Module() {
 
                 // render bg
                 glScalef(-scale * 2, -scale * 2, scale * 2)
-                drawRect(xChange, -fontRenderer.fontHeight * 3F, width + 8F + xChange, -3F, bgColor)
+                drawRect(xChange, -fontRenderer.FONT_HEIGHT * 3F, width + 8F + xChange, -3F, bgColor)
 
                 // render hp bar
                 if (healthPercent> 1) {
@@ -216,9 +216,9 @@ object FollowTargetHud : Module() {
                 drawRect(maxWidth * healthPercent + xChange, -3F, width + 8F + xChange,               1F, bgColor)
 
                 // string
-                fontRenderer.drawString(tag, 4 + xChange.toInt(), -fontRenderer.fontHeight * 2 - 4, Color.WHITE.rgb)
+                fontRenderer.drawString(tag, 4 + xChange.toInt(), -fontRenderer.FONT_HEIGHT * 2 - 4, Color.WHITE.rgb)
                 glScalef(0.5F, 0.5F, 0.5F)
-                fontRenderer.drawString("Health: " + entity.health.toInt(), 4 + xChange.toInt(), -fontRenderer.fontHeight * 2, Color.WHITE.rgb)
+                fontRenderer.drawString("Health: " + entity.health.toInt(), 4 + xChange.toInt(), -fontRenderer.FONT_HEIGHT * 2, Color.WHITE.rgb)
             }
         }
         // Reset caps
