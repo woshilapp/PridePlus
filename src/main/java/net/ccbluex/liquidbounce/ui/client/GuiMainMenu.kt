@@ -7,11 +7,14 @@ package net.ccbluex.liquidbounce.ui.client
 
 
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
+import net.ccbluex.liquidbounce.ui.client.mainmenu.MainMenuButton
+import net.ccbluex.liquidbounce.ui.client.mainmenu.MainMenuSmallButton
+import net.ccbluex.liquidbounce.ui.cnfont.FontLoaders
+import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.gui.*
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ResourceLocation
-import op.wawa.utils.render.BlurUtils
 import java.awt.Color
 
 class GuiMainMenu : GuiScreen() {
@@ -27,20 +30,22 @@ class GuiMainMenu : GuiScreen() {
     override fun initGui() {
         val defaultHeight = height / 2f - 20 / 2f - 57
 
-        buttonList.add(GuiButton(100, 20,
-            (defaultHeight + 96).toInt(), 100, 20, "AltManager"))
-        buttonList.add(GuiButton(102, 20,
-            (defaultHeight + 72).toInt(), 100, 20, "Background"))
+        buttonList.add(MainMenuButton(100, (width/2) + 3,
+            (height/2) + 3, 107, 34, "hp", "AltManager"))
+/*        buttonList.add(GuiButton(102, 20,
+            (defaultHeight + 72).toInt(), 100, 20, "Background"))*/
 
-        buttonList.add(GuiButton(1, 20,
-            (defaultHeight+24).toInt(), 100, 20, "SinglePlayer"))
-        buttonList.add(GuiButton(2, 20,
-            (defaultHeight+48).toInt(), 100, 20,"MulitPlayer"))
+        buttonList.add(
+            MainMenuButton(1, (width/2) - (107+3),
+            (height/2) + 3, 107, 34, "sp", "SinglePlayer")
+        )
+        buttonList.add(MainMenuButton(2, (width/2) - (220/2),
+            (height/2) - (50+3), 220, 50, "mp","MulitPlayer"))
 
-        buttonList.add(GuiButton(0, 20,
-            (defaultHeight + 120).toInt(), 100, 20, "Options"))
-        buttonList.add(GuiButton(4, 20,
-            (defaultHeight + 144).toInt(), 100, 20, "Quit")
+        buttonList.add(MainMenuSmallButton(0, 3,
+            height - (20+3), 20, 20, "settings"))
+        buttonList.add(MainMenuSmallButton(4, 3 + 20 + 3,
+            height - (20+3), 20, 20, "exit")
         )
     }
 
@@ -60,14 +65,12 @@ class GuiMainMenu : GuiScreen() {
         RenderUtils.drawImage(backgroundResource, -30, -30, width + 60, height + 60)
         GlStateManager.translate(-this.currentX / 30.0f, -this.currentY / 15.0f, 0.0f)
 
-        // Rect
-        BlurUtils.blurArea(0F, 0F, width.toFloat(), height.toFloat(), 10F)
-        //RenderUtils.drawShadow(0, 0, 140, height)
-        RenderUtils.drawRoundRect(10F, height / 2F - 140F, 120F, height / 2f - 20 / 2f - 57 + 160F, 40F, Color(0,0,0,100).rgb)
-        RenderUtils.drawOutlinedRoundedRect(10.0, height / 2.0 - 140.0, 120.0, height / 2f - 20 / 2f - 57 + 160.0, 40.0, 2F, Color.WHITE.rgb)
-
-        // Logo
-        RenderUtils.drawImage(icon,35, (height / 2f - 120).toInt(), 70, 70)
+        RenderUtils.drawRoundRect(1.5F, height - 24F,
+            50F + FontLoaders.F24.getStringWidth("PridePlus") + FontLoaders.F14.getStringWidth("NextGen1.0"),
+            height - 1.5F, 5.6F, Color(0,0,0,100).rgb)
+        FontLoaders.F24.drawString("PridePlus", 47F, height.toFloat() - 14F - (Fonts.bold45.height/2), Color.WHITE.rgb)
+        FontLoaders.F14.drawString("NextGen1.0", 48F + FontLoaders.F24.getStringWidth("PridePlus"), height.toFloat() - 21F, Color.WHITE.rgb)
+        FontLoaders.F14.drawString("国庆特供", 48F + FontLoaders.F24.getStringWidth("PridePlus"), height.toFloat() - 10.5F, Color.WHITE.rgb)
 
         super.drawScreen(mouseX, mouseY, partialTicks)
     }

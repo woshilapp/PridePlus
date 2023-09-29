@@ -210,8 +210,7 @@ public final class FontDrawer {
     }
 
     public int drawStringWithShadow(String s, double x, double y, int color) {
-        this.drawString(s, x + 0.5D, y + 0.5D, SHADOW_COLOR, true);
-        return this.drawString(s, x, y, color, false);
+        return this.drawString(s, x, y, color, true);
     }
 
     public void drawStringWithShadowDirect(String s, double x, double y, int color) {
@@ -271,6 +270,9 @@ public final class FontDrawer {
     public int drawString(String s, double x, double y, int color, boolean shadow) {
         GlStateManager.enableAlpha();
         if (s != null && !s.isEmpty()) {
+
+            if (shadow) drawString(s, x+0.7, y+0.7, ColorUtils.getRGB(0, 0, 0, 50), false);
+
             if (this.font.getSize() == 18) {
                 this.FONT_HEIGHT = 18;
             }
