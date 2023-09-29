@@ -2,19 +2,20 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.render.EaseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.ccbluex.liquidbounce.utils.render.RoundedUtil
 import net.ccbluex.liquidbounce.utils.render.Stencil
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.minecraft.client.gui.FontRenderer
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ResourceLocation
@@ -37,7 +38,8 @@ class Notifications(x: Double = 0.0, y: Double = 0.0, scale: Float = 1F,side: Si
     private val whiteText = BoolValue("WhiteTextColor", true)
     private val modeColored = BoolValue("CustomModeColored", true)
     companion object {
-        val styleValue = ListValue("Mode", arrayOf("Classic", "FDP", "Modern", "Tenacity",  "Skid", "Tena-Classic", "Astolfo","Intellij","LiquidBounce"), "Tenacity")
+        val styleValue = ListValue("Mode", arrayOf("Tomk","Classic", "FDP", "Modern", "Tenacity",  "Skid", "Tena-Classic", "Astolfo","Intellij","LiquidBounce"), "Tenacity")
+        val radius = FloatValue("Radius", 5F, 0F, 20F).displayable { styleValue.get() == "Tomk" }
     }
 
     /**
@@ -123,7 +125,11 @@ class Notification(
             font.getStringWidth(content)
                 .coerceAtLeast(font.getStringWidth(title)) + 15
         )
-        val realY = -(index+1) * (height + 2)
+        val realY = if(parent.styleValue.get().equals("Tomk")){
+            -(index + 1) * (height + 11)
+        } else {
+            -(index+1) * (height + 2)
+        }
         val nowTime = System.currentTimeMillis()
         var transY = nowY.toDouble()
         var lbtl = font.getStringWidth(title + ": " + content)
@@ -460,6 +466,32 @@ class Notification(
             Fonts.font35.drawString(content, -x + 6, -13F, -1, true)
             return false
         }
+
+        if (style.equals("Tomk")){
+            val s2 = "wawa/notification/info.png"
+            val width = 150.coerceAtLeast((Fonts.posterama40.getStringWidth(this.content)) + 33)
+            val height = 40
+            RoundedUtil.drawRound(
+                0f,
+                0f, width.toFloat(), height.toFloat() - 10f, parent.radius.get(), Color(0,0,0,104)
+            )
+            RenderUtils.drawImage(ResourceLocation(s2),5,5,20,20)
+            RenderUtils.drawRect(30F,5F,31f,height-15f,Color.WHITE.rgb)
+            Fonts.posterama40.drawString(
+                title, 35F,
+                ((Fonts.posterama50.fontHeight / 2f).toDouble() -1).toFloat(), Color.WHITE.rgb, false
+            )
+            Fonts.posterama40.drawString(
+                content,
+                35F,
+                ((Fonts.posterama40.fontHeight / 2f).toDouble() + 12.5).toFloat(),
+                Color.WHITE.rgb,
+                false
+            )
+            RoundedUtil.drawRound(0F, height.toFloat() - 10,  max(width - width * ((nowTime - displayTime) / (animeTime * 2F + time)), -22F),2f,1f, Color(0, 162, 255))
+            return false
+        }
+
         return false
     }
 

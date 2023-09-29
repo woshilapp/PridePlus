@@ -1,19 +1,16 @@
-/*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
- */
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
-import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.minecraft.block.material.Material
+import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.render.RoundedUtil
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.RenderHelper
+import org.lwjgl.opengl.GL11
+import java.awt.Color
+
 
 /**
  * CustomHUD Armor element
@@ -21,67 +18,53 @@ import net.minecraft.client.renderer.RenderHelper
  * Shows a horizontal display of current armor
  */
 @ElementInfo(name = "Armor")
-class Armor(x: Double = -8.0, y: Double = 57.0, scale: Float = 1F,
-            side: Side = Side(Side.Horizontal.MIDDLE, Side.Vertical.DOWN)) : Element(x, y, scale, side) {
+class Armor(
+    x: Double = -8.0, y: Double = 57.0, scale: Float = 1F,
+    side: Side = Side(Side.Horizontal.MIDDLE, Side.Vertical.DOWN)
+) : Element(x, y, scale, side) {
+    val r = IntegerValue("Red", 0, 0, 255)
+    val g = IntegerValue("Green", 0, 0, 255)
+    val b = IntegerValue("Blue", 0, 0, 255)
+    val alpha = IntegerValue("BG-Alpha", 100, 0, 255)
 
-    private val modeValue = ListValue("Mode", arrayOf("LiquidBounce", "Exhibition"), "Exhibition")
-    private val alignment = ListValue("Alignment", arrayOf("Horizontal", "Vertical"), "Horizontal")
-
-    /**
-     * Draw element
-     */
     override fun drawElement(): Border {
-        if (mc.playerController.isNotCreative) {
-            val renderItem = mc.renderItem
-            val isInsideWater = mc2.player.isInsideOfMaterial(Material.WATER)
-            val mode = modeValue.get()
-            val align = alignment.get()
+        GL11.glPushMatrix()
 
-            var x = 1
-            var y = if (isInsideWater) -10 else 0
+        val renderItem = mc.renderItem
+        val sb = Color(250, 250, 250, 250).rgb
+        var x = 1
+        val y = 0
+        //draw Background
 
-            RenderHelper.enableGUIStandardItemLighting()
 
-            for (index in 3 downTo 0) {
-                val stack = mc.player!!.inventory.armorInventory[index]
+        RoundedUtil.drawRound(x - 1.5f, -12f, 73.5f, 38.85f, 2f, Color(r.get(), g.get(), b.get(), alpha.get()))
 
-                renderItem.renderItemIntoGUI(stack, x, y)
-                renderItem.renderItemOverlays(mc.fontRenderer, stack, x, y)
-                if (mode.equals("Exhibition", true)) {
-                    RenderUtils.drawExhiEnchants(stack, x.toFloat(), y.toFloat())
-                    if (align.equals("Horizontal", true))
-                        x += 16
-                    else if (align.equals("Vertical", true))
-                        y += 16
-                } else
-                    if (align.equals("Horizontal", true))
-                        x += 18
-                    else if (align.equals("Vertical", true))
-                        y += 18
-            }
+        RoundedUtil.drawRound(x - 2f, -12f, 75f, 10.5f, 2f, Color(250, 250, 250, 255))
 
-            if (mode.equals("Exhibition", true)) {
-                val mainStack = mc.player!!.heldItemMainhand
-                renderItem.renderItemIntoGUI(mainStack, x, y)
-                renderItem.renderItemOverlays(mc.fontRenderer, mainStack, x, y)
-                RenderUtils.drawExhiEnchants(mainStack, x.toFloat(), y.toFloat())
-            }
+        Fonts.font30.drawString("Armor", x.toFloat() + 25.5f, -8f, Color(0, 0, 0).rgb)
+        for (index in 3 downTo 0) {
+            val stack = mc.player!!.inventory.armorInventory[index] ?: continue
+            val stack2 = mc.player.inventory.armorInventory[index]
 
-            RenderHelper.disableStandardItemLighting()
-            GlStateManager.enableAlpha()
-            GlStateManager.disableBlend()
-            GlStateManager.disableLighting()
-            GlStateManager.disableCull()
+            renderItem.renderItemIntoGUI(stack, x, y)
+            renderItem.renderItemOverlays(mc.fontRenderer, stack, x, y)
+            GlStateManager.pushMatrix()
+            Fonts.font35.drawString(
+                (stack2.maxDamage - stack.itemDamage).toString(), x.toFloat() + 2.7f,
+                y.toFloat() + 9.5f + Fonts.font30.fontHeight, sb
+            )
+            GlStateManager.popMatrix()
+            x += 18
         }
 
-        return if (modeValue.get().equals("Exhibition", true)) {
-            if (alignment.get().equals("Horizontal", true))
-                Border(0F, 0F, 80F, 17F)
-            else
-                Border(0F, 0F, 18F, 80F)
-        } else if (alignment.get().equals("Horizontal", true))
-            Border(0F, 0F, 72F, 17F)
-        else
-            Border(0F, 0F, 18F, 72F)
+        GlStateManager.enableAlpha()
+        GlStateManager.disableBlend()
+        GlStateManager.disableLighting()
+        GlStateManager.disableCull()
+        GL11.glPopMatrix()
+
+        return Border(0F, 0F, 72F, 17F)
+
+
     }
 }

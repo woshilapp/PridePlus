@@ -43,7 +43,8 @@ open class HUD : MinecraftInstance() {
             Logo::class.java,
             Target::class.java,
             TargetHUD::class.java,
-            TomkKeyBinds::class.java
+            TomkKeyBinds::class.java,
+            TomkText::class.java
 
         )
 
@@ -52,7 +53,7 @@ open class HUD : MinecraftInstance() {
          */
          @JvmStatic
         fun createDefault() = HUD()
-                .addElement(Text.defaultClient())
+                .addElement(TomkText.defaultClient())
                 .addElement(Arraylist())
                 .addElement(KeyBinds())
                 .addElement(Logo())

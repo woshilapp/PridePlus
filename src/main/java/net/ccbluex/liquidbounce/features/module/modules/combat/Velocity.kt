@@ -11,16 +11,12 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.aac.*
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.grim.GrimVelocity
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.other.HypixelVelocity
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.other.MinemenVelocity
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.vulcan.VulcanVelocity
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.injection.implementations.IMixinTimer
+import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.network.play.server.SPacketEntityVelocity
@@ -31,18 +27,9 @@ import kotlin.math.sqrt
 @ModuleInfo(name = "Velocity", description = "AntiKB", category = ModuleCategory.COMBAT)
 object Velocity : Module() {
 
-    private val modes = listOf(
-        AAC4ReduceVelocity(),
-        AAC5ReduceVelocity(),
-        AAC520CombatVelocity(),
-        AAC520Velocity(),
-        AACPushVelocity(),
-        AACZeroVelocity(),
-        GrimVelocity(),
-        HypixelVelocity(),
-        MinemenVelocity(),
-        VulcanVelocity()
-    )
+    private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.velocitys", VelocityMode::class.java)
+        .map { it.newInstance() as VelocityMode }
+        .sortedBy { it.modeName }
 
     private val mode: VelocityMode
         get() = modes.find { modeValue.get() == it.modeName } ?: throw NullPointerException() // this should not happen
@@ -61,6 +48,8 @@ object Velocity : Module() {
     val horizontalValue = FloatValue("Horizontal", 0f, -2f, 2f).displayable { modeValue.equals("Simple") || modeValue.equals("Tick") }
     val verticalValue = FloatValue("Vertical", 0f, -2f, 2f).displayable { modeValue.equals("Simple") || modeValue.equals("Tick") }
     val chanceValue = IntegerValue("Chance", 100, 0, 100).displayable { modeValue.equals("Simple") }
+    val sendC03Value = BoolValue("Grim-SendC03", true).displayable { modeValue.equals("GrimAC") }
+    val breakValue = BoolValue("Grim-BreakBlock", true).displayable { modeValue.equals("GrimAC") }
     val onlyGroundValue = BoolValue("OnlyGround", false)
     val onlyCombatValue = BoolValue("OnlyCombat", false)
     // private val onlyHitVelocityValue = BoolValue("OnlyHitVelocity",false)
@@ -209,6 +198,12 @@ object Velocity : Module() {
         if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
             return
         mode.onJump(event)
+    }
+    @EventTarget
+    fun onTick(event: TickEvent) {
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+            return
+        mode.onTick(event)
     }
 
     @EventTarget

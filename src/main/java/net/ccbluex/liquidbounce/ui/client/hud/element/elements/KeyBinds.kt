@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
+import me.utils.render.ShadowUtils
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
@@ -7,8 +8,9 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.cnfont.FontLoaders
-import net.minecraft.client.renderer.GlStateManager
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.minecraft.client.renderer.GlStateManager
+import org.lwjgl.opengl.GL11
 import java.awt.Color
 
 
@@ -33,7 +35,37 @@ class KeyBinds(x: Double = 85.11, y: Double = 21.11, scale: Float = 1F,
             Color(0, 0, 0, 110).rgb
         )
         if (shadow.get()){
-            RenderUtils.drawShadow2(0, 0, 114f, anmitY)
+            ShadowUtils.shadow(10f,{
+                GL11.glPushMatrix()
+                GL11.glTranslated(renderX, renderY, 0.0)
+                GL11.glScalef(scale, scale, scale)
+                RenderUtils.originalRoundedRect(
+                    0f,
+                    0f,
+                    114f,
+                    anmitY,
+                    5.0F,
+                    Color(0,0,0).rgb
+                )
+                GL11.glPopMatrix()
+
+            },{
+                GL11.glPushMatrix()
+                GL11.glTranslated(renderX, renderY, 0.0)
+                GL11.glScalef(scale, scale, scale)
+                GlStateManager.enableBlend()
+                GlStateManager.disableTexture2D()
+                GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
+                RenderUtils.fastRoundedRect(                0f,
+                    0f,
+                    114f,
+                    anmitY,
+                    5.0F
+                )
+                GlStateManager.enableTexture2D()
+                GlStateManager.disableBlend()
+                GL11.glPopMatrix()
+            })
         }
 //        if (outline.get()){
 //            RenderUtils.drawGidentOutlinedRoundedRect(0.0, 0.0, 114.0,anmitY.toDouble(), 8.0,linewidth.get())

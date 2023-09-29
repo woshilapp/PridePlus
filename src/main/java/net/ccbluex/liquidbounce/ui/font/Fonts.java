@@ -80,18 +80,20 @@ public class Fonts extends MinecraftInstance {
     @FontDetails(fontName = "ComfortaaRegular60", fontSize = 60)
     public static GameFontRenderer ComfortaaRegular60;
 
-    @FontDetails(fontName = "Posterama", fontSize = 15)
+    @FontDetails(fontName = "Posterama", fontSize = 30)
     public static GameFontRenderer posterama30;
-    @FontDetails(fontName = "Posterama", fontSize = 18)
+    @FontDetails(fontName = "Posterama", fontSize = 35)
     public static GameFontRenderer posterama35;
-    @FontDetails(fontName = "Posterama", fontSize = 20)
+    @FontDetails(fontName = "Posterama", fontSize = 40)
     public static GameFontRenderer posterama40;
-    @FontDetails(fontName = "Posterama", fontSize = 25)
+    @FontDetails(fontName = "Posterama", fontSize = 50)
     public static GameFontRenderer posterama50;
+    @FontDetails(fontName = "Posterama", fontSize = 100)
+    public static GameFontRenderer posterama100;
 
-    @FontDetails(fontName = "yangzi", fontSize = 20)
+    @FontDetails(fontName = "yangzi", fontSize = 50)
     public static GameFontRenderer icon50;
-    @FontDetails(fontName = "yangzi", fontSize = 25)
+    @FontDetails(fontName = "yangzi", fontSize = 80)
     public static GameFontRenderer icon80;
 
     public static void loadFonts() {
@@ -99,13 +101,14 @@ public class Fonts extends MinecraftInstance {
 
         ClientUtils.getLogger().info("Loading Fonts.");
 
-        icon80 = new GameFontRenderer(getFont("hicon.ttf", 25));
-        icon50 = new GameFontRenderer(getFont("hicon.ttf", 20));
+        icon80 = new GameFontRenderer(getFont("hicon.ttf", 80));
+        icon50 = new GameFontRenderer(getFont("hicon.ttf", 50));
 
-        posterama30 = new GameFontRenderer(getFont("posterama.ttf", 15));
-        posterama35 = new GameFontRenderer(getFont("posterama.ttf", 18));
-        posterama40 = new GameFontRenderer(getFont("posterama.ttf", 20));
-        posterama50 = new GameFontRenderer(getFont("posterama.ttf", 20));
+        posterama30 = new GameFontRenderer(getFont("posterama.ttf", 30));
+        posterama35 = new GameFontRenderer(getFont("posterama.ttf", 35));
+        posterama40 = new GameFontRenderer(getFont("posterama.ttf", 40));
+        posterama50 = new GameFontRenderer(getFont("posterama.ttf", 50));
+        posterama100 = new GameFontRenderer(getFont("posterama.ttf", 100));
 
         font35 = new GameFontRenderer(getSFUI(35));
         font25 = new GameFontRenderer(getSFUI(25));

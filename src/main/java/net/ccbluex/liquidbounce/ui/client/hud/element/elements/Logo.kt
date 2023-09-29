@@ -5,20 +5,18 @@
  */
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-import com.google.gson.JsonElement
+import me.utils.render.ShadowUtils
+import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
+import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
-import net.ccbluex.liquidbounce.utils.misc.MiscUtils
-import net.ccbluex.liquidbounce.utils.misc.RandomUtils
+import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.features.value.TextValue
-import java.io.ByteArrayInputStream
-import java.io.File
-import java.nio.file.Files
-import java.util.*
-import javax.imageio.ImageIO
+import net.minecraft.client.renderer.GlStateManager
+import org.lwjgl.opengl.GL11
+import java.awt.Color
 
 
 /**
@@ -27,25 +25,12 @@ import javax.imageio.ImageIO
  * Draw custom image
  */
 @ElementInfo(name = "Logo")
-class Logo(x: Double = 20.33, y: Double = 16.00, scale: Float = 0.30F,
+class Logo(x: Double = 0.0, y: Double = 0.0, scale: Float = 1.00F,
            side: Side = Side.default()) : Element(x, y, scale, side) {
 
-    companion object {
 
-        /**
-         * Create default element
-         */
-        fun default(): Logo {
-            val image = Logo()
 
-            image.x = 0.0
-            image.y = 0.0
-
-            return image
-        }
-
-    }
-
+    private val modeValue = ListValue("Mode", arrayOf("Image", "Text"),"Text")
     private var width = 256
     private var height = 256
 
@@ -53,9 +38,36 @@ class Logo(x: Double = 20.33, y: Double = 16.00, scale: Float = 0.30F,
      * Draw element
      */
     override fun drawElement(): Border {
-        RenderUtils.drawImage("pride/big.png", 0, 0, width, height)
+        if (modeValue.get() == "Image") {
+            RenderUtils.drawImage("pride/big.png", 0, 0, width, height)
+            return Border(0F, 0F, width.toFloat(), height.toFloat())
+        }
+        ShadowUtils.shadow(5f, {
+            GL11.glPushMatrix()
+            GL11.glTranslated(renderX, renderY, 0.0)
+            GL11.glScalef(scale, scale, scale)
 
-        return Border(0F, 0F, width.toFloat(), height.toFloat())
+            RenderUtils.originalRoundedRect(
+                0f, 0f, 125F, 91F, 6.0f,
+                Color(40,250,220).rgb
+            )
+            GL11.glPopMatrix()
+        }, {
+            GL11.glPushMatrix()
+            GL11.glTranslated(renderX, renderY, 0.0)
+            GL11.glScalef(scale, scale, scale)
+            GlStateManager.enableBlend()
+            GlStateManager.disableTexture2D()
+            GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
+            RenderUtils.fastRoundedRect(-5f, 1F, 125F, 91F, 6.0f)
+            GlStateManager.enableTexture2D()
+            GlStateManager.disableBlend()
+            GL11.glPopMatrix()
+        }
+        )
+        Fonts.posterama100.drawString(CLIENT_NAME, 0, 0, Color(40,250,220).rgb)
+
+        return Border(0F, 0F, Fonts.posterama100.getStringWidth(CLIENT_NAME).toFloat(), Fonts.posterama100.fontHeight.toFloat())
     }
 
 }

@@ -60,7 +60,7 @@ object LiquidBounce {
     @JvmField
     val CLIENT_TITLE = listOf(
         "你玩原神吗？",
-        "RainyFall233",
+        "RainyFaLL233",
         "Reborn",
         "不行我得拷打你",
         "LangYa233",
@@ -68,7 +68,8 @@ object LiquidBounce {
         "Paim0n233",
         "imCzf",
         "崩坏：星穹铁道",
-        "Honkai: Star Rail"
+        "Honkai: Star Rail",
+        "小职我超你马"
     ).random()
 
     var isStarting = false
@@ -108,13 +109,6 @@ object LiquidBounce {
 
         ClientUtils.getLogger().info("Starting $CLIENT_NAME $CLIENT_VERSION, by $CLIENT_CREATOR")
 
-        // Thread, to make loading faster
-        Thread {
-            userQQ = QQUtils.getLoginQQNumber()
-            // info
-            ClientUtils.getLogger().info("PridePlus >> QQNumber has been read.")
-        }.start()
-
         // Create file manager
         fileManager = FileManager()
 
@@ -124,22 +118,23 @@ object LiquidBounce {
         // Create Combat Manager
         combatManager = CombatManager()
 
-        // Create SoundManager
-        tipSoundManager = TipSoundManager()
+        // Register listeners
+        eventManager.registerListener(combatManager)
+        eventManager.registerListener(RotationUtils())
+        eventManager.registerListener(AntiForge())
+        eventManager.registerListener(BungeeCordSpoof())
+        eventManager.registerListener(DonatorCape())
+        eventManager.registerListener(InventoryUtils())
 
-        // Thread 2, to make loading faster
+        // Main Thread
         Thread {
-            // Register listeners
-            eventManager.registerListener(combatManager)
-            eventManager.registerListener(RotationUtils())
-            eventManager.registerListener(AntiForge())
-            eventManager.registerListener(BungeeCordSpoof())
-            eventManager.registerListener(DonatorCape())
-            eventManager.registerListener(InventoryUtils())
+            userQQ = QQUtils.getLoginQQNumber()
+            // info
+            ClientUtils.getLogger().info("PridePlus >> QQNumber has been read.")
         }.start()
 
-        // Create command manager
-        commandManager = CommandManager()
+        // Create SoundManager
+        tipSoundManager = TipSoundManager()
 
         // Load client fonts
         Fonts.loadFonts()
@@ -147,14 +142,19 @@ object LiquidBounce {
         // info
         ClientUtils.getLogger().info("PridePlus >> Fonts Loaded.")
 
+
+        // Create command manager
+        commandManager = CommandManager()
+
         // Setup module manager and register modules
         moduleManager = ModuleManager()
         moduleManager.registerModules()
-        // info
-        ClientUtils.getLogger().info("PridePlus >> Modules Loaded.")
 
-        // Thread 3, to make loading faster
+        // Thread 2
         Thread {
+            // info
+            ClientUtils.getLogger().info("PridePlus >> Modules Loaded.")
+
             try {
                 // Remap
                 loadSrg()
@@ -169,20 +169,21 @@ object LiquidBounce {
             } catch (throwable: Throwable) {
                 ClientUtils.getLogger().error("Failed to load scripts.", throwable)
             }
+
+            // Load configs
+            fileManager.loadConfigs(fileManager.modulesConfig, fileManager.valuesConfig, fileManager.accountsConfig,
+                fileManager.friendsConfig, fileManager.xrayConfig, fileManager.shortcutsConfig)
+            // info
+            ClientUtils.getLogger().info("PridePlus >> Configs Loaded.")
+
+            // Register commands
+            commandManager.registerCommands()
+            // info
+            ClientUtils.getLogger().info("PridePlus >> Commands Loaded.")
         }.start()
 
-        // Register commands
-        commandManager.registerCommands()
-        // info
-        ClientUtils.getLogger().info("PridePlus >> Commands Loaded.")
 
-        // Load configs
-        fileManager.loadConfigs(fileManager.modulesConfig, fileManager.valuesConfig, fileManager.accountsConfig,
-                fileManager.friendsConfig, fileManager.xrayConfig, fileManager.shortcutsConfig)
-        // info
-        ClientUtils.getLogger().info("PridePlus >> Configs Loaded.")
-
-        // Thread 4, to make loading faster
+        // Thread 3
         Thread {
             // ClickGUI
             clickGui = ClickGui()
@@ -201,21 +202,17 @@ object LiquidBounce {
 
             // Load generators
             GuiAltManager.loadGenerators()
-
-            // info
-            ClientUtils.getLogger().info("PridePlus >> All Loaded.")
-
-            // System Information
-            displayTray("PridePlus 已加载完成", "使用即同意用户协议及隐私政策 \n链接: kdocs.cn/l/cmwaN2cwjvAl", TrayIcon.MessageType.INFO)
-            ClientUtils.getLogger().info("PridePlus Client >> 使用本ForgeMod即代表你同意我们的用户协议及隐私政策.")
-
         }.start()
 
         // Set is starting status
         isStarting = false
         //Sound
         Sound.INSTANCE.Spec()
-
+        // info
+        ClientUtils.getLogger().info("PridePlus >> All Loaded.")
+        // System Information
+        displayTray("PridePlus 已加载完成", "使用即同意用户协议及隐私政策 \n链接: kdocs.cn/l/cmwaN2cwjvAl", TrayIcon.MessageType.INFO)
+        ClientUtils.getLogger().info("PridePlus Client >> 使用本ForgeMod即代表你同意我们的用户协议及隐私政策.")
     }
 
     /**

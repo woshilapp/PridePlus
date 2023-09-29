@@ -12,6 +12,7 @@ import net.minecraft.client.gui.*
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ResourceLocation
 import op.wawa.utils.render.BlurUtils
+import java.awt.Color
 
 class GuiMainMenu : GuiScreen() {
 
@@ -46,8 +47,8 @@ class GuiMainMenu : GuiScreen() {
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
 
         val res = ScaledResolution(mc)
-        val width = width
-        val height = height
+        val width = res.scaledWidth
+        val height = res.scaledHeight
 
         // Background
         val xDiff: Float = ((mouseX - height / 2).toFloat() - this.currentX) / res.scaleFactor.toFloat()
@@ -60,8 +61,10 @@ class GuiMainMenu : GuiScreen() {
         GlStateManager.translate(-this.currentX / 30.0f, -this.currentY / 15.0f, 0.0f)
 
         // Rect
-        BlurUtils.blurArea(0F, 0F, 140F, height.toFloat(), 25F)
-        RenderUtils.drawShadow(0, 0, 140, height)
+        BlurUtils.blurArea(0F, 0F, width.toFloat(), height.toFloat(), 10F)
+        //RenderUtils.drawShadow(0, 0, 140, height)
+        RenderUtils.drawRoundRect(10F, height / 2F - 140F, 120F, height / 2f - 20 / 2f - 57 + 160F, 40F, Color(0,0,0,100).rgb)
+        RenderUtils.drawOutlinedRoundedRect(10.0, height / 2.0 - 140.0, 120.0, height / 2f - 20 / 2f - 57 + 160.0, 40.0, 2F, Color.WHITE.rgb)
 
         // Logo
         RenderUtils.drawImage(icon,35, (height / 2f - 120).toInt(), 70, 70)
