@@ -2,10 +2,10 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.aac
 
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.AntiKBMode
 import net.minecraft.client.Minecraft
 
-class AAC5ReduceVelocity : VelocityMode("AAC5Reduce") {
+class AAC5ReduceVelocity : AntiKBMode("AAC5Reduce") {
 
     val mc: Minecraft = Minecraft.getMinecraft()
     override fun onVelocity(event: UpdateEvent) {

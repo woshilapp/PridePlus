@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.AntiKBMode
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
@@ -24,14 +24,14 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-@ModuleInfo(name = "Velocity", description = "AntiKB", category = ModuleCategory.COMBAT)
-object Velocity : Module() {
+@ModuleInfo(name = "AntiKnockback", description = "Less or Cancel your Knockback", category = ModuleCategory.COMBAT)
+object AntiKnockback : Module() {
 
-    private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.velocitys", VelocityMode::class.java)
-        .map { it.newInstance() as VelocityMode }
+    private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.velocitys", AntiKBMode::class.java)
+        .map { it.newInstance() as AntiKBMode }
         .sortedBy { it.modeName }
 
-    private val mode: VelocityMode
+    private val mode: AntiKBMode
         get() = modes.find { modeValue.get() == it.modeName } ?: throw NullPointerException() // this should not happen
 
     private val modeValue: ListValue = object : ListValue("Mode", modes.map { it.modeName }.toTypedArray(), "GrimAC") {

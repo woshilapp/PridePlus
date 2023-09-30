@@ -2,16 +2,16 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys
 
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.features.module.modules.combat.Velocity
+import net.ccbluex.liquidbounce.features.module.modules.combat.AntiKnockback
 import net.ccbluex.liquidbounce.features.value.Value
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 
-abstract class VelocityMode(val modeName: String) : MinecraftInstance() {
+abstract class AntiKBMode(val modeName: String) : MinecraftInstance() {
     protected val valuePrefix = "$modeName-"
 
-    protected val velocity: Velocity
-        get() = LiquidBounce.moduleManager[Velocity::class.java]!! as Velocity
+    protected val velocity: AntiKnockback
+        get() = LiquidBounce.moduleManager[AntiKnockback::class.java]!! as AntiKnockback
 
     open val values: List<Value<*>>
         get() = ClassUtils.getValues(this.javaClass, this)

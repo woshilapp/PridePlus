@@ -3,8 +3,8 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.grim
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.TickEvent
-import net.ccbluex.liquidbounce.features.module.modules.combat.Velocity
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
+import net.ccbluex.liquidbounce.features.module.modules.combat.AntiKnockback
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.AntiKBMode
 import net.minecraft.client.Minecraft
 import net.minecraft.client.network.NetHandlerPlayClient
 import net.minecraft.network.Packet
@@ -16,7 +16,7 @@ import net.minecraft.network.play.server.SPacketPlayerPosLook
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.BlockPos
 
-class GrimVelocity : VelocityMode("GrimAC") {
+class GrimVelocity : AntiKBMode("GrimAC") {
     private var isVelocity = false
     private var isTeleport = false
     override fun onEnable() {
@@ -32,7 +32,7 @@ class GrimVelocity : VelocityMode("GrimAC") {
 
         val systemTime = Minecraft.getSystemTime()
 
-        if ((LiquidBounce.moduleManager[Velocity::class.java] as Velocity).sendC03Value.get()) {
+        if ((LiquidBounce.moduleManager[AntiKnockback::class.java] as AntiKnockback).sendC03Value.get()) {
             connection.sendPacket(CPacketPlayer(mc.player.onGround))
             mc.timer.lastSyncSysClock = if (mc.player.onGround)
                 mc.timer.lastSyncSysClock + 50L
@@ -43,7 +43,7 @@ class GrimVelocity : VelocityMode("GrimAC") {
         val pos = BlockPos(mc.player.posX, mc.player.posY + 1.0, mc.player.posZ)
         connection.sendPacket(CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, pos, EnumFacing.DOWN))
 
-        if ((LiquidBounce.moduleManager[Velocity::class.java] as Velocity).breakValue.get()) {
+        if ((LiquidBounce.moduleManager[AntiKnockback::class.java] as AntiKnockback).breakValue.get()) {
             mc.world.setBlockToAir(pos)
         }
 

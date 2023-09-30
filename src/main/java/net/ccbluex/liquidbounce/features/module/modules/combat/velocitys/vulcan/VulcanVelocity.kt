@@ -1,10 +1,10 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.vulcan
 
 import net.ccbluex.liquidbounce.event.PacketEvent
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.AntiKBMode
 import net.minecraft.network.play.client.CPacketConfirmTransaction
 
-class VulcanVelocity : VelocityMode("Vulcan") {
+class VulcanVelocity : AntiKBMode("Vulcan") {
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (packet is CPacketConfirmTransaction) {

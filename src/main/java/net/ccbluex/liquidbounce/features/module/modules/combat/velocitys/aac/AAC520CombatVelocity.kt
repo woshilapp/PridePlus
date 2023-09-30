@@ -2,12 +2,12 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.aac
 
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.AntiKBMode
 import net.minecraft.client.Minecraft
 import net.minecraft.network.play.client.CPacketPlayer
 import net.minecraft.network.play.server.SPacketEntityVelocity
 
-class AAC520CombatVelocity : VelocityMode("AAC5.2.0Combat") {
+class AAC520CombatVelocity : AntiKBMode("AAC5.2.0Combat") {
     val mc: Minecraft = Minecraft.getMinecraft()
 
     private var templateX = 0

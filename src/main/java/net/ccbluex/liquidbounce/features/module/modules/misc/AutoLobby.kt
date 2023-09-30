@@ -7,7 +7,7 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
-import net.ccbluex.liquidbounce.features.module.modules.combat.Velocity
+import net.ccbluex.liquidbounce.features.module.modules.combat.AntiKnockback
 import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
@@ -31,7 +31,7 @@ class AutoLobby : Module(){
     @EventTarget
     fun onUpdate(event: UpdateEvent){
         val killAura = LiquidBounce.moduleManager[KillAura::class.java] as KillAura
-        val velocity = LiquidBounce.moduleManager[Velocity::class.java] as Velocity
+        val velocity = LiquidBounce.moduleManager[AntiKnockback::class.java] as AntiKnockback
         val speed = LiquidBounce.moduleManager[Speed::class.java] as Speed
         if (mc.player!!.health < health.get()){
             if(keepArmor.get()) {

@@ -2,11 +2,11 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.aac
 
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.AntiKBMode
 import net.minecraft.client.Minecraft
 import net.minecraft.network.play.server.SPacketEntityVelocity
 
-class AAC4ReduceVelocity : VelocityMode("AAC4Reduce") {
+class AAC4ReduceVelocity : AntiKBMode("AAC4Reduce") {
     val mc: Minecraft = Minecraft.getMinecraft()
     override fun onVelocity(event: UpdateEvent) {
         if (mc.player.hurtTime> 0 && !mc.player.onGround && velocity.velocityInput && velocity.velocityTimer.hasTimePassed(80L)) {

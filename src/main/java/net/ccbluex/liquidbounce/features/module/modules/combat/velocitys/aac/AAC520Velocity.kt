@@ -1,12 +1,12 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.aac
 
 import net.ccbluex.liquidbounce.event.PacketEvent
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.AntiKBMode
 import net.minecraft.client.Minecraft
 import net.minecraft.network.play.client.CPacketPlayer
 import net.minecraft.network.play.server.SPacketEntityVelocity
 
-class AAC520Velocity : VelocityMode("AAC5.2.0") {
+class AAC520Velocity : AntiKBMode("AAC5.2.0") {
     val mc: Minecraft = Minecraft.getMinecraft()
     override fun onVelocityPacket(event: PacketEvent) {
         if(event.packet is SPacketEntityVelocity) {

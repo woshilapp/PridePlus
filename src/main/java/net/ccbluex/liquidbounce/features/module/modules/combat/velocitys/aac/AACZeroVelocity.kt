@@ -4,10 +4,10 @@ import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.JumpEvent
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.AntiKBMode
 import net.minecraft.client.Minecraft
 
-class AACZeroVelocity : VelocityMode("AACZero") {
+class AACZeroVelocity : AntiKBMode("AACZero") {
 
     val mc: Minecraft = Minecraft.getMinecraft()
     override fun onVelocity(event: UpdateEvent) {

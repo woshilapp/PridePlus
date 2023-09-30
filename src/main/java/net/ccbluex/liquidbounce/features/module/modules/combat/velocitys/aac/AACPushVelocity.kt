@@ -3,13 +3,13 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.aac
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.JumpEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
+import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.AntiKBMode
 import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.minecraft.client.Minecraft
 
-class AACPushVelocity : VelocityMode("AACPush") {
+class AACPushVelocity : AntiKBMode("AACPush") {
     val mc: Minecraft = Minecraft.getMinecraft()
 
     private val aacPushXZReducerValue = FloatValue("AACPushXZReducer", 2F, 1F, 3F)
