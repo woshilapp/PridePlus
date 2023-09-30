@@ -107,16 +107,18 @@ object LiquidBounce {
     fun startClient() {
         isStarting = true
 
-        ClientUtils.getLogger().info("Starting $CLIENT_NAME $CLIENT_VERSION, by $CLIENT_CREATOR")
+        ClientUtils.getLogger().info("Loading $CLIENT_NAME $CLIENT_VERSION")
+        ClientUtils.getLogger().info("Initializing...")
+        val startTime = System.currentTimeMillis()
 
-        // Create file manager
+        // Initialize managers
         fileManager = FileManager()
-
-        // Crate event manager
         eventManager = EventManager()
-
-        // Create Combat Manager
+        commandManager = CommandManager()
+        moduleManager = ModuleManager()
+        scriptManager = ScriptManager()
         combatManager = CombatManager()
+        tipSoundManager = TipSoundManager()
 
         // Register listeners
         eventManager.registerListener(combatManager)
@@ -126,93 +128,74 @@ object LiquidBounce {
         eventManager.registerListener(DonatorCape())
         eventManager.registerListener(InventoryUtils())
 
-        // Main Thread
-        Thread {
-            userQQ = QQUtils.getLoginQQNumber()
-            // info
-            ClientUtils.getLogger().info("PridePlus >> QQNumber has been read.")
-        }.start()
+        // Load configs
+        fileManager.loadConfigs(
+            fileManager.accountsConfig,
+            fileManager.friendsConfig,
+            fileManager.xrayConfig,
+            fileManager.shortcutsConfig
+        )
 
-        // Create SoundManager
-        tipSoundManager = TipSoundManager()
+        userQQ = QQUtils.getLoginQQNumber()
+        ClientUtils.getLogger().info("PridePlus >> QQNumber has been read.")
 
         // Load client fonts
         Fonts.loadFonts()
         FontLoaders.initFonts()
-        // info
         ClientUtils.getLogger().info("PridePlus >> Fonts Loaded.")
 
-
-        // Create command manager
-        commandManager = CommandManager()
-
-        // Setup module manager and register modules
-        moduleManager = ModuleManager()
+        // Setup modules
         moduleManager.registerModules()
+        ClientUtils.getLogger().info("PridePlus >> Modules Loaded.")
 
-        // Thread 2
-        Thread {
-            // info
-            ClientUtils.getLogger().info("PridePlus >> Modules Loaded.")
+        try {
+            loadSrg()
+            scriptManager.loadScripts()
+            scriptManager.enableScripts()
 
-            try {
-                // Remap
-                loadSrg()
+            ClientUtils.getLogger().info("PridePlus >> Scripts Loaded.")
+        } catch (throwable: Throwable) {
+            ClientUtils.getLogger().error("Failed to load scripts.", throwable)
+        }
 
-                // ScriptManager
-                scriptManager = ScriptManager()
-                scriptManager.loadScripts()
-                scriptManager.enableScripts()
+        fileManager.loadConfigs(
+            fileManager.modulesConfig,
+            fileManager.valuesConfig
+        )
 
-                // info
-                ClientUtils.getLogger().info("PridePlus >> Scripts Loaded.")
-            } catch (throwable: Throwable) {
-                ClientUtils.getLogger().error("Failed to load scripts.", throwable)
-            }
+        // Register commands
+        commandManager.registerCommands()
+        ClientUtils.getLogger().info("PridePlus >> Commands Loaded.")
 
-            // Load configs
-            fileManager.loadConfigs(fileManager.modulesConfig, fileManager.valuesConfig, fileManager.accountsConfig,
-                fileManager.friendsConfig, fileManager.xrayConfig, fileManager.shortcutsConfig)
-            // info
-            ClientUtils.getLogger().info("PridePlus >> Configs Loaded.")
+        // Set HUD
+        hud = createDefault()
+        fileManager.loadConfig(fileManager.hudConfig)
 
-            // Register commands
-            commandManager.registerCommands()
-            // info
-            ClientUtils.getLogger().info("PridePlus >> Commands Loaded.")
-        }.start()
+        // ClickGUI
+        clickGui = ClickGui()
+        fileManager.loadConfig(fileManager.clickGuiConfig)
 
+        ClientUtils.getLogger().info("PridePlus >> Configs Loaded.")
 
-        // Thread 3
-        Thread {
-            // ClickGUI
-            clickGui = ClickGui()
-            fileManager.loadConfig(fileManager.clickGuiConfig)
+        // Register capes service
+        try {
+            registerCapeService()
+        } catch (throwable: Throwable) {
+            ClientUtils.getLogger().error("Failed to register cape service", throwable)
+        }
 
-            // Register capes service
-            try {
-                registerCapeService()
-            } catch (throwable: Throwable) {
-                ClientUtils.getLogger().error("Failed to register cape service", throwable)
-            }
-
-            // Set HUD
-            hud = createDefault()
-            fileManager.loadConfig(fileManager.hudConfig)
-
-            // Load generators
-            GuiAltManager.loadGenerators()
-        }.start()
+        // Load generators
+        GuiAltManager.loadGenerators()
 
         // Set is starting status
         isStarting = false
+        // Log success
+        ClientUtils.getLogger().info("$CLIENT_NAME $CLIENT_VERSION loaded in ${(System.currentTimeMillis() - startTime)}ms!")
+        // System Information
+        displayTray("PridePlus 已加载完成", "使用即同意用户协议 \n链接: kdocs.cn/l/cmwaN2cwjvAl", TrayIcon.MessageType.INFO)
+        ClientUtils.getLogger().info("使用PridePlus即代表你同意我们的用户协议及隐私政策.")
         //Sound
         Sound.INSTANCE.Spec()
-        // info
-        ClientUtils.getLogger().info("PridePlus >> All Loaded.")
-        // System Information
-        displayTray("PridePlus 已加载完成", "使用即同意用户协议及隐私政策 \n链接: kdocs.cn/l/cmwaN2cwjvAl", TrayIcon.MessageType.INFO)
-        ClientUtils.getLogger().info("PridePlus Client >> 使用本ForgeMod即代表你同意我们的用户协议及隐私政策.")
     }
 
     /**

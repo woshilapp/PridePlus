@@ -60,8 +60,7 @@ public abstract class MixinGuiButton extends Gui {
     @Overwrite
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
         if (visible) {
-            final FontRenderer fontRenderer =
-                    /*mc.getLanguageManager().isCurrentLocaleUnicode() ? mc.fontRenderer : */Fonts.fontSFUI35;
+            final FontRenderer fontRenderer =  Fonts.posterama35;
             hovered = (mouseX >= this.x && mouseY >= this.y &&
                     mouseX < this.x + this.width && mouseY < this.y + this.height);
 
@@ -85,28 +84,19 @@ public abstract class MixinGuiButton extends Gui {
                 if (alpha <= 120) alpha = 120;
             }
 
+            RenderUtils.drawRect(this.x + (int) this.cut, this.y,
+                    this.x + this.width - (int) this.cut, this.y + this.height,
+                    new Color(49, 51, 53, 200).getRGB());
 
+            RenderUtils.drawRect(this.x + (int) this.cut, this.y + (this.height - 2),
+                    this.x + this.width - (int) this.cut, this.y + this.height,
+                    this.enabled ? Color.WHITE.getRGB() :
+                            new Color(98, 98, 98, 200).getRGB());
 
-            RenderUtils.drawOutlinedRoundedRect(this.x + (int) this.cut,this.y,(this.width - (int) (this.cut * 2)),this.height,14F,1.1F,this.enabled ? new Color(255, 255, 255, 255).getRGB() :
-                    new Color(0.5F, 0.5F, 0.5F, 0.5F).getRGB());
-
-            /*RenderUtils.drawRoundRect(this.x + (int) this.cut, this.y,
-                    this.x + this.width - (int) this.cut, this.y + this.height, 3,
-                    this.enabled ? new Color(0F, 0F, 0F, this.alpha / 255F).getRGB() :
-                            new Color(0.5F, 0.5F, 0.5F, 0.5F).getRGB());*/
-
-
-
-
-//            Gui.drawRect(this.x + (int) this.cut, this.y,
-//                    this.x + this.width - (int) this.cut, this.y + this.height,
-//                    this.enabled ? new Color(0F, 0F, 0F, this.alpha / 255F).getRGB() :
-//                            new Color(0.5F, 0.5F, 0.5F, 0.5F).getRGB());
-
-//            mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
+            mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
             mouseDragged(mc, mouseX, mouseY);
 
-                   AWTFontRenderer.Companion.setAssumeNonVolatile(true);
+            AWTFontRenderer.Companion.setAssumeNonVolatile(true);
 
             fontRenderer.drawStringWithShadow(displayString,
                     (float) ((this.x + this.width / 2) -
