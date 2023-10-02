@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.ui.client.hud
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.*
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Target
+import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.minecraft.client.gui.ScaledResolution
@@ -23,40 +23,16 @@ open class HUD : MinecraftInstance() {
 
     companion object {
 
-        val elements = arrayOf(
-                Inventory::class.java,
-                Armor::class.java,
-                Arraylist::class.java,
-                Effects::class.java,
-                Image::class.java,
-            Statistics::class.java,
-                Notifications::class.java,
-                TabGUI::class.java,
-                Text::class.java,
-                ScoreboardElement::class.java,
-                Radar::class.java,
-                //SpeedGraph::class.java,
-            KeyBinds::class.java,
-            KeyStrokes::class.java,
-            //NewEffects::class.java,
-            Text2::class.java,
-            Logo::class.java,
-            Target::class.java,
-            TargetHUD::class.java,
-            TomkKeyBinds::class.java,
-            TomkText::class.java
-
-        )
+        val elements = ClassUtils.resolvePackage("${this::class.java.`package`.name}.element.elements", Element::class.java)
+            .map { it.newInstance() as Element }
+            .sortedBy { it.name }
 
         /**
          * Create default HUD
          */
          @JvmStatic
         fun createDefault() = HUD()
-                .addElement(TomkText.defaultClient())
                 .addElement(Arraylist())
-                .addElement(KeyBinds())
-                .addElement(Logo())
                 .addElement(ScoreboardElement())
                 .addElement(Armor())
                 .addElement(Effects())

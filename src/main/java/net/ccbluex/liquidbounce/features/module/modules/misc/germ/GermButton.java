@@ -9,7 +9,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
 import java.awt.*;
 
-import static net.ccbluex.liquidbounce.utils.MinecraftInstance.mc2;
+import static net.ccbluex.liquidbounce.utils.MinecraftInstance.mc;
 
 //For MinClient
 public class GermButton {

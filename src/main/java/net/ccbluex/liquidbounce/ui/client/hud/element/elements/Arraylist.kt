@@ -25,7 +25,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 
 import net.ccbluex.liquidbounce.utils.render.*
 import net.minecraft.client.renderer.GlStateManager
-import op.wawa.utils.AnimationUtil
+import op.wawa.utils.animation.AnimationUtil
 import java.awt.Color
 
 import org.lwjgl.opengl.GL11
@@ -95,7 +95,7 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
     private val textHeightValue = FloatValue("TextHeight", 11F, 1F, 20F)
     private val textYValue = FloatValue("TextY", 1F, 0F, 20F)
     private val tagsArrayColor = BoolValue("TagsArrayColor", false)
-    private val fontValue = FontValue("Font", Fonts.font40)
+    private val fontValue = FontValue("Font", Fonts.minecraftFont)
 
 
     private var x2 = 0

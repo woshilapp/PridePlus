@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.render.Translate
 import net.ccbluex.liquidbounce.features.value.Value
 import org.lwjgl.input.Keyboard
 
-open class Module() : MinecraftInstance(), Listenable {
+open class Module : MinecraftInstance(), Listenable {
     // Module information
     // TODO: Remove ModuleInfo and change to constructor (#Kotlin)
     var animation = 0F
@@ -93,18 +93,11 @@ open class Module() : MinecraftInstance(), Listenable {
     // HUD
     val hue = Math.random().toFloat()
     var slide = 0F
-    var BreakName : Boolean = false
     var higt = 0F
 
     // Tag
     open val tag: String?
         get() = null
-
-    val tagName: String
-        get() = "$name${if (tag == null) "" else " §7$tag"}"
-
-    val colorlessTagName: String
-        get() = "$name${if (tag == null) "" else " " + stripColor(tag)}"
 
     /**
      * Toggle module

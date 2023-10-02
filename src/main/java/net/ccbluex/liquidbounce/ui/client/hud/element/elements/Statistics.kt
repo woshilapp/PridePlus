@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.injection.implementations.IMixinTimer
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
@@ -19,7 +20,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.InfosUtils.Recorder
 import net.ccbluex.liquidbounce.ui.cnfont.FontLoaders
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.EntityUtils
+import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.RoundedUtil
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
@@ -29,6 +30,7 @@ import org.lwjgl.opengl.GL11
 import java.awt.Color
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.hypot
 
 @ElementInfo(name = "GameInfo")
 class Statistics(
@@ -38,7 +40,19 @@ class Statistics(
     side: Side = Side.default()
 ) : Element(x, y, scale, side) {
 
-    private val modeValue = ListValue("Mode", arrayOf("FDP", "OldPridePlus", "Tomk"), "FDP")
+    private val modeValue = ListValue("Mode", arrayOf("FDP", "Skid", "Tomk"), "FDP")
+
+    private val redValue = IntegerValue("BackgroundRed", 0, 0, 255).displayable { modeValue.get() == "Skid" }
+    private val greenValue = IntegerValue("BackgroundGreen", 0, 0, 255).displayable { modeValue.get() == "Skid" }
+    private val blueValue = IntegerValue("BackgroundBlue", 0, 0, 255).displayable { modeValue.get() == "Skid" }
+    private val alpha = IntegerValue("BackgroundAlpha", 155, 0, 255).displayable { modeValue.get() == "Skid" }
+    private val rredValue = IntegerValue("RectRed", 0, 0, 255).displayable { modeValue.get() == "Skid" }
+    private val rgreenValue = IntegerValue("RectGreen", 0, 0, 255).displayable { modeValue.get() == "Skid" }
+    private val rblueValue = IntegerValue("RectBlue", 0, 0, 255).displayable { modeValue.get() == "Skid" }
+    private val ralpha = IntegerValue("RectAlpha", 192,0, 255).displayable { modeValue.get() == "Skid" }
+    private val textredValue = IntegerValue("TextRed", 255, 0, 255).displayable { modeValue.get() == "Skid" }
+    private val textgreenValue = IntegerValue("TextGreen", 244, 0, 255).displayable { modeValue.get() == "Skid" }
+    private val textblueValue = IntegerValue("TextBlue", 255, 0, 255).displayable { modeValue.get() == "Skid" }
 
     private val bV = BoolValue("Tomk-Blur", true)
     private val blurStrength = FloatValue("Tomk-BlurStrength", 5f,0f,20f)
@@ -70,7 +84,7 @@ class Statistics(
     val timer = MSTimer()
 
     //old pride plus
-    private var GameInfoRows = 0
+    private var gameInfoRows = 0
     private val DATE_FORMAT = SimpleDateFormat("HH:mm:ss")
 
     override fun drawElement(): Border? {
@@ -226,30 +240,44 @@ class Statistics(
                 FontLoaders.F16.drawString(LiquidBounce.combatManager.death.toString(), 135F - FontLoaders.F16.getStringWidth(LiquidBounce.combatManager.death.toString()), 30.0f, Color(infoR.get(), infoG.get(), infoB.get(),infoAlpha.get()).rgb)
                 GL11.glPopMatrix()
             }
-            "oldprideplus" -> {
+            "skid" -> {
                 x = 150F
                 y = 80F
-                y1 = this.GameInfoRows * 18F + 12F
+                y1 = this.gameInfoRows * 18F + 12F
                 x1 = 0f
-                RenderUtils.drawShadowWithCustomAlpha(0F, 10.5F, 150F, 70F, 200F)
-                RenderUtils.drawRect(0F, this.GameInfoRows * 18F + 20F, 150F, 80F, Color(infoR.get(), infoG.get(), infoB.get(), infoAlpha.get()).rgb)
-                FontLoaders.F24.drawStringWithShadow("游戏信息", 5.0,
-                    (this.GameInfoRows * 18F + 16).toInt().toDouble(), Color(infoR.get(), infoG.get(), infoB.get(), 255).rgb)
-                FontLoaders.F16.drawStringWithShadow("延迟:" + EntityUtils.getPing(mc2.player).toString(),
-                    5.0,
-                    (this.GameInfoRows * 18F + 30).toInt().toDouble(), Color(infoR.get(), infoG.get(), infoB.get(), 255).rgb)
-                FontLoaders.F16.drawStringWithShadow("帧数: " + Minecraft.getDebugFPS(),
-                    5.0,
-                    (this.GameInfoRows * 18F + 43).toInt().toDouble(), Color(infoR.get(), infoG.get(), infoB.get(), 255).rgb)
-                FontLoaders.F16.drawStringWithShadow("击杀: " + Recorder.killCounts, 5.0,
-                    (this.GameInfoRows * 18F + 54).toInt().toDouble(), Color(infoR.get(), infoG.get(), infoB.get(), 255).rgb)
-                FontLoaders.F16.drawStringWithShadow("游戏时间: ${DATE_FORMAT.format(Date(System.currentTimeMillis() - Recorder.startTime - 8000L * 3600L))}" ,
-                    5.0,
-                    (this.GameInfoRows * 18F + 66).toInt().toDouble(), Color(infoR.get(), infoG.get(), infoB.get(), 255).rgb)
-
+                if(shadowValue.get()){
+                    RenderUtils.drawShadowWithCustomAlpha(0F, 10.5F, 150F, 70F, 200F)
+                }
+                RenderUtils.drawRect(0F,11F,150F,12F, ColorUtils.hslRainbow(10, indexOffset = 30).rgb)
+                RenderUtils.drawRect(0F, this.gameInfoRows * 18F + 12, 150F, this.gameInfoRows * 18F + 25F, Color(rredValue.get(), rgreenValue.get(), rblueValue.get(), ralpha.get()).rgb)
+                RenderUtils.drawRect(0F, this.gameInfoRows * 18F + 25F, 150F, 80F, Color(redValue.get(), greenValue.get(), blueValue.get(), alpha.get()).rgb)
+                Fonts.font40.drawStringWithShadow("Game Info", 5F,
+                    this.gameInfoRows * 18F + 16, Color(textredValue.get(), textgreenValue.get(), textblueValue.get(), 255).rgb)
+                Fonts.font35.drawStringWithShadow("BPS: " + calculateBPS(),
+                    5F,
+                    this.gameInfoRows * 18F + 30, Color(textredValue.get(), textgreenValue.get(), textblueValue.get(), 255).rgb)
+                Fonts.font35.drawStringWithShadow("FPS: " + Minecraft.getDebugFPS(), 5F,
+                    this.gameInfoRows * 18F + 43, Color(textredValue.get(), textgreenValue.get(), textblueValue.get(), 255).rgb)
+                Fonts.font35.drawStringWithShadow("Kills: " + Recorder.killCounts, 5F,
+                    this.gameInfoRows * 18F + 54, Color(textredValue.get(), textgreenValue.get(), textblueValue.get(), 255).rgb)
+                Fonts.font35.drawStringWithShadow("Played Time: ${DATE_FORMAT.format(Date(System.currentTimeMillis() - Recorder.startTime - 8000L * 3600L))}" ,
+                    5F,
+                    this.gameInfoRows * 18F + 66, Color(textredValue.get(), textgreenValue.get(), textblueValue.get(), 255).rgb)
             }
         }
 
         return Border(x1, y1, x, y)
+    }
+    private fun calculateBPS(): Double {
+        return if(mc.player != null) {
+            val bps = hypot(
+                mc.player!!.posX - mc.player!!.prevPosX,
+                mc.player!!.posZ - mc.player!!.prevPosZ
+            ) * (mc.timer as IMixinTimer).timerSpeed * 20
+            Math.round(bps * 100.0) / 100.0
+        }else{
+            0.00
+        }
+
     }
 }

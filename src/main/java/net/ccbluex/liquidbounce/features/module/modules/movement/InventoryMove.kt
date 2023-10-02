@@ -31,7 +31,7 @@ class InventoryMove : Module() {
         private set
 
     private fun updateKeyState() {
-        if (mc2.currentScreen != null && mc2.currentScreen !is GuiChat && (!noDetectableValue.get() || mc2.currentScreen !is GuiContainer)) {
+        if (mc.currentScreen != null && mc.currentScreen !is GuiChat && (!noDetectableValue.get() || mc.currentScreen !is GuiContainer)) {
             mc.gameSettings.keyBindForward.pressed = mc.gameSettings.keyBindRight.isKeyDown
             mc.gameSettings.keyBindLeft.pressed = mc.gameSettings.keyBindLeft.isKeyDown
             mc.gameSettings.keyBindJump.pressed = mc.gameSettings.keyBindJump.isKeyDown

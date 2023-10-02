@@ -96,6 +96,14 @@ public final class RenderUtils extends MinecraftInstance {
         glEndList();
     }
 
+    public static void drawOutlinedString(String str, int x, int y, int color,int color2) {
+        mc.fontRenderer.drawString(str, (int) ((int)x - 1.0F), y, color2);
+        mc.fontRenderer.drawString(str, (int) (x + 1.0F), y,color2);
+        mc.fontRenderer.drawString(str, x, (int) (y + 1.0F), color2);
+        mc.fontRenderer.drawString(str, x, (int) (y -1.0F),color2);
+        mc.fontRenderer.drawString(str, x, y, color);
+    }
+
     public static boolean isHovering(int mouseX, int mouseY, float xLeft, float yUp, float xRight, float yBottom) {
         return mouseX > xLeft && mouseX < xRight && mouseY > yUp && mouseY < yBottom;
     }
@@ -710,7 +718,7 @@ public final class RenderUtils extends MinecraftInstance {
         GlStateManager.enableTexture2D();
     }
     public static void drawShadow(int x, int y, int width, int height) {
-        ScaledResolution sr = new ScaledResolution(mc2);
+        ScaledResolution sr = new ScaledResolution(mc);
         drawTexturedRect(x - 9, y - 9, 9, 9, "paneltopleft", sr);
         drawTexturedRect(x - 9, y + height, 9, 9, "panelbottomleft", sr);
         drawTexturedRect(x + width, y + height, 9, 9, "panelbottomright", sr);
@@ -2243,7 +2251,7 @@ public final class RenderUtils extends MinecraftInstance {
         OpenGlHelper.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
         glColor4f(r, g, b, al);
         glTranslatef(x, y, x);
-        mc2.getTextureManager().bindTexture(image);
+        mc.getTextureManager().bindTexture(image);
         Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, width, height, width, height);
         glTranslatef(-x, -y, -x);
         glDepthMask(true);

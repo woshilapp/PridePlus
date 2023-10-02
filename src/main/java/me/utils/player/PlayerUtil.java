@@ -6,13 +6,13 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.AxisAlignedBB;
 
 
-;import static net.ccbluex.liquidbounce.utils.MinecraftInstance.mc2;
+;import static net.ccbluex.liquidbounce.utils.MinecraftInstance.mc;
 
 public class PlayerUtil {
     private static Minecraft mc = Minecraft.getMinecraft();
 
     public static boolean isBlockUnder() {
-        if(mc2.player.posY < 0)
+        if(mc.player.posY < 0)
             return false;
         for(int off = 0; off < (int)mc.player.posY+2; off += 2){
             AxisAlignedBB bb = mc.player.getEntityBoundingBox().offset(0, -off, 0);

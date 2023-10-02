@@ -2,16 +2,25 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import me.utils.render.ShadowUtils
 import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.FontValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.cnfont.FontLoaders
+import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.renderer.GlStateManager
+import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
 import java.awt.Color
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.*
 
 
 @ElementInfo(name = "KeyBinds")
@@ -19,53 +28,24 @@ class KeyBinds(x: Double = 85.11, y: Double = 21.11, scale: Float = 1F,
                side: Side = Side(Side.Horizontal.LEFT, Side.Vertical.UP)
 ) : Element(x, y, scale, side) {
     private val onlyState = BoolValue("OnlyModuleState", true)
-    private val shadow = BoolValue("Shadow", true)
-    private val chineseValue = BoolValue("Chinese", true)
-    private var anmitY = 0F
+
+    private val shadowValue = BoolValue("Shadow", false)
+    private val redValue = IntegerValue("Red", 255, 0, 255)
+    private val greenValue = IntegerValue("Green", 255, 0, 255)
+    private val blueValue = IntegerValue("Blue", 255, 0, 255)
+    private val alphaValue = IntegerValue("Alpha", 103, 0, 255)
+    private val bgredValue = IntegerValue("Background-Red", 255, 0, 255)
+    private val bggreenValue = IntegerValue("Background-Green", 255, 0, 255)
+    private val bgblueValue = IntegerValue("Background-Blue", 255, 0, 255)
+    private val bgalphaValue = IntegerValue("Background-Alpha", 120, 0, 255)
+    private var GameInfoRows = 0
     override fun drawElement(): Border? {
         var y2 = 0
-        anmitY = RenderUtils.getAnimationState2(anmitY.toDouble(),(15 + getmoduley()).toFloat().toDouble(), 250.0).toFloat()
-            //draw Background
-        RenderUtils.drawRoundRect(
-            0f,
-            0f,
-            114f,
-            anmitY,
-            5.0F,
-            Color(0, 0, 0, 110).rgb
-        )
-        if (shadow.get()){
-            ShadowUtils.shadow(10f,{
-                GL11.glPushMatrix()
-                GL11.glTranslated(renderX, renderY, 0.0)
-                GL11.glScalef(scale, scale, scale)
-                RenderUtils.originalRoundedRect(
-                    0f,
-                    0f,
-                    114f,
-                    anmitY,
-                    5.0F,
-                    Color(0,0,0).rgb
-                )
-                GL11.glPopMatrix()
 
-            },{
-                GL11.glPushMatrix()
-                GL11.glTranslated(renderX, renderY, 0.0)
-                GL11.glScalef(scale, scale, scale)
-                GlStateManager.enableBlend()
-                GlStateManager.disableTexture2D()
-                GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
-                RenderUtils.fastRoundedRect(                0f,
-                    0f,
-                    114f,
-                    anmitY,
-                    5.0F
-                )
-                GlStateManager.enableTexture2D()
-                GlStateManager.disableBlend()
-                GL11.glPopMatrix()
-            })
+        RenderUtils.drawRoundRect(0F, this.GameInfoRows * 18F + 12, 176F, this.GameInfoRows * 18F + 25F,5F, Color(redValue.get(), greenValue.get(), blueValue.get(), bgalphaValue.get()).rgb)
+
+        if (shadowValue.get()){
+            RenderUtils.drawShadow2(0, this.GameInfoRows * 18 + 12, 176F, this.GameInfoRows * 18F + 25)
         }
 //        if (outline.get()){
 //            RenderUtils.drawGidentOutlinedRoundedRect(0.0, 0.0, 114.0,anmitY.toDouble(), 8.0,linewidth.get())
@@ -79,38 +59,23 @@ class KeyBinds(x: Double = 85.11, y: Double = 21.11, scale: Float = 1F,
         val fwidth = 10F
         FontLoaders.F16.drawString("按键显示", fwidth, 4.5f, -1, true)
 
-        //draw Module Bind
-        for (module in LiquidBounce.moduleManager.modules) {
-            if (module.keyBind == 0) continue
+        FontLoaders.F16.drawStringWithShadow("KeyBinds", 7.0,
+            (this.GameInfoRows * 18 + 16).toDouble(),Color(255,255,255,255).rgb)
+        for (m : Module in LiquidBounce.moduleManager.modules){
+            if (m.keyBind == 0) continue
             if (onlyState.get()) {
-                if (!module.state) continue
+                if (!m.state) continue
             }
-            FontLoaders.F16.drawString(module.name, fwidth, y2 + 19f, -1, true)
-            FontLoaders.F16.drawString(
-                if (chineseValue.get()) {
-                    if (module.state) "[开启]" else "[关闭]"
-                }else{
-                    if (module.state) "[Open]" else "[关闭]"
-                     },
-                (108 - FontLoaders.F16.getStringWidth(if (module.state) "[开启]" else "[关闭]")).toFloat(),
-                y2 + 19f,
-                if (module.state) Color(255, 255, 255).rgb else Color(255, 255, 255).rgb,
-                true
-            )
+            FontLoaders.F16.drawStringWithShadow(m.name,
+                6.0, y2.toDouble(), Color(redValue.get(),greenValue.get(),blueValue.get(),alphaValue.get()).rgb)
+            FontLoaders.F16.drawStringWithShadow(if (m.state) "[开启]" else "[关闭]",
+                (100 - FontLoaders.F16.getStringWidth(m.keyBind.toString())).toDouble(),
+                y2.toDouble(),Color(redValue.get(),greenValue.get(),blueValue.get(),alphaValue.get()).rgb)
             y2 += 10
-        }
-        return Border(0f, 0f, 114f, (17 + getmoduley()).toFloat())
-    }
 
-    fun getmoduley(): Int {
-        var y = 0
-        for (module in LiquidBounce.moduleManager.modules) {
-            if (module.keyBind == 0) continue
-            if (onlyState.get()) {
-                if (!module.state) continue
-            }
-            y += 12
         }
-        return y
+        RenderUtils.drawRoundRect(0F,this.GameInfoRows * 18F + 30F,176F,y2.toFloat(),5F,Color(bgredValue.get(),bggreenValue.get(),bgblueValue.get(),bgalphaValue.get()).rgb)
+
+        return Border(0F, this.GameInfoRows * 18F + 12F, 176F, 80F)
     }
 }

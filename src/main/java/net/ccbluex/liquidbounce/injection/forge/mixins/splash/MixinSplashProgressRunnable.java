@@ -1,7 +1,10 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.splash;
 
+import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.ui.cnfont.FontDrawer;
 import net.ccbluex.liquidbounce.ui.cnfont.FontLoaders;
+import net.ccbluex.liquidbounce.ui.font.Fonts;
+import net.ccbluex.liquidbounce.ui.font.GameFontRenderer;
 import net.ccbluex.liquidbounce.utils.render.AnimatedValue;
 import net.ccbluex.liquidbounce.utils.render.EaseUtils;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
@@ -93,13 +96,6 @@ public abstract class MixinSplashProgressRunnable {
 
             DecimalFormat decimalFormat = new DecimalFormat("#");
             String progress2 = decimalFormat.format(progress * 100.0F);
-
-            //FontDrawer font = FontLoaders.getFont("misans.ttf", 16, true);
-
-            //font.drawString(progress2 + "%",5,height-font.getHeight(),Color.white.getRGB(),true);
-
-//            Fonts.font30.drawString(progress2 + "%", (float) (width / 2 - Fonts.font30.getStringWidth(progress2 + "%") / 2), (float) (height / 2) + 40.0F, -1);
-//            RenderUtils.drawImage4("pride/logo.png",(width / 2) - 70,(height / 2) - 150,140,140);
 
             SplashProgress.mutex.acquireUninterruptibly();
             Display.update();

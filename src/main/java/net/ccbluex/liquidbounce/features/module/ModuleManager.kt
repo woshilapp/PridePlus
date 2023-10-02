@@ -30,6 +30,7 @@ class ModuleManager : Listenable {
         ClientUtils.getLogger().info("[ModuleManager] Loading modules...")
 
         ClassUtils.resolvePackage("${this.javaClass.`package`.name}.modules", Module::class.java)
+            .sortedBy { it.name }
             .forEach(this::registerModule)
 
         ClientUtils.getLogger().info("[ModuleManager] Loaded ${modules.size} modules.")

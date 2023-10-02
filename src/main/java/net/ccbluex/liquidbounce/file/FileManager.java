@@ -62,6 +62,9 @@ public class FileManager extends MinecraftInstance {
             firstStart = true;
         }
 
+        if(!configsDir.exists())
+            configsDir.mkdir();
+
         if(!soundsDir.exists())
             soundsDir.mkdir();
 

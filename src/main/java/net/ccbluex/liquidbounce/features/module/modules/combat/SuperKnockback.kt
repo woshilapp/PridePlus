@@ -50,6 +50,8 @@ class SuperKnockback : Module() {
 
                     mc.connection!!.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.START_SNEAKING))
                     mc.connection!!.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.STOP_SNEAKING))
+                    player.isSprinting = true
+                    player.serverSprintState = true
                 }
                 "w-tap" -> {
                     if (player.isSprinting)

@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static net.ccbluex.liquidbounce.utils.MinecraftInstance.mc2;
+import static net.ccbluex.liquidbounce.utils.MinecraftInstance.mc;
 import static net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType.PLAYER_LIST;
 
 @Mixin(GuiIngameForge.class)
@@ -112,7 +112,7 @@ public abstract class MixinGuiIngameForge extends MixinGuiInGame {
     protected void renderPlayerList(int width, int height) {
         final Minecraft mc = Minecraft.getMinecraft();
         ScoreObjective scoreobjective = mc.world.getScoreboard().getObjectiveInDisplaySlot(0);
-        NetHandlerPlayClient handler = mc2.player.connection;
+        NetHandlerPlayClient handler = mc.player.connection;
         if (!mc.isIntegratedServerRunning() || handler.getPlayerInfoMap().size() > 1 || scoreobjective != null)
         {
             xScale = (float) AnimationUtil.animate((mc.gameSettings.keyBindPlayerList.isKeyDown() ? 100F : 0F), xScale, Animations.tabAnimations.get().equalsIgnoreCase("none") ? 1F : 0.0125F * RenderUtils.deltaTime);

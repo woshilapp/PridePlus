@@ -124,7 +124,7 @@ class ChestStealer : Module() {
             return
         }
 
-        if (combatCloseValue.get() && mc2.player.hurtTime != 0) {
+        if (combatCloseValue.get() && mc.player.hurtTime != 0) {
             player.closeScreen()
             stealing = false
             return
@@ -159,7 +159,7 @@ class ChestStealer : Module() {
 
             autoCloseTimer.reset()
 
-            if ((noMoveValue.get() && MovementUtils.isMoving) || (noAirValue.get() && !mc2.player.onGround)) return
+            if ((noMoveValue.get() && MovementUtils.isMoving) || (noAirValue.get() && !mc.player.onGround)) return
 
             // Randomized
             if (takeRandomizedValue.get()) {
@@ -269,7 +269,7 @@ class ChestStealer : Module() {
     private fun move(screen: GuiChest, slot: Slot) {
         when (normalMoveMode.get().toLowerCase()) {
             "packet" -> {
-                mc2.connection?.sendPacket(
+                mc.connection?.sendPacket(
                     CPacketClickWindow(
                         screen.inventorySlots?.windowId!!,
                         slot.slotNumber,

@@ -10,6 +10,8 @@ import net.ccbluex.liquidbounce.features.command.commands.*
 import net.ccbluex.liquidbounce.features.command.shortcuts.Shortcut
 import net.ccbluex.liquidbounce.features.command.shortcuts.ShortcutParser
 import net.ccbluex.liquidbounce.features.command.special.XrayCommand
+import net.ccbluex.liquidbounce.features.module.modules.combat.antikbs.AntiKBMode
+import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.ClientUtils
 
 class CommandManager {
@@ -22,34 +24,38 @@ class CommandManager {
      * Register all default commands
      */
     fun registerCommands() {
-        registerCommand(BindCommand())
-        registerCommand(VClipCommand())
-        registerCommand(HClipCommand())
-        registerCommand(HelpCommand())
-        registerCommand(SayCommand())
-        registerCommand(FriendCommand())
-        registerCommand(AutoSettingsCommand())
-        registerCommand(LocalAutoSettingsCommand())
-        registerCommand(ToggleCommand())
-        registerCommand(HurtCommand())
-        registerCommand(UsernameCommand())
-        registerCommand(TargetCommand())
-        registerCommand(TacoCommand())
-        registerCommand(BindsCommand())
-        registerCommand(HoloStandCommand())
-        registerCommand(PanicCommand())
-        registerCommand(PingCommand())
-        registerCommand(RenameCommand())
-        registerCommand(ReloadCommand())
-        registerCommand(LoginCommand())
-        registerCommand(ScriptManagerCommand())
-        registerCommand(RemoteViewCommand())
-        registerCommand(PrefixCommand())
-        registerCommand(ShortcutCommand())
-        registerCommand(HideCommand())
-        registerCommand(XrayCommand())
+        ClassUtils.resolvePackage("${this.javaClass.`package`.name}.commands", Command::class.java)
+            .map { it.newInstance() as Command }
+            .forEach { registerCommand(it) }
 
-        registerCommand(ConfigCommand())
+
+//        registerCommand(BindCommand())
+//        registerCommand(VClipCommand())
+//        registerCommand(HClipCommand())
+//        registerCommand(HelpCommand())
+//        registerCommand(SayCommand())
+//        registerCommand(FriendCommand())
+//        registerCommand(AutoSettingsCommand())
+//        registerCommand(LocalAutoSettingsCommand())
+//        registerCommand(ToggleCommand())
+//        registerCommand(HurtCommand())
+//        registerCommand(UsernameCommand())
+//        registerCommand(TargetCommand())
+//        registerCommand(TacoCommand())
+//        registerCommand(BindsCommand())
+//        registerCommand(HoloStandCommand())
+//        registerCommand(PanicCommand())
+//        registerCommand(PingCommand())
+//        registerCommand(RenameCommand())
+//        registerCommand(ReloadCommand())
+//        registerCommand(LoginCommand())
+//        registerCommand(ScriptManagerCommand())
+//        registerCommand(RemoteViewCommand())
+//        registerCommand(PrefixCommand())
+//        registerCommand(ShortcutCommand())
+//        registerCommand(HideCommand())
+//        registerCommand(XrayCommand())
+//        registerCommand(ConfigCommand())
     }
 
     /**

@@ -111,15 +111,14 @@ object LiquidBounce {
         ClientUtils.getLogger().info("Initializing...")
         val startTime = System.currentTimeMillis()
 
+        userQQ = QQUtils.getLoginQQNumber()
+        ClientUtils.getLogger().info("PridePlus >> QQNumber has been read.")
+
         // Initialize managers
         fileManager = FileManager()
         eventManager = EventManager()
-        commandManager = CommandManager()
-        moduleManager = ModuleManager()
-        scriptManager = ScriptManager()
-        combatManager = CombatManager()
-        tipSoundManager = TipSoundManager()
 
+        combatManager = CombatManager()
         // Register listeners
         eventManager.registerListener(combatManager)
         eventManager.registerListener(RotationUtils())
@@ -128,21 +127,16 @@ object LiquidBounce {
         eventManager.registerListener(DonatorCape())
         eventManager.registerListener(InventoryUtils())
 
-        // Load configs
-        fileManager.loadConfigs(
-            fileManager.accountsConfig,
-            fileManager.friendsConfig,
-            fileManager.xrayConfig,
-            fileManager.shortcutsConfig
-        )
+        tipSoundManager = TipSoundManager()
 
-        userQQ = QQUtils.getLoginQQNumber()
-        ClientUtils.getLogger().info("PridePlus >> QQNumber has been read.")
+        commandManager = CommandManager()
 
         // Load client fonts
         Fonts.loadFonts()
         FontLoaders.initFonts()
         ClientUtils.getLogger().info("PridePlus >> Fonts Loaded.")
+
+        moduleManager = ModuleManager()
 
         // Setup modules
         moduleManager.registerModules()
@@ -150,6 +144,7 @@ object LiquidBounce {
 
         try {
             loadSrg()
+            scriptManager = ScriptManager()
             scriptManager.loadScripts()
             scriptManager.enableScripts()
 
@@ -158,24 +153,22 @@ object LiquidBounce {
             ClientUtils.getLogger().error("Failed to load scripts.", throwable)
         }
 
-        fileManager.loadConfigs(
-            fileManager.modulesConfig,
-            fileManager.valuesConfig
-        )
-
         // Register commands
         commandManager.registerCommands()
         ClientUtils.getLogger().info("PridePlus >> Commands Loaded.")
 
-        // Set HUD
-        hud = createDefault()
-        fileManager.loadConfig(fileManager.hudConfig)
+        // Load configs
+        fileManager.loadConfigs(fileManager.modulesConfig, fileManager.valuesConfig, fileManager.accountsConfig,
+            fileManager.friendsConfig, fileManager.xrayConfig, fileManager.shortcutsConfig)
 
         // ClickGUI
         clickGui = ClickGui()
         fileManager.loadConfig(fileManager.clickGuiConfig)
 
-        ClientUtils.getLogger().info("PridePlus >> Configs Loaded.")
+        fileManager.loadConfigs(
+            fileManager.modulesConfig,
+            fileManager.valuesConfig
+        )
 
         // Register capes service
         try {
@@ -183,6 +176,10 @@ object LiquidBounce {
         } catch (throwable: Throwable) {
             ClientUtils.getLogger().error("Failed to register cape service", throwable)
         }
+
+        // Set HUD
+        hud = createDefault()
+        fileManager.loadConfig(fileManager.hudConfig)
 
         // Load generators
         GuiAltManager.loadGenerators()

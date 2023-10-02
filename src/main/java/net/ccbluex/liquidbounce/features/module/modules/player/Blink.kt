@@ -105,10 +105,10 @@ class Blink : Module() {
         try {
             disableLogger = true
             while (!packets.isEmpty()) {
-                mc2.connection!!.networkManager.sendPacket(packets.take())
+                mc.connection!!.networkManager.sendPacket(packets.take())
             }
             while (!inBus.isEmpty()) {
-                inBus.poll()?.processPacket(mc2!!.connection)
+                inBus.poll()?.processPacket(mc!!.connection)
             }
             disableLogger = false
         } catch (e: Exception) {

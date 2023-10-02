@@ -36,7 +36,6 @@ import net.ccbluex.liquidbounce.utils.timer.TimeUtils
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.settings.KeyBinding
-import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -55,7 +54,6 @@ import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.RayTraceResult
 import net.minecraft.world.GameType
-import net.minecraft.world.WorldSettings
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
 import org.lwjgl.util.glu.Cylinder
@@ -96,10 +94,11 @@ class KillAura : Module() {
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
     private val cooldownValue = FloatValue("Cooldown", 1f, 0f, 1f)
 
+    // Change Range
+    val airBypass = BoolValue("AirChangeRange",true)
     // Range
-    public val rangeValue = FloatValue("Range", 3.7f, 1f, 8f)
-    private val groundRangeValue = FloatValue("GroundRange", 3.7f, 1f, 8f)
-    private val airRangeValue = FloatValue("AirRange", 3.7f, 1f, 8f)
+    private val rangeValue = FloatValue(if(airBypass.get()) "Range" else "GroundRange", 3.7f, 1f, 8f)
+    private val airRangeValue = FloatValue("AirRange", 3.3f, 1f, 8f).displayable { airBypass.get() }
     private val throughWallsRangeValue = FloatValue("ThroughWallsRange", 3f, 0f, 8f)
     private val rangeSprintReducementValue = FloatValue("RangeSprintReducement", 0f, 0f, 0.4f)
 
@@ -108,10 +107,8 @@ class KillAura : Module() {
     val targetModeValue = ListValue("TargetMode", arrayOf("Single", "Switch", "Multi"), "Switch")
 
     // Bypass
-
     val keepSprintValue = BoolValue("KeepSprint", true)
     private val stopSprintAir = BoolValue("StopSprintOnAir",true)
-    val AirBypass = BoolValue("AirBypass",true)
 
 
     // AutoBlock
@@ -128,8 +125,8 @@ class KillAura : Module() {
 
     // Raycast
     private val raycastValue = BoolValue("RayCast", true)
-    private val raycastIgnoredValue = BoolValue("RayCastIgnored", false)
-    private val livingRaycastValue = BoolValue("LivingRayCast", true)
+    private val raycastIgnoredValue = BoolValue("RayCastIgnored", false).displayable { raycastValue.get() }
+    private val livingRaycastValue = BoolValue("LivingRayCast", true).displayable { raycastValue.get() }
 
     // Bypass
     private val aacValue = BoolValue("AAC", false)
@@ -218,7 +215,6 @@ class KillAura : Module() {
      * MODULE
      */
 
-    val blockKey: Int = mc.gameSettings.keyBindUseItem.keyCode
     private val switchTimer = MSTimer()
     // Target
     var target: EntityLivingBase? = null
@@ -229,7 +225,7 @@ class KillAura : Module() {
     private var lastTarget: EntityLivingBase? = null
     private var direction = 1.0
     private var yPos = 0.0
-    private  var progress:kotlin.Double = 0.0
+    private var progress: Double = 0.0
     private var lastMS = System.currentTimeMillis()
     private var lastDeltaMS = 0L
     private var al = 0f
@@ -237,19 +233,17 @@ class KillAura : Module() {
     private val attackTimer = MSTimer()
     private var attackDelay = 0L
     private var clicks = 0
-    private var markEntity: EntityLivingBase? = null
-    private val markTimer = MSTimer()
 
     // Container Delay
     private var containerOpen = -1L
-    private var displayText: String = ""
     // Fake block status
     private var bb: AxisAlignedBB? = null
     private var entity: EntityLivingBase? = null
     var blockingStatus = false
     private var espAnimation = 0.0
-    private var isUp = true
-    var syncEntity: EntityLivingBase? = null
+    private var syncEntity: EntityLivingBase? = null
+
+    var range = 3.7F
 
     companion object {
         @JvmStatic
@@ -387,8 +381,8 @@ class KillAura : Module() {
                             player.motionX += strafe * yawCos - forward * yawSin
                             player.motionZ += forward * yawCos + strafe * yawSin
                         }
-                        if (!mc2.player.onGround){
-                            mc2.player.isSprinting = false
+                        if (!mc.player.onGround){
+                            mc.player.isSprinting = false
                         }
                         event.cancelEvent()
                     } else {
@@ -435,11 +429,11 @@ class KillAura : Module() {
     }
     @EventTarget
     fun onMove(event: MoveEvent){
-        if (AirBypass.get()){
+        if (airBypass.get()){
             if (mc.player!!.onGround){
-                if (rangeValue.get() != groundRangeValue.get()) rangeValue.set(groundRangeValue.get())
+                if (range != rangeValue.get()) range = rangeValue.get()
             } else {
-                if (rangeValue.get() != airRangeValue.get()) rangeValue.set(airRangeValue.get())
+                if (range != airRangeValue.get()) range = airRangeValue.get()
             }
         }
     }
@@ -448,13 +442,15 @@ class KillAura : Module() {
      */
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (AirBypass.get()){
-            if (target!!.posY.toInt() > mc2.player.posY.toInt()) {
+        if (airBypass.get() && target != null){
+            if (target!!.posY.toInt() > mc.player.posY.toInt()) {
                 if(rotations.get() != "Down") rotationStrafeValue.set("Down")
             } else {
                 if(rotations.get() != "Test") rotationStrafeValue.set("Test")
             }
         }
+
+        if (!airBypass.get()) range = rangeValue.get()
 
         if (lightingValue.get()) {
             when (lightingModeValue.get().toLowerCase()) {
@@ -464,7 +460,7 @@ class KillAura : Module() {
                             target
                         } else {
                             if (lastTarget!!.health <= 0) {
-                                mc.connection!!.handleSpawnGlobalEntity(SPacketSpawnGlobalEntity(EntityLightningBolt(mc2.world,
+                                mc.connection!!.handleSpawnGlobalEntity(SPacketSpawnGlobalEntity(EntityLightningBolt(mc.world,
                                     lastTarget!!.posX, lastTarget!!.posY, lastTarget!!.posZ, true)))
                                 if (lightingSoundValue.get()) mc    .soundHandler.playSound(
                                     PositionedSoundRecord.getRecord(
@@ -474,7 +470,7 @@ class KillAura : Module() {
                         }
                     } else {
                         if (lastTarget != null && lastTarget!!.health <= 0) {
-                            mc.connection!!.handleSpawnGlobalEntity(SPacketSpawnGlobalEntity(EntityLightningBolt(mc2.world,
+                            mc.connection!!.handleSpawnGlobalEntity(SPacketSpawnGlobalEntity(EntityLightningBolt(mc.world,
                                 lastTarget!!.posX, lastTarget!!.posY, lastTarget!!.posZ, true)))
                             if (lightingSoundValue.get()) mc.soundHandler.playSound(
                                 PositionedSoundRecord.getRecord(
@@ -485,7 +481,7 @@ class KillAura : Module() {
                 }
 
                 "attack" -> {
-                    mc.connection!!.handleSpawnGlobalEntity(SPacketSpawnGlobalEntity(EntityLightningBolt(mc2.world,
+                    mc.connection!!.handleSpawnGlobalEntity(SPacketSpawnGlobalEntity(EntityLightningBolt(mc.world,
                         target!!.posX, target!!.posY, target!!.posZ, true)))
                     if (lightingSoundValue.get()) mc.soundHandler.playSound(
                         PositionedSoundRecord.getRecord(
@@ -507,7 +503,7 @@ class KillAura : Module() {
             return
         }
         if(autoBlockValue.get() == "HuaYuTing"){
-            if(mc.player!!.getHeldItem(EnumHand.MAIN_HAND) != null && mc.player!!.getHeldItem(EnumHand.MAIN_HAND)!!.item is ItemSword){
+            if(mc.player!!.getHeldItem(EnumHand.MAIN_HAND).item is ItemSword){
                 if (mc.player.swingProgressInt === -1) {
                     PacketUtils.sendPacketNoEvent(CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos(-1, -1, -1), EnumFacing.DOWN))
                 } else if (mc.player.swingProgressInt < 0.5 && mc.player.swingProgressInt !== -1) {
@@ -699,9 +695,9 @@ class KillAura : Module() {
             GL11.glBegin(GL11.GL_LINE_STRIP)
 
             for (i in 0..360 step 61 - circleAccuracy.get()) { // You can change circle accuracy  (60 - accuracy)
-                GL11.glVertex2f(cos(i * Math.PI / 180.0).toFloat() * rangeValue.get(), (sin(i * Math.PI / 180.0).toFloat() * rangeValue.get()))
+                GL11.glVertex2f(cos(i * Math.PI / 180.0).toFloat() * range, (sin(i * Math.PI / 180.0).toFloat() * rangeValue.get()))
             }
-            GL11.glVertex2f(cos(360 * Math.PI / 180.0).toFloat() * rangeValue.get(), (sin(360 * Math.PI / 180.0).toFloat() * rangeValue.get()))
+            GL11.glVertex2f(cos(360 * Math.PI / 180.0).toFloat() * range, (sin(360 * Math.PI / 180.0).toFloat() * rangeValue.get()))
 
             GL11.glEnd()
 
@@ -1519,10 +1515,10 @@ class KillAura : Module() {
 
         }
         if (vanillamode.get().equals("CPacketPlayerBlockPlacement", true)){
-            mc2.connection!!.sendPacket(CPacketPlayerTryUseItem(
+            mc.connection!!.sendPacket(CPacketPlayerTryUseItem(
                 EnumHand.OFF_HAND)
             )
-            mc2.connection!!.sendPacket(CPacketPlayerTryUseItem(
+            mc.connection!!.sendPacket(CPacketPlayerTryUseItem(
                 EnumHand.OFF_HAND)
             )
 //                        mc.connection!!.sendPacket(classProvider.createCPacketPlayerBlockPlacement(mc.player!!.inventory.getCurrentItemInHand()))
@@ -1601,10 +1597,10 @@ class KillAura : Module() {
      */
 
     private val maxRange: Float
-        get() = max(rangeValue.get(), throughWallsRangeValue.get())
+        get() = max(range, throughWallsRangeValue.get())
 
     private fun getRange(entity: Entity) =
-        (if (mc.player!!.getDistanceToEntityBox(entity) >= throughWallsRangeValue.get()) rangeValue.get() else rangeValue.get()) - if (mc.player!!.isSprinting) rangeSprintReducementValue.get() else 0F
+        (if (mc.player!!.getDistanceToEntityBox(entity) >= throughWallsRangeValue.get()) range else range) - if (mc.player!!.isSprinting) rangeSprintReducementValue.get() else 0F
 
     /**
      * HUD Tag

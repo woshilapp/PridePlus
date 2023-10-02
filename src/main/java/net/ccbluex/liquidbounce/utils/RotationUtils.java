@@ -65,9 +65,9 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
     }
 
     public static Rotation getRotationFromEyeHasPrev(double x, double y, double z) {
-        double xDiff = x - (mc2.player.prevPosX + (mc2.player.posX - mc2.player.prevPosX));
-        double yDiff = y - ((mc2.player.prevPosY + (mc2.player.posY - mc2.player.prevPosY)) + (mc2.player.getEntityBoundingBox().maxY - mc2.player.getEntityBoundingBox().minY));
-        double zDiff = z - (mc2.player.prevPosZ + (mc2.player.posZ - mc2.player.prevPosZ));
+        double xDiff = x - (mc.player.prevPosX + (mc.player.posX - mc.player.prevPosX));
+        double yDiff = y - ((mc.player.prevPosY + (mc.player.posY - mc.player.prevPosY)) + (mc.player.getEntityBoundingBox().maxY - mc.player.getEntityBoundingBox().minY));
+        double zDiff = z - (mc.player.prevPosZ + (mc.player.posZ - mc.player.prevPosZ));
         final double dist = MathHelper.sqrt(xDiff * xDiff + zDiff * zDiff);
         return new Rotation((float) (Math.atan2(zDiff, xDiff) * 180D / Math.PI) - 90F, (float) -(Math.atan2(yDiff, dist) * 180D / Math.PI));
     }
@@ -298,8 +298,8 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
     }
 
     public static Rotation getNewRotations(final Vec3d vec, final boolean predict) {
-        final Vec3d eyesPos = new Vec3d(mc2.player.posX, mc2.player.getEntityBoundingBox().minY +
-                mc2.player.getEyeHeight(), mc2.player.posZ);
+        final Vec3d eyesPos = new Vec3d(mc.player.posX, mc.player.getEntityBoundingBox().minY +
+                mc.player.getEyeHeight(), mc.player.posZ);
         final double diffX = vec.x - eyesPos.x;
         final double diffY = vec.y - eyesPos.y;
         final double diffZ = vec.z - eyesPos.z;

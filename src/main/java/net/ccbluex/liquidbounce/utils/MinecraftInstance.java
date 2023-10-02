@@ -9,5 +9,4 @@ import net.minecraft.client.Minecraft;
 
 public class MinecraftInstance {
     public static final Minecraft mc = Minecraft.getMinecraft();
-    public static final Minecraft mc2 = Minecraft.getMinecraft();
 }

@@ -69,7 +69,7 @@ class Scaffold : Module() {
             }
         }
     }
-    private val falldowndelay = IntegerValue("FallDownDelay", 0, 0, 1000)
+    private val fallDownDelay = IntegerValue("FallDownDelay", 0, 0, 1000)
     // Placeable delay
     private val placeDelay = BoolValue("PlaceDelay", true)
 
@@ -159,11 +159,13 @@ class Scaffold : Module() {
     private val slowSpeed = FloatValue("SlowSpeed", 0.6f, 0.2f, 0.8f)
 
     // Safety
+    private val jumpWhenDisable = BoolValue("JumpWhenDisable", false)
     private val sameYValue = BoolValue("SameY", false)
     private val safeWalkValue = BoolValue("SafeWalk", true)
     private val airSafeValue = BoolValue("AirSafe", false)
     private val fastPlace = BoolValue("FastPlace", false)
     private val fallingFastPlace = BoolValue("FallingFastPlace", false).displayable { fastPlace.get() }
+
     // Visuals
     private val counterDisplayValue = BoolValue("Counter", true)
     private val markValue = BoolValue("Mark", false)
@@ -250,7 +252,7 @@ class Scaffold : Module() {
             mc.player!!.isSprinting = false
         }
         shouldGoDown =
-            downValue.get() && !sameYValue.get() && GameSettings.isKeyDown(mc2.gameSettings.keyBindSneak) && blocksAmount > 1
+            downValue.get() && !sameYValue.get() && GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && blocksAmount > 1
         if (shouldGoDown) {
             mc.gameSettings.keyBindSneak.pressed = false
         }
@@ -318,10 +320,10 @@ class Scaffold : Module() {
                     return
                 }
                 "smooth" -> {
-                    if (!GameSettings.isKeyDown(mc2.gameSettings.keyBindRight)) {
+                    if (!GameSettings.isKeyDown(mc.gameSettings.keyBindRight)) {
                         mc.gameSettings.keyBindRight.pressed = false
                     }
-                    if (!GameSettings.isKeyDown(mc2.gameSettings.keyBindLeft)) {
+                    if (!GameSettings.isKeyDown(mc.gameSettings.keyBindLeft)) {
                         mc.gameSettings.keyBindLeft.pressed = false
                     }
                     if (zitterTimer.hasTimePassed(100)) {
@@ -544,7 +546,7 @@ class Scaffold : Module() {
                 0
             }else{
                 if(mc.player!!.fallDistance > 0){
-                    falldowndelay.get().toLong()
+                    fallDownDelay.get().toLong()
                 }else {
                     TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
                 }
@@ -575,7 +577,9 @@ class Scaffold : Module() {
     override fun onDisable() {
         val player = mc.player ?: return
 
-        if (!GameSettings.isKeyDown(mc2.gameSettings.keyBindSneak)) {
+        if (jumpWhenDisable.get()) mc.player.jump()
+
+        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)) {
             mc.gameSettings.keyBindSneak.pressed = false
             if (eagleSneaking) {
                 mc.connection!!.sendPacket(
@@ -585,10 +589,10 @@ class Scaffold : Module() {
                 )
             }
         }
-        if (!GameSettings.isKeyDown(mc2.gameSettings.keyBindRight)) {
+        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindRight)) {
             mc.gameSettings.keyBindRight.pressed = false
         }
-        if (!GameSettings.isKeyDown(mc2.gameSettings.keyBindLeft)) {
+        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindLeft)) {
             mc.gameSettings.keyBindLeft.pressed = false
         }
 
@@ -625,7 +629,7 @@ class Scaffold : Module() {
                 GL11.glTranslatef(0f, 15f, 0f)
             }
             val info = "Blocks: §7$blocksAmount"
-            val scaledResolution = ScaledResolution(mc2)
+            val scaledResolution = ScaledResolution(mc)
 
             RenderUtils.drawBorderedRect(
                 scaledResolution.scaledWidth / 2 - 2.toFloat(),

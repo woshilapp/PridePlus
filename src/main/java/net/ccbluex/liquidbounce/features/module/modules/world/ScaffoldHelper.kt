@@ -45,7 +45,7 @@ class ScaffoldHelper : Module() {
 //    val Parkour = LiquidBounce.moduleManager[Parkour::class.java]
 
     fun jump(){
-        if (mc2.player.onGround || !mc2.player.isAirBorne) {
+        if (mc.player.onGround || !mc.player.isAirBorne) {
             when (jumpModeValue.get().toLowerCase()) {
                 "mc" -> mc.player!!.jump()
                 "noevent" -> mc.player!!.motionY = 0.42

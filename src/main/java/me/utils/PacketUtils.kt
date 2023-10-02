@@ -7,6 +7,8 @@ import net.minecraft.network.play.INetHandlerPlayServer
 object PacketUtils : MinecraftInstance() {
     private val packets = ArrayList<Packet<INetHandlerPlayServer>>()
 
+    var isPacketSend = false
+
     @JvmStatic
     fun handleSendPacket(packet: Packet<*>): Boolean {
         if (packets.contains(packet)) {
@@ -18,8 +20,12 @@ object PacketUtils : MinecraftInstance() {
 
     @JvmStatic
     fun sendPacketNoEvent(packet: Packet<INetHandlerPlayServer>) {
+        if (mc.connection == null) return
+
         packets.add(packet)
+        isPacketSend = true
         mc.connection!!.sendPacket(packet)
+        isPacketSend = false
     }
 
     @JvmStatic

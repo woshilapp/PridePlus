@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.network;
 
 import io.netty.channel.ChannelHandlerContext;
+import me.utils.PacketUtils;
 import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.event.PacketEvent;
 import net.minecraft.network.NetworkManager;
@@ -29,10 +30,12 @@ public class MixinNetworkManager {
 
     @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;)V", at = @At("HEAD"), cancellable = true)
     private void send(Packet<?> packet, CallbackInfo callback) {
-        final PacketEvent event = new PacketEvent(packet);
-        LiquidBounce.eventManager.callEvent(event);
+        if (!PacketUtils.INSTANCE.isPacketSend()) {
+            final PacketEvent event = new PacketEvent(packet);
+            LiquidBounce.eventManager.callEvent(event);
 
-        if (event.isCancelled())
-            callback.cancel();
+            if (event.isCancelled())
+                callback.cancel();
+        }
     }
 }

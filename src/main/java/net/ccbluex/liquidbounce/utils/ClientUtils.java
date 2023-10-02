@@ -51,9 +51,6 @@ public final class ClientUtils extends MinecraftInstance {
             return;
         }
 
-        final JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("text", message);
-
-        mc.player.sendMessage(new TextComponentString(jsonObject.toString()));
+        mc.player.sendMessage(new TextComponentString(message));
     }
 }

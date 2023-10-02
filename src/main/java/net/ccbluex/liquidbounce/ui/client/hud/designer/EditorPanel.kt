@@ -115,7 +115,7 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
         width = 90
 
         for (element in elements) {
-            val info = element.getAnnotation(ElementInfo::class.java) ?: continue
+            val info = element.javaClass.getAnnotation(ElementInfo::class.java) ?: continue
 
             if (info.single && LiquidBounce.hud.elements.any { it.javaClass == element })
                 continue
@@ -131,7 +131,7 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
             if (Mouse.isButtonDown(0) && !mouseDown && mouseX >= x && mouseX <= x + width && mouseY >= y + height
                     && mouseY <= y + height + 10) {
                 try {
-                    val newElement = element.newInstance()
+                    val newElement = element.javaClass.newInstance()
 
                     if (newElement.createElement())
                         LiquidBounce.hud.addElement(newElement)

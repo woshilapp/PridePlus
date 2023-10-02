@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.AntiKBMode
+import net.ccbluex.liquidbounce.features.module.modules.combat.antikbs.AntiKBMode
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
@@ -27,7 +27,7 @@ import kotlin.math.sqrt
 @ModuleInfo(name = "AntiKnockback", description = "Less or Cancel your Knockback", category = ModuleCategory.COMBAT)
 object AntiKnockback : Module() {
 
-    private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.velocitys", AntiKBMode::class.java)
+    private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.antikbs", AntiKBMode::class.java)
         .map { it.newInstance() as AntiKBMode }
         .sortedBy { it.modeName }
 
@@ -44,13 +44,12 @@ object AntiKnockback : Module() {
         }
     }
     private val OnlyMove = BoolValue("OnlyMove", false)
-    private val OnlyGround = BoolValue("OnlyGround", false)
+    val OnlyGround = BoolValue("OnlyGround", false)
     val horizontalValue = FloatValue("Horizontal", 0f, -2f, 2f).displayable { modeValue.equals("Simple") || modeValue.equals("Tick") }
     val verticalValue = FloatValue("Vertical", 0f, -2f, 2f).displayable { modeValue.equals("Simple") || modeValue.equals("Tick") }
     val chanceValue = IntegerValue("Chance", 100, 0, 100).displayable { modeValue.equals("Simple") }
     val sendC03Value = BoolValue("Grim-SendC03", true).displayable { modeValue.equals("GrimAC") }
     val breakValue = BoolValue("Grim-BreakBlock", true).displayable { modeValue.equals("GrimAC") }
-    val onlyGroundValue = BoolValue("OnlyGround", false)
     val onlyCombatValue = BoolValue("OnlyCombat", false)
     // private val onlyHitVelocityValue = BoolValue("OnlyHitVelocity",false)
     private val noFireValue = BoolValue("noFire", false)
@@ -76,12 +75,12 @@ object AntiKnockback : Module() {
 
     override fun onDisable() {
         antiDesync = false
-        mc2.player.capabilities.isFlying = false
-        mc2.player.capabilities.flySpeed = 0.05f
-        mc2.player.noClip = false
+        mc.player.capabilities.isFlying = false
+        mc.player.capabilities.flySpeed = 0.05f
+        mc.player.noClip = false
 
         (mc.timer as IMixinTimer).timerSpeed = 1F
-        mc2.player.speedInAir = 0.02F
+        mc.player.speedInAir = 0.02F
 
         mode.onDisable()
     }
@@ -89,7 +88,7 @@ object AntiKnockback : Module() {
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
 
-        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc.player.onGround))
             return
 
         mode.onUpdate(event)
@@ -101,44 +100,44 @@ object AntiKnockback : Module() {
             velocityTick++
         }else velocityTick = 0
 
-        if (mc2.player.isInWater || mc2.player.isInLava || mc2.player.isInWeb) {
+        if (mc.player.isInWater || mc.player.isInLava || mc.player.isInWeb) {
             return
         }
 
-        if ((onlyGroundValue.get() && !mc2.player.onGround) || (onlyCombatValue.get() && !LiquidBounce.combatManager.inCombat)) {
+        if (onlyCombatValue.get() && !LiquidBounce.combatManager.inCombat) {
             return
         }
-        if (noFireValue.get() && mc2.player.isBurning) return
+        if (noFireValue.get() && mc.player.isBurning) return
         mode.onVelocity(event)
     }
 
     @EventTarget
     fun onMotion(event: MotionEvent) {
-        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc.player.onGround))
             return
         mode.onMotion(event)
     }
     
     @EventTarget
     fun onAttack(event: AttackEvent) {
-        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc.player.onGround))
             return
         mode.onAttack(event)
     }
 
     @EventTarget
     fun onStrafe(event: StrafeEvent){
-        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc.player.onGround))
             return
         mode.onStrafe(event)
     }
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc.player.onGround))
             return
         mode.onPacket(event)
-        if ((onlyGroundValue.get() && !mc2.player.onGround) || (onlyCombatValue.get() && !LiquidBounce.combatManager.inCombat)) {
+        if (onlyCombatValue.get() && !LiquidBounce.combatManager.inCombat) {
             return
         }
 
@@ -148,7 +147,7 @@ object AntiKnockback : Module() {
                 return
             }
             // if(onlyHitVelocityValue.get() && packet.motionY<400.0) return
-            if (noFireValue.get() && mc2.player.isBurning) return
+            if (noFireValue.get() && mc.player.isBurning) return
             velocityTimer.reset()
             velocityTick = 0
 
@@ -157,7 +156,7 @@ object AntiKnockback : Module() {
                     if (overrideDirectionValue.get() == "Hard") {
                         overrideDirectionYawValue.get()
                     } else {
-                        mc2.player.rotationYaw + overrideDirectionYawValue.get() + 90
+                        mc.player.rotationYaw + overrideDirectionYawValue.get() + 90
                     }.toDouble()
                 )
                 val dist = sqrt((packet.motionX * packet.motionX + packet.motionZ * packet.motionZ).toDouble())
@@ -174,41 +173,41 @@ object AntiKnockback : Module() {
 
     @EventTarget
     fun onWorld(event: WorldEvent) {
-        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc.player.onGround))
             return
         mode.onWorld(event)
     }
 
     @EventTarget
     fun onMove(event: MoveEvent) {
-        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc.player.onGround))
             return
         mode.onMove(event)
     }
 
     @EventTarget
     fun onBlockBB(event: BlockBBEvent) {
-        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc.player.onGround))
             return
         mode.onBlockBB(event)
     }
 
     @EventTarget
     fun onJump(event: JumpEvent) {
-        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc.player.onGround))
             return
         mode.onJump(event)
     }
     @EventTarget
     fun onTick(event: TickEvent) {
-        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc.player.onGround))
             return
         mode.onTick(event)
     }
 
     @EventTarget
     fun onStep(event: StepEvent) {
-        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc2.player.onGround))
+        if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc.player.onGround))
             return
         mode.onStep(event)
     }

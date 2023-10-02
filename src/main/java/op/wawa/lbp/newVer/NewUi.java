@@ -16,7 +16,7 @@ import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
-import op.wawa.utils.AnimationUtil;
+import op.wawa.utils.animation.AnimationUtil;
 import op.wawa.utils.ClickEffect;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;

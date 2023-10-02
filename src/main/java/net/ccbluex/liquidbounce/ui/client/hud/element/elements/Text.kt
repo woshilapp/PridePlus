@@ -5,13 +5,7 @@
  */
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-
-import me.utils.render.Palette2
-import me.utils.render.UiUtils2
-import me.utils.render.VisualUtils
 import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.features.value.*
-import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
@@ -22,10 +16,12 @@ import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.ServerUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawGradientSideways
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRect
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowFontShader
+import net.ccbluex.liquidbounce.features.value.*
+import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer.GlStateManager
+import op.wawa.utils.render.UiUtils
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 import java.text.DecimalFormat
@@ -38,7 +34,7 @@ import kotlin.math.sqrt
  * Allows to draw custom text
  */
 @ElementInfo(name = "Text")
-class Text(x: Double = 87.60, y: Double = 6.80, scale: Float = 1F,
+class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
            side: Side = Side.default()) : Element(x, y, scale, side) {
 
     companion object {
@@ -47,47 +43,37 @@ class Text(x: Double = 87.60, y: Double = 6.80, scale: Float = 1F,
         val HOUR_FORMAT = SimpleDateFormat("HH:mm")
         val Y_FORMAT = DecimalFormat("0.000000000")
         val DECIMAL_FORMAT = DecimalFormat("0.00")
-
+        val INTEGER_FORMAT = DecimalFormat("0")
         /**
          * Create default element
          */
         fun defaultClient(): Text {
             val text = Text(x = 2.0, y = 2.0, scale = 1F)
 
-            text.displayString.set("PridePlus | Name: %username% | Ping: %ping%")
+            text.displayString.set("%clientname% | %time% | %fps%FPS | %ping%ms")
             text.shadow.set(true)
-            text.fontValue.set(Fonts.minecraftFont)
-            text.setColor(Color(200, 50, 50))
+            text.fontValue.set(Fonts.posterama35)
+            text.setColor(Color(255, 255, 255))
+
             return text
         }
 
     }
 
     private val displayString = TextValue("DisplayText", "")
-    private val rectMode = ListValue("RectMode", arrayOf("None","Line","Background", "OneTap", "Skeet", "Slide"),"Background")
-    private val colorModeValue = ListValue("Text-Color", arrayOf("Custom" , "Fade", "Gident"), "Custom")
     private val redValue = IntegerValue("Red", 255, 0, 255)
     private val greenValue = IntegerValue("Green", 255, 0, 255)
     private val blueValue = IntegerValue("Blue", 255, 0, 255)
-    private val colorRedValue2 = IntegerValue("R2", 0, 0, 255)
-    private val colorGreenValue2 = IntegerValue("G2", 111, 0, 255)
-    private val colorBlueValue2 = IntegerValue("B2", 255, 0, 255)
-    private val bgredValue = IntegerValue("Background-Red", 0, 0, 255)
-    private val bggreenValue = IntegerValue("Background-Green", 0, 0, 255)
-    private val bgblueValue = IntegerValue("Background-Blue", 0, 0, 255)
-    private val bgalphaValue = IntegerValue("Background-Alpha", 125, 0, 255)
-    private val radiusValue = FloatValue("Background-Radius", 3.00f, 0f, 10f)
-    private val amountValue = IntegerValue("Amount", 25, 1, 50)
-    private val gidentspeed = IntegerValue("GidentSpeed", 100, 1, 1000)
-    private val distanceValue = IntegerValue("Distance", 0, 0, 400)
+    private val rainbow = BoolValue("Rainbow", false)
     private val rainbowX = FloatValue("Rainbow-X", -1000F, -2000F, 2000F)
     private val rainbowY = FloatValue("Rainbow-Y", -1000F, -2000F, 2000F)
     private val shadow = BoolValue("Shadow", true)
-
-/*    private val outline = BoolValue("Outline",true)
-    private val linewidth = FloatValue("OutlineWidth",2f,0f,5f)*/
-
-    private var fontValue = FontValue("Font", Fonts.fontSFUI40)
+    private val outline = BoolValue("Outline",false)
+    private val rect = BoolValue("Rect", false)
+    private val op = BoolValue("OneTapRect", false)
+    private val sk = BoolValue("SkeetRect", false)
+    private val only = BoolValue("OnlyWhtie", false)
+    private var fontValue = FontValue("Font", Fonts.minecraftFont)
 
     private var editMode = false
     private var editTicks = 0
@@ -98,7 +84,7 @@ class Text(x: Double = 87.60, y: Double = 6.80, scale: Float = 1F,
     private val display: String
         get() {
             val textContent = if (displayString.get().isEmpty() && !editMode)
-                "PridePlus | Name: %username% | Ping: %ping%"
+                "Text Element"
             else
                 displayString.get()
 
@@ -118,7 +104,7 @@ class Text(x: Double = 87.60, y: Double = 6.80, scale: Float = 1F,
                 "ydp" -> return thePlayer.posY.toString()
                 "zdp" -> return thePlayer.posZ.toString()
                 "velocity" -> return DECIMAL_FORMAT.format(sqrt(thePlayer.motionX * thePlayer.motionX + thePlayer.motionZ * thePlayer.motionZ))
-                "ping" -> return EntityUtils.getPing(mc2.player).toString()
+                "ping" -> return EntityUtils.getPing(thePlayer).toString()
                 "0" -> return "§0"
                 "1" -> return "§1"
                 "2" -> return "§2"
@@ -147,7 +133,7 @@ class Text(x: Double = 87.60, y: Double = 6.80, scale: Float = 1F,
         return when (str) {
             "username" -> mc.session.username
             "clientname" -> LiquidBounce.CLIENT_NAME
-            "clientversion" -> LiquidBounce.CLIENT_VERSION
+            "clientversion" -> "${LiquidBounce.CLIENT_VERSION}"
             "clientcreator" -> LiquidBounce.CLIENT_CREATOR
             "fps" -> Minecraft.getDebugFPS().toString()
             "date" -> DATE_FORMAT.format(System.currentTimeMillis())
@@ -195,115 +181,43 @@ class Text(x: Double = 87.60, y: Double = 6.80, scale: Float = 1F,
      * Draw element
      */
     override fun drawElement(): Border? {
-        val colorMode = colorModeValue.get()
-        val counter = intArrayOf(0)
         val color = Color(redValue.get(), greenValue.get(), blueValue.get()).rgb
         val colord = Color(redValue.get(), greenValue.get(), blueValue.get()).rgb+Color(0,0,0,50).rgb
         val fontRenderer = fontValue.get()
+        if(this.rect.get())
+            RenderUtils.drawRect(-2f,-2f,(fontRenderer.getStringWidth(displayText)+1).toFloat(),fontRenderer.FONT_HEIGHT.toFloat(),Color(0,0,0,150).rgb)
+        fontRenderer.drawString(displayText, 0F, 0F, if (rainbow.get())
+            ColorUtils.rainbow(400000000L).rgb else if (only.get()) -1 else color, shadow.get())
+        if(this.op.get()){
+            RenderUtils.drawRect(-4.0f, -8.0f, (fontRenderer.getStringWidth(displayText) + 3).toFloat(), fontRenderer.FONT_HEIGHT.toFloat(), Color(43,43,43).rgb)
+            RenderUtils.drawGradientSideways(-3.0, -7.0, (fontRenderer.getStringWidth(displayText) +2.0).toDouble(), -3.0, if (rainbow.get())
+                ColorUtils.rainbow(400000000L).rgb+Color(0,0,0,40).rgb else colord,if (rainbow.get())
+                ColorUtils.rainbow(400000000L).rgb else color)
+        }
+        if(this.sk.get()){
+            UiUtils.drawRect(-11.0, -9.5, (fontRenderer.getStringWidth(displayText) + 9).toDouble(), fontRenderer.FONT_HEIGHT.toDouble()+6,Color(0,0,0).rgb)
+            UiUtils.outlineRect(-10.0, -8.5, (fontRenderer.getStringWidth(displayText) + 8).toDouble(), fontRenderer.FONT_HEIGHT.toDouble()+5,8.0, Color(59,59,59).rgb,Color(59,59,59).rgb)
+            UiUtils.outlineRect(-9.0, -7.5, (fontRenderer.getStringWidth(displayText) + 7).toDouble(), fontRenderer.FONT_HEIGHT.toDouble()+4,4.0, Color(59,59,59).rgb,Color(40,40,40).rgb)
+            UiUtils.outlineRect(-4.0, -3.0, (fontRenderer.getStringWidth(displayText) + 2).toDouble(), fontRenderer.FONT_HEIGHT.toDouble()+0,1.0, Color(18,18,18).rgb,Color(0,0,0).rgb)
+        }
+        if(this.outline.get()){
+            val c = 0
+            val info = displayText
+            GlStateManager.resetColor()
+            RenderUtils.drawOutlinedString(info, fontRenderer.getStringWidth(displayText), fontRenderer.getStringWidth(displayText), c, Color.BLACK.rgb)
 
-        val counter2 = intArrayOf(0)
-        val rainbow = colorMode.equals("Rainbow", ignoreCase = true)
-
-        val charArray2 = displayText.toCharArray()
-        var length2 = 4.5f
-
-//        if (outline.get()){
-//            op.wawa.utils.render.RenderUtils.drawGidentOutlinedRoundedRect(-0.1, -0.1, fontRenderer.getStringWidth(displayText).toDouble() ,fontRenderer.fontHeight+0.1, radiusValue.get().toDouble(),linewidth.get())
-//        }
-
-        when (rectMode.get()) {
-            "Line" -> {
-                for (i in 0..(amountValue.get() - 1)) {
-                    RenderUtils.drawRect(
-                        -2f,
-                        -1f,
-                        fontRenderer.getStringWidth(displayText).toFloat() + 2f,
-                        fontRenderer.FONT_HEIGHT.toFloat(),
-                        Color(0, 0, 0, bgalphaValue.get())
-                    )
-                    RenderUtils.drawRect(
-                        -2f,
-                        -2f,
-                        fontRenderer.getStringWidth(displayText).toFloat() + 2f,
-                        -1f,
-                        when (colorModeValue.get().toLowerCase()) {
-                            "fade" -> Palette2.fade2(
-                                Color(redValue.get(), greenValue.get(), blueValue.get()),
-                                counter[0] * 100,
-                                displayText.length * 200
-                            ).rgb
-                            "gident" -> VisualUtils.getGradientOffset(
-                                Color(
-                                    redValue.get(),
-                                    greenValue.get(),
-                                    blueValue.get()
-                                ),
-                                Color(colorRedValue2.get(), colorGreenValue2.get(), colorBlueValue2.get(), 1),
-                                (Math.abs(
-                                    System.currentTimeMillis() / gidentspeed.get().toDouble() + i * distanceValue.get()
-                                ) / 10)
-                            ).rgb
-                            else -> color
-                        }
-                    )
-                }
-            }
-
-            "Background"-> {
-                RenderUtils.drawRoundRect(-2F, -2F, fontRenderer.getStringWidth(displayText)+2F, fontRenderer.FONT_HEIGHT + 0F, radiusValue.get(), Color(bgredValue.get(), bggreenValue.get(), bgblueValue.get(), bgalphaValue.get()).rgb)
-            }
-            "OneTap"-> {
-                RenderUtils.drawRect(-4.0f, -8.0f, (fontRenderer.getStringWidth(displayText) + 3).toFloat(), fontRenderer.FONT_HEIGHT.toFloat(), Color(43,43,43).rgb)
-                RenderUtils.drawGradientSideways(-3.0, -7.0, (fontRenderer.getStringWidth(displayText) +2.0).toDouble(), -3.0, if (rainbow)
-                    ColorUtils.rainbow(400000000L).rgb+Color(0,0,0,40).rgb else colord,if (rainbow)
-                    ColorUtils.rainbow(400000000L).rgb else color)
-            }
-            "Skeet"-> {
-                UiUtils2.drawRect(-11.0, -9.5, (fontRenderer.getStringWidth(displayText) + 9).toDouble(), fontRenderer.FONT_HEIGHT.toDouble()+6,Color(0,0,0).rgb)
-                UiUtils2.outlineRect(-10.0, -8.5, (fontRenderer.getStringWidth(displayText) + 8).toDouble(), fontRenderer.FONT_HEIGHT.toDouble()+5,8.0, Color(59,59,59).rgb,Color(59,59,59).rgb)
-                UiUtils2.outlineRect(-9.0, -7.5, (fontRenderer.getStringWidth(displayText) + 7).toDouble(), fontRenderer.FONT_HEIGHT.toDouble()+4,4.0, Color(59,59,59).rgb,Color(40,40,40).rgb)
-                UiUtils2.outlineRect(-4.0, -3.0, (fontRenderer.getStringWidth(displayText) + 2).toDouble(), fontRenderer.FONT_HEIGHT.toDouble()+0,1.0, Color(18,18,18).rgb,Color(0,0,0).rgb)
-            }
-            "Slide"-> {
-                drawRect(-4.0f, -4.5f, (length2).toFloat(), fontRenderer.FONT_HEIGHT.toFloat(), Color(bgredValue.get(), bgredValue.get(), blueValue.get(), bgalphaValue.get()).rgb)
-
-                val barLength = (length2 + 1).toDouble()
-                for (i in 0..(amountValue.get()-1)) {
-                    val barStart = i.toDouble() / amountValue.get().toDouble() * barLength
-                    val barEnd = (i + 1).toDouble() / amountValue.get().toDouble() * barLength
-                    drawGradientSideways(-4.0 + barStart, -4.2, -1.0 + barEnd, -3.0,
-                        when {
-                            colorMode.equals("Fade", ignoreCase = true) -> Palette2.fade2(Color(redValue.get(), greenValue.get(), blueValue.get()), i * distanceValue.get(), displayText.length * 200).rgb
-                            colorMode.equals("Gident", ignoreCase = true) -> VisualUtils.getGradientOffset(Color(redValue.get(), greenValue.get(), blueValue.get()), Color(colorRedValue2.get(), colorGreenValue2.get(), colorBlueValue2.get(),1), (Math.abs(System.currentTimeMillis() / gidentspeed.get().toDouble() + i * distanceValue.get()) / 10)).rgb
-                            else -> color
-                        },
-                        when {
-                            colorMode.equals("Fade", ignoreCase = true) -> Palette2.fade2(Color(redValue.get(), greenValue.get(), blueValue.get()), i * distanceValue.get(), displayText.length * 200).rgb
-                            colorMode.equals("Gident", ignoreCase = true) -> VisualUtils.getGradientOffset(Color(redValue.get(), greenValue.get(), blueValue.get()), Color(colorRedValue2.get(), colorGreenValue2.get(), colorBlueValue2.get(),1), (Math.abs(System.currentTimeMillis() / gidentspeed.get().toDouble() + i * distanceValue.get()) / 10)).rgb
-                            else -> color
-                        })
-                }
-            }
         }
 
+        val rainbow = rainbow.get()
         RainbowFontShader.begin(rainbow, if (rainbowX.get() == 0.0F) 0.0F else 1.0F / rainbowX.get(), if (rainbowY.get() == 0.0F) 0.0F else 1.0F / rainbowY.get(), System.currentTimeMillis() % 10000 / 10000F).use {
-            fontRenderer.drawString(displayText, 0F, 0F,
-                when {
-                    rainbow -> 0
-                    colorMode.equals("Fade", ignoreCase = true) -> Palette2.fade2(Color(redValue.get(), greenValue.get(), blueValue.get()), counter[0] * 100, displayText.length * 200).rgb
-                    colorMode.equals("Gident", ignoreCase = true) -> VisualUtils.getGradientOffset(Color(redValue.get(), greenValue.get(), blueValue.get()), Color(colorRedValue2.get(), colorGreenValue2.get(), colorBlueValue2.get(), 1), (Math.abs(System.currentTimeMillis() / gidentspeed.get().toDouble() + counter[0]) / 10)).rgb
-                    else -> color
-                }, shadow.get())
+            fontRenderer.drawString(displayText, 0F, 0F, if (rainbow)
+                0 else color, shadow.get())
 
-            if (editMode && (mc.currentScreen is GuiHudDesigner) && editTicks <= 40)
+            if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40)
                 fontRenderer.drawString("_", fontRenderer.getStringWidth(displayText) + 2F,
-                    0F,                 when {
-                        rainbow -> 0
-                        colorMode.equals("Fade", ignoreCase = true) -> Palette2.fade2(Color(redValue.get(), greenValue.get(), blueValue.get()), counter[0] * 100, displayText.length * 200).rgb
-                        colorMode.equals("Gident", ignoreCase = true) -> VisualUtils.getGradientOffset(Color(redValue.get(), greenValue.get(), blueValue.get()), Color(colorRedValue2.get(), colorGreenValue2.get(), colorBlueValue2.get(), 1), (Math.abs(System.currentTimeMillis() / gidentspeed.get().toDouble() + counter[0]) / 10)).rgb
-                        else -> color
-                    }, shadow.get())
+                    0F, if (rainbow) ColorUtils.rainbow(400000000L).rgb else color, shadow.get())
         }
+
 
         if (editMode && mc.currentScreen !is GuiHudDesigner) {
             editMode = false
@@ -337,7 +251,7 @@ class Text(x: Double = 87.60, y: Double = 6.80, scale: Float = 1F,
     }
 
     override fun handleKey(c: Char, keyCode: Int) {
-        if (editMode && (mc.currentScreen is GuiHudDesigner)) {
+        if (editMode && mc.currentScreen is GuiHudDesigner) {
             if (keyCode == Keyboard.KEY_BACK) {
                 if (displayString.get().isNotEmpty())
                     displayString.set(displayString.get().substring(0, displayString.get().length - 1))

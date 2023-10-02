@@ -1,8 +1,6 @@
 package op.wawa.utils.animation;
 
 
-import op.wawa.utils.AnimationUtil;
-
 public class SimpleAnimation {
 	
     private float value;

@@ -164,7 +164,7 @@ class Trail : Module() {
             }
         }
         if (drawplayer.get()) {
-            updatePoints(mc2.player)
+            updatePoints(mc.player)
         }
     }
 

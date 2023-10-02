@@ -275,7 +275,7 @@ public class Fonts extends MinecraftInstance {
         return fonts;
     }
 
-    private static Font getFont(final String fontName, final int size) {
+    public static Font getFont(final String fontName, final int size) {
         try {
             final InputStream inputStream = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("pride/font/"+fontName)).getInputStream();
             Font awtClientFont = Font.createFont(Font.TRUETYPE_FONT, inputStream);

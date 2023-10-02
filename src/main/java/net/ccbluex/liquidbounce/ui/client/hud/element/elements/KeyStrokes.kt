@@ -38,12 +38,12 @@ class KeyStrokes : Element(5.0, 25.0, 1.25F, Side.default()) {
     private val fontValue = FontValue("Font", Fonts.font35)
 
     init {
-        keys.add(KeyStroke(mc2.gameSettings.keyBindForward, 16, 0, 15, 15).initKeyName())
-        keys.add(KeyStroke(mc2.gameSettings.keyBindLeft, 0, 16, 15, 15).initKeyName())
-        keys.add(KeyStroke(mc2.gameSettings.keyBindBack, 16, 16, 15, 15).initKeyName())
-        keys.add(KeyStroke(mc2.gameSettings.keyBindRight, 32, 16, 15, 15).initKeyName())
-        keys.add(KeyStroke(mc2.gameSettings.keyBindAttack, 0, 32, 23, 15).initKeyName("L"))
-        keys.add(KeyStroke(mc2.gameSettings.keyBindUseItem, 24, 32, 23, 15).initKeyName("R"))
+        keys.add(KeyStroke(mc.gameSettings.keyBindForward, 16, 0, 15, 15).initKeyName())
+        keys.add(KeyStroke(mc.gameSettings.keyBindLeft, 0, 16, 15, 15).initKeyName())
+        keys.add(KeyStroke(mc.gameSettings.keyBindBack, 16, 16, 15, 15).initKeyName())
+        keys.add(KeyStroke(mc.gameSettings.keyBindRight, 32, 16, 15, 15).initKeyName())
+        keys.add(KeyStroke(mc.gameSettings.keyBindAttack, 0, 32, 23, 15).initKeyName("L"))
+        keys.add(KeyStroke(mc.gameSettings.keyBindUseItem, 24, 32, 23, 15).initKeyName("R"))
     }
 
 

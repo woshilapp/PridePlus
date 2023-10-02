@@ -52,7 +52,7 @@ class AttackEffects : Module() {
                         "blood" -> {
                             var i = 0
                             while (i < amount.value) {
-                                mc2.world.spawnParticle(
+                                mc.world.spawnParticle(
                                     EnumParticleTypes.BLOCK_CRACK,
                                     target!!.posX,
                                     target!!.posY + target!!.height - 0.75,
@@ -70,20 +70,20 @@ class AttackEffects : Module() {
                         "criticals" -> {
                             var i = 0
                             while (i < amount.value) {
-                                mc2.effectRenderer.emitParticleAtEntity(target, EnumParticleTypes.CRIT)
+                                mc.effectRenderer.emitParticleAtEntity(target, EnumParticleTypes.CRIT)
                                 i++
                             }
                         }
                         "magic" -> {
                             var i = 0
                             while (i < amount.value) {
-                                mc2.effectRenderer.emitParticleAtEntity(target, EnumParticleTypes.CRIT_MAGIC)
+                                mc.effectRenderer.emitParticleAtEntity(target, EnumParticleTypes.CRIT_MAGIC)
                                 i++
                             }
                         }
                         "lighting" -> {
                             mc.connection!!.handleSpawnGlobalEntity(SPacketSpawnGlobalEntity(EntityLightningBolt(
-                                mc2.world,
+                                mc.world,
                                 target!!.posX,
                                 target!!.posY,
                                 target!!.posZ,
@@ -93,10 +93,10 @@ class AttackEffects : Module() {
                                 mc.soundHandler.playSound(PositionedSoundRecord.getRecord(SoundEvent(ResourceLocation("random.explode")), 0.5F, 10F))
                             }
                         }
-                        "smoke" -> mc2.effectRenderer.emitParticleAtEntity(target, EnumParticleTypes.FLAME)
-                        "water" -> mc2.effectRenderer.emitParticleAtEntity(target, EnumParticleTypes.WATER_DROP)
-                        "heart" -> mc2.effectRenderer.emitParticleAtEntity(target, EnumParticleTypes.HEART)
-                        "fire" -> mc2.effectRenderer.emitParticleAtEntity(target, EnumParticleTypes.LAVA)
+                        "smoke" -> mc.effectRenderer.emitParticleAtEntity(target, EnumParticleTypes.FLAME)
+                        "water" -> mc.effectRenderer.emitParticleAtEntity(target, EnumParticleTypes.WATER_DROP)
+                        "heart" -> mc.effectRenderer.emitParticleAtEntity(target, EnumParticleTypes.HEART)
+                        "fire" -> mc.effectRenderer.emitParticleAtEntity(target, EnumParticleTypes.LAVA)
                     }
                 }
                 target = null

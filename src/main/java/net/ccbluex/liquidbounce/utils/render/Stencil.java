@@ -54,7 +54,7 @@ public class Stencil extends MinecraftInstance {
     }
 
     public static void checkSetupFBO() {
-        Framebuffer fbo = mc2.getFramebuffer();
+        Framebuffer fbo = mc.getFramebuffer();
         if (fbo.depthBuffer > -1) {
             Stencil.setupFBO(fbo);
             fbo.depthBuffer = -1;

@@ -34,7 +34,7 @@ public class MotionBlur extends Module {
                 for (Field field : fields) {
                     if (field.getType() == Map.class) {
                         field.setAccessible(true);
-                        this.domainResourceManagers = (Map<String, MotionBlurResourceManager>) field.get(mc2.getResourceManager());
+                        this.domainResourceManagers = (Map<String, MotionBlurResourceManager>) field.get(mc.getResourceManager());
                         break;
                     }
                 }
@@ -54,7 +54,7 @@ public class MotionBlur extends Module {
     public boolean isFastRenderEnabled() {
         try {
             Field fastRender = GameSettings.class.getDeclaredField("ofFastRender");
-            return fastRender.getBoolean(mc2.gameSettings);
+            return fastRender.getBoolean(mc.gameSettings);
         } catch (Exception exception) {
             return false;
         }
@@ -64,7 +64,7 @@ public class MotionBlur extends Module {
     }
     @EventTarget
     public void onTick(TickEvent event) {
-        if((!mc2.entityRenderer.isShaderActive() || this.lastValue != MOTION_BLUR_AMOUNT.get()) && mc2.world != null && !isFastRenderEnabled()) {
+        if((!mc.entityRenderer.isShaderActive() || this.lastValue != MOTION_BLUR_AMOUNT.get()) && mc.world != null && !isFastRenderEnabled()) {
             this.lastValue = MOTION_BLUR_AMOUNT.get();
             applyShader();
         }
@@ -74,7 +74,7 @@ public class MotionBlur extends Module {
                 for (Field field : fields) {
                     if (field.getType() == Map.class) {
                         field.setAccessible(true);
-                        this.domainResourceManagers = (Map<String, MotionBlurResourceManager>) field.get(mc2.getResourceManager());
+                        this.domainResourceManagers = (Map<String, MotionBlurResourceManager>) field.get(mc.getResourceManager());
                         break;
                     }
                 }

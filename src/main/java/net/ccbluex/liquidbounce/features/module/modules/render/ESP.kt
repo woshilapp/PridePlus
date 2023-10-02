@@ -104,8 +104,8 @@ class ESP : Module() {
                             pZ.toFloat()
                         )
                         GL11.glNormal3f(1.0F, 1.0F, 1.0F)
-                        mc2.renderManager; GL11.glRotatef(-mc.renderManager.playerViewY, 0.0F, 1.0F, 0.0F)
-                        mc2.renderManager; GL11.glRotatef(mc.renderManager.playerViewX, 1.0F, 0.0F, 0.0F)
+                        mc.renderManager; GL11.glRotatef(-mc.renderManager.playerViewY, 0.0F, 1.0F, 0.0F)
+                        mc.renderManager; GL11.glRotatef(mc.renderManager.playerViewX, 1.0F, 0.0F, 0.0F)
                         val scale = 0.06F
                         GL11.glScalef(-scale, -scale, scale)
 
@@ -134,8 +134,8 @@ class ESP : Module() {
                             pZ.toFloat()
                         )
                         GL11.glNormal3f(1.0F, 1.0F, 1.0F)
-                        mc2.renderManager; GL11.glRotatef(-mc.renderManager.playerViewY, 0.0F, 1.0F, 0.0F)
-                        mc2.renderManager; GL11.glRotatef(mc.renderManager.playerViewX, 1.0F, 0.0F, 0.0F)
+                        mc.renderManager; GL11.glRotatef(-mc.renderManager.playerViewY, 0.0F, 1.0F, 0.0F)
+                        mc.renderManager; GL11.glRotatef(mc.renderManager.playerViewX, 1.0F, 0.0F, 0.0F)
                         val scale = 0.06F
                         GL11.glScalef(-scale, -scale, scale)
 

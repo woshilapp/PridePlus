@@ -48,7 +48,7 @@ class Logo(x: Double = 0.0, y: Double = 0.0, scale: Float = 1.00F,
             GL11.glScalef(scale, scale, scale)
 
             RenderUtils.originalRoundedRect(
-                0f, 0f, 125F, 91F, 6.0f,
+                0f, 0f, Fonts.posterama100.getStringWidth(CLIENT_NAME).toFloat(), Fonts.posterama100.fontHeight.toFloat(), 6.0f,
                 Color(40,250,220).rgb
             )
             GL11.glPopMatrix()
@@ -59,7 +59,7 @@ class Logo(x: Double = 0.0, y: Double = 0.0, scale: Float = 1.00F,
             GlStateManager.enableBlend()
             GlStateManager.disableTexture2D()
             GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
-            RenderUtils.fastRoundedRect(-5f, 1F, 125F, 91F, 6.0f)
+            RenderUtils.fastRoundedRect(-5f, 1F, Fonts.posterama100.getStringWidth(CLIENT_NAME).toFloat(), Fonts.posterama100.fontHeight.toFloat(), 6.0f)
             GlStateManager.enableTexture2D()
             GlStateManager.disableBlend()
             GL11.glPopMatrix()

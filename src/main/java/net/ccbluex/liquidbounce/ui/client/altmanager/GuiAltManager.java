@@ -147,7 +147,6 @@ public class GuiAltManager extends GuiScreen {
         buttonList.add(randomButton = new GuiButton(4, 5, j + 24 * 2, 90, 20, "Random"));
         buttonList.add(new GuiButton(6, 5, j + 24 * 3, 90, 20, "Direct Login"));
         buttonList.add(new GuiButton(88, 5, j + 24 * 4, 90, 20, "Change Name"));
-        buttonList.add(new GuiButton(1001, 5, j + 24 * 5, 90, 20, "163Cookie"));
 
         if (GENERATORS.getOrDefault("mcleaks", true))
             buttonList.add(new GuiButton(5, 5, j + 24 * 5 + 5, 90, 20, "MCLeaks"));
@@ -294,13 +293,6 @@ public class GuiAltManager extends GuiScreen {
                 break;
             case 9:
                 mc.displayGuiScreen((new GuiTheAltening(this)));
-                break;
-            case 1001:
-                String a = HttpUtils.get("http://123.xn--xhqp98cc2nfor.cn/xiaohao/cookies/cookies1.php");
-                Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
-                StringSelection strSel = new StringSelection(a);
-                cb.setContents(strSel, null);
-                LiquidBounce.INSTANCE.displayTray("PridePlus","已复制Cookies到你的剪切板", TrayIcon.MessageType.INFO);
                 break;
             case 10:
                 mc.displayGuiScreen((new GuiSessionLogin(this)));

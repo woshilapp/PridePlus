@@ -58,10 +58,10 @@ class Config {
                     val type = jsonObject["Type"].asString
 
                     for (elementClass in elements) {
-                        val classType = elementClass.getAnnotation(ElementInfo::class.java).name
+                        val classType = elementClass.javaClass.getAnnotation(ElementInfo::class.java).name
 
                         if (classType == type) {
-                            val element = elementClass.newInstance()
+                            val element = elementClass.javaClass.newInstance()
 
                             element.x = jsonObject["X"].asInt.toDouble()
                             element.y = jsonObject["Y"].asInt.toDouble()
@@ -91,9 +91,9 @@ class Config {
 
             // Add forced elements when missing
             for (elementClass in elements) {
-                if (elementClass.getAnnotation(ElementInfo::class.java).force
+                if (elementClass.javaClass.getAnnotation(ElementInfo::class.java).force
                         && hud.elements.none { it.javaClass == elementClass }) {
-                    hud.addElement(elementClass.newInstance())
+                    hud.addElement(elementClass.javaClass.newInstance())
                 }
             }
         } catch (e: Exception) {

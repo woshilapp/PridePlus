@@ -34,7 +34,7 @@ public class FontLoaders {
         try {
             font = Font.createFont(0, Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("pride/font/" + name)).getInputStream()).deriveFont(Font.PLAIN, (float) size);
         } catch (FontFormatException | IOException e) {
-            System.out.println("PridePlus CNFont >> Error loading " + name + ".");
+            // System.out.println("PridePlus CNFont >> Error loading " + name + ".");
             font = new Font("default", Font.PLAIN, size);
         }
         return new FontDrawer(font, antiAliasing);

@@ -33,7 +33,7 @@ class Germ : Module() {
     }
 
     fun process(byteBuf: ByteBuf) {
-        MinecraftInstance.mc2.player.sendMessage(TextComponentString("Germ >> germplugin-netease"))
+        MinecraftInstance.mc.player.sendMessage(TextComponentString("Germ >> germplugin-netease"))
         val intMax = 9999999
         val packetBuffer = PacketBuffer(byteBuf)
         if (packetBuffer.readInt() != 73) return
@@ -70,8 +70,8 @@ class Germ : Module() {
                         val sendBuffer =
                             PacketBuffer(Unpooled.buffer().writeInt(4).writeInt(0).writeInt(0)).writeString(guiUuid)
                                 .writeString(guiUuid).writeString(guiUuid)
-                        MinecraftInstance.mc2.displayGuiScreen(GermPage(guiUuid, buttons))
-                        MinecraftInstance.mc2.connection!!.sendPacket(
+                        MinecraftInstance.mc.displayGuiScreen(GermPage(guiUuid, buttons))
+                        MinecraftInstance.mc.connection!!.sendPacket(
                             CPacketCustomPayload(
                                 "germmod-netease",
                                 sendBuffer

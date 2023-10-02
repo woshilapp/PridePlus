@@ -74,7 +74,7 @@ class HUD : Module() {
 
     @EventTarget
     fun onRender2D(event: Render2DEvent?) {
-        val sr = ScaledResolution(mc2)
+        val sr = ScaledResolution(mc)
         val height = sr.scaledHeight
         val width = sr.scaledWidth
         var p = " fds"
