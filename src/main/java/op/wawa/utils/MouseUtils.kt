@@ -1,4 +1,4 @@
-package op.wawa.lbp.newVer
+package op.wawa.utils
 
 object MouseUtils {
     @JvmStatic

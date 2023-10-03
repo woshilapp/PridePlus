@@ -5,6 +5,8 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
+import net.ccbluex.liquidbounce.ui.cnfont.FontDrawer;
+import net.ccbluex.liquidbounce.ui.cnfont.FontLoaders;
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
@@ -48,6 +50,7 @@ public abstract class MixinGuiButton extends Gui {
     protected boolean hovered;
     private float cut;
     private float alpha;
+    private float rectY;
 
     private static final ResourceLocation rs = new ResourceLocation("pride/menu/menu-rect.png");
 
@@ -60,7 +63,7 @@ public abstract class MixinGuiButton extends Gui {
     @Overwrite
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
         if (visible) {
-            final FontRenderer fontRenderer =  Fonts.posterama35;
+            final FontDrawer fontRenderer = FontLoaders.F16;
             hovered = (mouseX >= this.x && mouseY >= this.y &&
                     mouseX < this.x + this.width && mouseY < this.y + this.height);
 
@@ -74,6 +77,10 @@ public abstract class MixinGuiButton extends Gui {
                 alpha += 0.3F * delta;
 
                 if (alpha >= 210) alpha = 210;
+
+                rectY += 0.1F * delta;
+
+                if (rectY >= height) rectY = height;
             } else {
                 cut -= 0.05F * delta;
 
@@ -82,28 +89,28 @@ public abstract class MixinGuiButton extends Gui {
                 alpha -= 0.3F * delta;
 
                 if (alpha <= 120) alpha = 120;
+
+                rectY -= 0.05F * delta;
+
+                if (rectY <= 4) rectY = 4;
             }
 
-            RenderUtils.drawRect(this.x + (int) this.cut, this.y,
-                    this.x + this.width - (int) this.cut, this.y + this.height,
+            RenderUtils.drawRoundRect(this.x + (int) this.cut, this.y,
+                    this.x + this.width - (int) this.cut, this.y + this.height, 3F,
                     new Color(49, 51, 53, 200).getRGB());
 
-            RenderUtils.drawRect(this.x + (int) this.cut, this.y + (this.height - 2),
-                    this.x + this.width - (int) this.cut, this.y + this.height,
-                    this.enabled ? Color.WHITE.getRGB() :
-                            new Color(98, 98, 98, 200).getRGB());
+            RenderUtils.drawRoundRect(this.x + (int) this.cut, this.y,
+                    this.x + this.width - (int) this.cut, this.y + rectY, 2F,
+                    this.enabled ? new Color(0, 165, 255, 255).getRGB() :
+                            new Color(82, 82, 82, 200).getRGB());
 
             mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
             mouseDragged(mc, mouseX, mouseY);
 
-            AWTFontRenderer.Companion.setAssumeNonVolatile(true);
-
             fontRenderer.drawStringWithShadow(displayString,
                     (float) ((this.x + this.width / 2) -
                             fontRenderer.getStringWidth(displayString) / 2),
-                    this.y + (this.height - 5) / 2F, 14737632);
-
-            AWTFontRenderer.Companion.setAssumeNonVolatile(false);
+                    this.y + 2 + (this.height - 5) / 2F, Color.WHITE.getRGB());
 
             GlStateManager.resetColor();
         }

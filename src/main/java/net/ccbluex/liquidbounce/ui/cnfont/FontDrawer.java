@@ -271,7 +271,7 @@ public final class FontDrawer {
         GlStateManager.enableAlpha();
         if (s != null && !s.isEmpty()) {
 
-            if (shadow) drawString(s, x+0.7, y+0.7, ColorUtils.getRGB(0, 0, 0, 50), false);
+            if (shadow) drawString(s, x+1.0, y+1.0, ColorUtils.getRGB(0, 0, 0, 100), false);
 
             if (this.font.getSize() == 18) {
                 this.FONT_HEIGHT = 18;

@@ -161,6 +161,7 @@ class Scaffold : Module() {
     // Safety
     private val jumpWhenDisable = BoolValue("JumpWhenDisable", false)
     private val sameYValue = BoolValue("SameY", false)
+    private val rotationValue = BoolValue("SetSmartRotation", true)
     private val safeWalkValue = BoolValue("SafeWalk", true)
     private val airSafeValue = BoolValue("AirSafe", false)
     private val fastPlace = BoolValue("FastPlace", false)
@@ -616,6 +617,22 @@ class Scaffold : Module() {
         }
         if (airSafeValue.get() || player.onGround) {
             event.isSafeWalk = true
+        }
+        if (rotationValue.get()){
+            val x = player.motionX
+            val y = player.motionZ
+            if (mc.gameSettings.keyBindForward.isKeyDown) {
+
+                if (y > 0.1) player.rotationYaw = 0.0f
+
+                if (y < -0.1) player.rotationYaw = 180.0f
+
+                if (x > 0.1) player.rotationYaw = -90.0f
+
+                if (x < -0.1) player.rotationYaw = 90.0f
+
+            }
+            mc.player!!.rotationPitch = 26.5F
         }
     }
 

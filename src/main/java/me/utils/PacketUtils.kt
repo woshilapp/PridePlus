@@ -7,6 +7,7 @@ import net.minecraft.network.play.INetHandlerPlayServer
 object PacketUtils : MinecraftInstance() {
     private val packets = ArrayList<Packet<INetHandlerPlayServer>>()
 
+    @JvmField
     var isPacketSend = false
 
     @JvmStatic

@@ -1,4 +1,4 @@
-package op.wawa.lbp.newVer
+package net.ccbluex.liquidbounce.ui.client.clickgui.newVer
 
 import net.minecraft.util.ResourceLocation
 

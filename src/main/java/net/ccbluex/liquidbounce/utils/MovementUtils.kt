@@ -30,6 +30,8 @@ object MovementUtils : MinecraftInstance() {
     fun hasMotion(): Boolean {
         return mc.player!!.motionX != 0.0 && mc.player!!.motionZ != 0.0 && mc.player!!.motionY != 0.0
     }
+    val movingYaw: Float
+        get() = (direction * 180f / Math.PI).toFloat()
 
     @JvmStatic
     fun doTargetStrafe(curTarget: EntityLivingBase, direction_: Float, radius: Float, moveEvent: MoveEvent, mathRadius: Int = 0) {

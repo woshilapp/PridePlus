@@ -1,14 +1,15 @@
-package op.wawa.lbp.newVer.element
+package net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element
 
-import op.wawa.lbp.newVer.ColorManager
-import op.wawa.lbp.newVer.IconManager
-import op.wawa.lbp.newVer.MouseUtils
-import op.wawa.lbp.newVer.extensions.animSmooth
+import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.ColorManager
+import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.IconManager
+import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.extensions.animSmooth
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.Stencil
 import net.minecraft.client.renderer.GlStateManager
+import op.wawa.utils.MouseUtils
 import org.lwjgl.opengl.GL11
+
 import java.awt.Color
 import java.util.List
 import kotlin.math.abs
@@ -22,12 +23,12 @@ class SearchElement(val xPos: Float, val yPos: Float, val width: Float, val heig
     private val searchBox = SearchBox(0, xPos.toInt() + 2, yPos.toInt() + 2, width.toInt() - 4, height.toInt() - 2)
 
     fun drawBox(mouseX: Int, mouseY: Int, accentColor: Color): Boolean {
-        RenderUtils.drawRoundedRect(xPos - 0.5F, yPos - 0.5F, xPos + width + 0.5F, yPos + height + 0.5F, 4, ColorManager.buttonOutline.rgb)
+        RenderUtils.originalRoundedRect(xPos - 0.5F, yPos - 0.5F, xPos + width + 0.5F, yPos + height + 0.5F, 4F, ColorManager.buttonOutline.rgb)
         Stencil.write(true)
-        RenderUtils.drawRoundedRect(xPos, yPos, xPos + width, yPos + height, 4, ColorManager.textBox.rgb)
+        RenderUtils.originalRoundedRect(xPos, yPos, xPos + width, yPos + height, 4F, ColorManager.textBox.rgb)
         Stencil.erase(true)
         if (searchBox.isFocused()) {
-            RenderUtils.drawRect(xPos, yPos + height - 1F, xPos + width, yPos + height, accentColor.rgb)
+            RenderUtils.newDrawRect(xPos, yPos + height - 1F, xPos + width, yPos + height, accentColor.rgb)
             searchBox.drawTextBox()
         } else if (searchBox.text.length <= 0) {
             searchBox.text = "Search"
@@ -56,8 +57,8 @@ class SearchElement(val xPos: Float, val yPos: Float, val width: Float, val heig
         if (lastHeight >= 10F) lastHeight -= 10F
         handleScrolling(wheel, h)
         drawScroll(x, y + 50F, w, h)
-        Fonts.font35.drawString("Search", x + 10F, y + 10F, Color(26, 26, 26).getRGB())
-        Fonts.font25.drawString("Search", x - 170F, y - 12F, Color(26, 26, 26).getRGB())
+        Fonts.posterama50.drawString("Search", x + 10F, y + 10F, -1)
+        Fonts.posterama30.drawString("Search", x - 170F, y - 12F, -1)
         RenderUtils.drawImage(IconManager.back, (x - 190F).toInt(), (y - 15F).toInt(), 10, 10)
         var startY = y + 50F
         if (mouseY < y + 50F || mouseY >= y + h)
@@ -88,15 +89,14 @@ class SearchElement(val xPos: Float, val yPos: Float, val width: Float, val heig
             scrollHeight = scrollHeight.coerceIn(-lastHeight + height - 60, 0F)
         else
             scrollHeight = 0F
-        animScrollHeight = animScrollHeight.animSmooth(scrollHeight, 0.5F) as Float
+        animScrollHeight = animScrollHeight.animSmooth(scrollHeight, 0.5F)
     }
 
     private fun drawScroll(x: Float, y: Float, width: Float, height: Float) {
         if (lastHeight > height - 60F) {
             val last = (height - 60F) - (height - 60F) * ((height - 60F) / lastHeight)
             val multiply = last * abs(animScrollHeight / (-lastHeight + height - 60)).coerceIn(0F, 1F)
-            RenderUtils.drawRoundedRect(x + width - 6F, y + 5F + multiply, x + width - 4F, y + 5F + (height - 60F) * ((height - 60F) / lastHeight) + multiply,
-                1, 1358954495L.toInt())
+            RenderUtils.originalRoundedRect(x + width - 6F, y + 5F + multiply, x + width - 4F, y + 5F + (height - 60F) * ((height - 60F) / lastHeight) + multiply, 1F, 1358954495L.toInt())
         }
     }
 

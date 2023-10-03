@@ -30,7 +30,7 @@ public class MixinNetworkManager {
 
     @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;)V", at = @At("HEAD"), cancellable = true)
     private void send(Packet<?> packet, CallbackInfo callback) {
-        if (!PacketUtils.INSTANCE.isPacketSend()) {
+        if (!PacketUtils.isPacketSend) {
             final PacketEvent event = new PacketEvent(packet);
             LiquidBounce.eventManager.callEvent(event);
 

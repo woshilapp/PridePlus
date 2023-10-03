@@ -6,11 +6,14 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
 import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.event.StrafeEvent;
 import net.ccbluex.liquidbounce.features.module.modules.combat.HitBox;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.NoPitchLimit;
+import net.ccbluex.liquidbounce.features.module.modules.movement.StrafeFix;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
@@ -224,6 +227,22 @@ public abstract class MixinEntity {
             this.prevRotationPitch += this.rotationPitch - f;
             this.prevRotationYaw += this.rotationYaw - f1;
         }
+    }
+
+    @Inject(method = "moveRelative", at = @At("HEAD"), cancellable = true)
+    private void handleRotations(float strafe, float up, float forward, float friction, final CallbackInfo callbackInfo) {
+        if ((Object) this != Minecraft.getMinecraft().player)
+            return;
+
+        final StrafeEvent strafeEvent = new StrafeEvent(strafe, forward, friction);
+        final StrafeFix strafeFix = (StrafeFix) LiquidBounce.moduleManager.getModule(StrafeFix.class);
+        LiquidBounce.eventManager.callEvent(strafeEvent);
+        if (strafeFix.getDoFix()) {
+            strafeFix.runStrafeFixLoop(strafeFix.getSilentFix(), strafeEvent);
+        }
+
+        if (strafeEvent.isCancelled())
+            callbackInfo.cancel();
     }
 
 }

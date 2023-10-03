@@ -402,6 +402,44 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         return vecRotation;
     }
 
+    public static VecRotation searchCenterNew(final AxisAlignedBB bb, final boolean outborder, final boolean random,
+                                            final boolean predict, final boolean throughWalls, final float distance) {
+        if (outborder) {
+            final Vec3d vec3 = new Vec3d(bb.minX + (bb.maxX - bb.minX) * (x * 0.3 + 1.0), bb.minY + (bb.maxY - bb.minY) * (y * 0.3 + 1.0), bb.minZ + (bb.maxZ - bb.minZ) * (z * 0.3 + 1.0));
+            return new VecRotation(vec3, toRotation(vec3, predict));
+        }
+
+        final Vec3d randomVec = new Vec3d(bb.minX + (bb.maxX - bb.minX) * x * 0.8, bb.minY + (bb.maxY - bb.minY) * y * 0.8, bb.minZ + (bb.maxZ - bb.minZ) * z * 0.8);
+        final Rotation randomRotation = toRotation(randomVec, predict);
+
+        final Vec3d eyes = mc.player.getPositionEyes(1F);
+
+        VecRotation vecRotation = null;
+
+        for(double xSearch = 0.25D; xSearch < 0.85D; xSearch += 0.3D) {
+            for (double ySearch = 0.25D; ySearch < 1D; ySearch += 0.3D) {
+                for (double zSearch = 0.25D; zSearch < 0.85D; zSearch += 0.3D) {
+                    final Vec3d vec3 = new Vec3d(bb.minX + (bb.maxX - bb.minX) * xSearch,
+                            bb.minY + (bb.maxY - bb.minY) * ySearch, bb.minZ + (bb.maxZ - bb.minZ) * zSearch);
+                    final Rotation rotation = toRotation(vec3, predict);
+                    final double vecDist = eyes.distanceTo(vec3);
+
+                    if (vecDist > distance)
+                        continue;
+
+                    if (throughWalls || isVisible(vec3)) {
+                        final VecRotation currentVec = new VecRotation(vec3, rotation);
+
+                        if (vecRotation == null || (random ? getRotationDifference(currentVec.getRotation(), randomRotation) < getRotationDifference(vecRotation.getRotation(), randomRotation) : getRotationDifference(currentVec.getRotation()) < getRotationDifference(vecRotation.getRotation())))
+                            vecRotation = currentVec;
+                    }
+                }
+            }
+        }
+
+        return vecRotation;
+    }
+
     /**
      * Calculate difference between the client rotation and your entity
      *

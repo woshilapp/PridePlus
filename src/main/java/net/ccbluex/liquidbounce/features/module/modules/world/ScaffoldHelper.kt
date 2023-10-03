@@ -35,7 +35,6 @@ class ScaffoldHelper : Module() {
     private val timerSpeed = FloatValue("TimerSpeed", 0.8F, 0.1F, 10F).displayable { timerValue.get() }
 
     private val rotationValue = BoolValue("SmartRotation", true)
-
     private val customPitchValue = FloatValue("CustomPitch",26.5F,0F,90F).displayable { rotationValue.get() }
 
 //    val Scaffold = LiquidBounce.moduleManager[Scaffold::class.java]

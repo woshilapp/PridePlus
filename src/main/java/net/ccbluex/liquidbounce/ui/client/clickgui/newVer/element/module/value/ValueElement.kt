@@ -1,4 +1,4 @@
-package op.wawa.lbp.newVer.element.module.value
+package net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.module.value
 
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.features.value.Value
@@ -15,5 +15,5 @@ abstract class ValueElement<T>(val value: Value<T>) : MinecraftInstance() {
 
     open fun onKeyPress(typed: Char, keyCode: Int): Boolean = false
 
-    fun isDisplayable(): Boolean = true
+    fun isDisplayable(): Boolean = value.displayable
 }

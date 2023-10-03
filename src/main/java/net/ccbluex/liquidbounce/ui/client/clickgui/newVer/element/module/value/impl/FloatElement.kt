@@ -1,12 +1,13 @@
-package op.wawa.lbp.newVer.element.module.value.impl
+package net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.module.value.impl
 
-import op.wawa.lbp.newVer.ColorManager
-import op.wawa.lbp.newVer.MouseUtils
-import op.wawa.lbp.newVer.element.module.value.ValueElement
+import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.ColorManager
+import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.components.Slider
+import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.module.value.ValueElement
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.features.value.FloatValue
-import op.wawa.lbp.newVer.element.components.Slider
+import op.wawa.utils.MouseUtils
+
 import java.awt.Color
 import java.math.BigDecimal
 
@@ -24,21 +25,21 @@ class FloatElement(val savedValue: FloatValue): ValueElement<Float>(savedValue) 
         if (dragged)
             savedValue.set(round(savedValue.minimum + (savedValue.maximum - savedValue.minimum) / sliderWidth * (mouseX - startPoint)).coerceIn(savedValue.minimum, savedValue.maximum))
         val currLength = Fonts.font40.getStringWidth("${round(savedValue.get())}")
-        Fonts.font40.drawString(value.name, x + 10F, y + 10F - Fonts.font40.fontHeight / 2F + 2F, Color(26, 26, 26).getRGB())
+        Fonts.font40.drawString(value.name, x + 10F, y + 10F - Fonts.font40.FONT_HEIGHT / 2F + 2F, -1)
         Fonts.font40.drawString("${savedValue.maximum}",
                                 x + width - 10F - maxLength - valueDisplay, 
-                                y + 10F - Fonts.font40.fontHeight / 2F + 2F, Color(26, 26, 26).getRGB())
+                                y + 10F - Fonts.font40.FONT_HEIGHT / 2F + 2F, -1)
         Fonts.font40.drawString("${savedValue.minimum}",
                                 x + width - 30F - sliderWidth - maxLength - minLength - valueDisplay, 
-                                y + 10F - Fonts.font40.fontHeight / 2F + 2F, Color(26, 26, 26).getRGB())
+                                y + 10F - Fonts.font40.FONT_HEIGHT / 2F + 2F, -1)
         slider.setValue(savedValue.get().coerceIn(savedValue.minimum, savedValue.maximum), savedValue.minimum, savedValue.maximum)
         slider.onDraw(x + width - 20F - sliderWidth - maxLength - valueDisplay, y + 10F, sliderWidth, accentColor)
-        RenderUtils.drawRoundedRect(x + width - 5F - valueDisplay, y + 2F, x + width - 10F, y + 18F, 4, ColorManager.button.rgb)
-        RenderUtils.customRounded(x + width - 18F, y + 2F, x + width - 10F, y + 18F, 0F, 4F, 4F, 0F, Color(241, 243, 247).rgb)
-        RenderUtils.customRounded(x + width - 5F - valueDisplay, y + 2F, x + width + 3F - valueDisplay, y + 18, 4F, 0F, 0F, 4F, Color(241, 243, 247).rgb)
-        Fonts.font40.drawString("${round(savedValue.get())}", x + width + 6F - valueDisplay, y + 10F - Fonts.font40.fontHeight / 2F + 2F, Color(26, 26, 26).getRGB())
-        Fonts.font40.drawString("-", x + width - 3F - valueDisplay, y + 10F - Fonts.font40.fontHeight / 2F + 2F, Color(26, 26, 26).getRGB())
-        Fonts.font40.drawString("+", x + width - 17F, y + 10F - Fonts.font40.fontHeight / 2F + 2F, Color(26, 26, 26).getRGB())
+        RenderUtils.originalRoundedRect(x + width - 5F - valueDisplay, y + 2F, x + width - 10F, y + 18F, 4F, ColorManager.button.rgb)
+        RenderUtils.customRounded(x + width - 18F, y + 2F, x + width - 10F, y + 18F, 0F, 4F, 4F, 0F, ColorManager.buttonOutline.rgb)
+        RenderUtils.customRounded(x + width - 5F - valueDisplay, y + 2F, x + width + 3F - valueDisplay, y + 18, 4F, 0F, 0F, 4F, ColorManager.buttonOutline.rgb)
+        Fonts.font40.drawString("${round(savedValue.get())}", x + width + 6F - valueDisplay, y + 10F - Fonts.font40.FONT_HEIGHT / 2F + 2F, -1)
+        Fonts.font40.drawString("-", x + width - 3F - valueDisplay, y + 10F - Fonts.font40.FONT_HEIGHT / 2F + 2F, -1)
+        Fonts.font40.drawString("+", x + width - 17F, y + 10F - Fonts.font40.FONT_HEIGHT / 2F + 2F, -1)
 
         return valueHeight
     }

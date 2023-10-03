@@ -14,24 +14,31 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
+import net.ccbluex.liquidbounce.ui.cnfont.FontDrawer
 import net.ccbluex.liquidbounce.ui.cnfont.FontLoaders
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.render.ColorUtil
-import net.ccbluex.liquidbounce.utils.render.Colors
-import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.ccbluex.liquidbounce.utils.MovementUtils
+import net.ccbluex.liquidbounce.utils.render.*
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.init.MobEffects
 import net.minecraft.util.ResourceLocation
+import op.wawa.utils.animation.AnimationUtil
 import java.awt.Color
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.pow
 
 @ModuleInfo(name = "HUD", description = "Toggles visibility of the HUD.", category = ModuleCategory.RENDER, array = false)
 class HUD : Module() {
     val hotbar = BoolValue("Hotbar", true)
-    val blackHotbarValue = BoolValue("BlackHotbar", true)
+    companion object {
+        @JvmStatic
+        val hotbarModeSection = ListValue("HotbarMode", arrayOf("PridePlus", "Pride", "LiquidBounce", "Off"), "Pride")
+    }
     val inventoryParticle = BoolValue("InventoryParticle", false)
     private val blurValue = BoolValue("Blur", false)
     val fontChatValue = BoolValue("FontChat", false)
@@ -53,13 +60,18 @@ class HUD : Module() {
     @JvmField
     val domainValue = TextValue("Scoreboard-Domain", "PridePlus-2K23")
     val hueInterpolation = BoolValue("DoubleColor-Interpolate", false)
-    val simpleFPS = BoolValue("Simple-FPS-Render", false)
-    val prideBackCN = BoolValue("PrideLogoTextCN", false)
-    val prideBack = ListValue("PrideLogoTextBack-Mode", arrayOf("FPS","miHoYo","Pro","114514","idan","Custom","Off"),"Custom")
-    //val prideBackValue = TextValue("PrideLogoBack-CustomText", "But Pa1m0n i love u")
+    val liteInfo = BoolValue("LiteInfo", true)
 
     val customColor = Color(redValue.get(), greenValue.get(), blueValue.get())
     val customTextColor = Color(textRedValue.get(), textGreenValue.get(), textBlueValue.get()).rgb
+
+    private val decimalFormat:DecimalFormat = DecimalFormat()
+    private var easingHealth = 0f
+    private var easingFood = 0f
+    private var easingaromor = 0f
+    private var easingExp= 0f
+
+    private var hotBarX = 0F
 
     private fun mixColors(color1: Color, color2: Color): Color {
         return ColorUtil.interpolateColorsBackAndForth(
@@ -77,37 +89,104 @@ class HUD : Module() {
         val sr = ScaledResolution(mc)
         val height = sr.scaledHeight
         val width = sr.scaledWidth
-        var p = " fds"
-        var i = "dsfs "
-        var p2 = "sdfds "
-        var u = " dsff"
-        p = "Pr"
-        i = "ide"
-        p2 = "Pl"
-        u = "us"
-        var back:String = "FPS:" + Minecraft.getDebugFPS()
 
-        when(prideBack.get().toLowerCase()){
-            "fps" -> back = "FPS:" + Minecraft.getDebugFPS() + "."
-            "mihoyo" -> back = "By miHoYo-Team"
-            "pro" -> back = "WaWa我给你跪下了"
-            "114514" -> back = "哼啊啊啊啊啊啊啊啊"
-            "idan" -> back = "idan正义集团为你保驾护航"
-            "off" -> back = ""
-        }
-        var text = ""
-        if (prideBackCN.get()){
-            text = "骄傲加"
-        }else{
-            text = p+i+p2+u
-        }
-        if (prideBack.get().toLowerCase() == "off"){
-            FontLoaders.F16.drawString(text+" "+LiquidBounce.CLIENT_VERSION,2F,height - (Fonts.font35.fontHeight + 2F),customTextColor,true)
-        }else{
-            FontLoaders.F16.drawString(text+" "+LiquidBounce.CLIENT_VERSION+", "+ back,2F,height - (Fonts.font35.fontHeight + 2F),Color.WHITE.rgb,true)
+        if (liteInfo.get()){
+            val font = Fonts.posterama35
+            font.drawStringWithShadow("XYZ: ${mc.player.posX.toInt()}, ${mc.player.posY.toInt()}, ${mc.player.posZ.toInt()}", 3F, height - (3F+font.FONT_HEIGHT), customTextColor)
+            font.drawStringWithShadow("BPS: ${String.format("%.2f", MovementUtils.bps)}", 3F, height - (3F+font.FONT_HEIGHT)*2, customTextColor)
+            font.drawStringWithShadow("FPS: ${Minecraft.getDebugFPS()}", 3F, height - (3F+font.FONT_HEIGHT)*3, customTextColor)
         }
 
-        if (simpleFPS.get()) mc.fontRenderer.drawString("FPS: " + Minecraft.getDebugFPS(),width / 2F - (mc.fontRenderer.getStringWidth("FPS: " + Minecraft.getDebugFPS()) / 2F),1F,Color.WHITE.rgb,true)
+        val left: Int = width / 2 + 91
+        val top: Int = height - 50
+        val x = left - 8 - 180
+
+        if (!this.hotbar.get() && mc.player != null) {
+            var color = Color(252, 83, 86)
+            if (this.easingHealth <= 0.0f)
+                this.easingHealth = 0.0f
+
+            if (this.easingHealth >= 20.0f)
+                this.easingHealth = 20.0f
+
+            if (this.easingFood <= 0.0f)
+                this.easingFood = 0.0f
+
+            if (this.easingFood >= 20.0f)
+                this.easingFood = 20.0f
+
+
+
+            if (mc.player.isPotionActive(MobEffects.REGENERATION))
+                color = Color(244, 143, 177)
+
+
+            RoundedUtil.drawRound(x.toFloat()+50, top+ 3F, 0F,0F,  3F,Color(255, 255, 255,0))
+
+            RoundedUtil.drawRound(x.toFloat(), top.toFloat(), 90.0f, 6.0f,  3F,Color(20, 23, 22))
+            RoundedUtil.drawRound(x.toFloat(), top.toFloat(), this.easingHealth / mc.player.maxHealth * 90.0f, 6.0f,3F,  color)
+            var fontRenderer: FontDrawer = FontLoaders.F16
+            val stringBuilder = StringBuilder()
+            val decimalFormat: DecimalFormat = this.decimalFormat
+
+            fontRenderer.drawString(
+                stringBuilder.append(decimalFormat.format(java.lang.Float.valueOf(this.easingHealth / mc.player.maxHealth * 100f))).append("%").toString(),
+                x.toFloat() + 1.0f, (top + 3 - fontRenderer.height / 2).toFloat(), -1)
+
+            RoundedUtil.drawRound(x.toFloat(), top.toFloat() - 3.0f - 15.0f, 90.0f, 6.0f, 3F,Color(20, 23, 22))
+            RoundedUtil.drawRound(
+                x.toFloat(),
+                top.toFloat() - 3.0f - 15.0f,
+                this.easingFood / 20.0f * 90.0f,
+                6.0f,
+                3F,
+                Color(255, 235, 100)
+            )
+
+            fontRenderer.drawString(this.decimalFormat.format(java.lang.Float.valueOf(this.easingFood / 20.0f * 100f)) + "%",
+                x.toFloat() + 2.0f, (top + 3 - fontRenderer.height / 2).toFloat() - 3.0f - 15.0f, -1, true)
+
+            RoundedUtil.drawRound(x.toFloat() + 10F + 90F,top.toFloat(),90F,6f,3F, Color(20, 23, 22))
+            RoundedUtil.drawRound(
+                x.toFloat() + 10F + 90F,
+                top.toFloat(),
+                this.easingaromor / 20.0f * 90.0f,
+                6.0f,
+                3F,
+                Color(10, 100, 255)
+            )
+
+            fontRenderer.drawString(this.decimalFormat.format(java.lang.Float.valueOf(this.easingaromor / 20.0f * 100f)) + "%",
+                x.toFloat() + 12.0f  + 90F, (top + 3 - fontRenderer.height / 2).toFloat(), -1, true)
+            RoundedUtil.drawRound(x.toFloat() + 10F + 90F,top.toFloat() - 3.0f - 15.0f, 90F,6F,3F,Color(20, 23, 22))
+            RoundedUtil.drawRound(
+                x.toFloat() + 10F + 90F,
+                top.toFloat()  - 3.0f - 15.0f ,
+                this.easingExp  * 90.0f,
+                6.0f,
+                3F,
+                Color(60, 255, 10)
+            )
+            fontRenderer.drawString(
+                this.decimalFormat.format(java.lang.Float.valueOf(mc.player.experienceLevel.toFloat())) + "EXP",
+                x.toFloat() + 12.0f  + 90F, (top + 3 - fontRenderer.height / 2) - 3.0f - 15.0f, -1, true)
+
+            // Health
+            this.easingHealth += (mc.player!!.health - this.easingHealth) / 2.0.pow(7.0)
+                .toFloat() * RenderUtils.deltaTime.toFloat()
+
+            // Food
+            this.easingFood += (mc.player.foodStats.foodLevel.toFloat() - this.easingFood) / 2.0.pow(7.0)
+                .toFloat() * RenderUtils.deltaTime.toFloat()
+
+            // Armor
+            this.easingaromor += (mc.player.totalArmorValue.toFloat() - this.easingaromor) / 2.0.pow(7.0)
+                .toFloat() * RenderUtils.deltaTime.toFloat()
+
+            // EXP
+            this.easingExp += (mc.player.experience - this.easingExp) / 2.0.pow(7.0)
+                .toFloat() * RenderUtils.deltaTime.toFloat()
+        }
 
         when (logValue.get().toLowerCase()) {
 
@@ -135,11 +214,11 @@ class HUD : Module() {
             }
             "141sense" ->{
                 RenderUtils.drawRect(3.0f, 3.0f, 142.0f, 63.0f, Color(255, 255, 255, 120).rgb)
-                Fonts.font80.drawCenteredString(ClientName.get(), 71.0f, 7.0f, java.awt.Color(0, 0, 0, 180).rgb)
-                Fonts.font35.drawCenteredString("by" + DevName.get() , 71.0f, 25.0f, java.awt.Color(0, 0, 0, 180).rgb)
-                Fonts.font80.drawString("_______________", 6.0f, 19.0f, java.awt.Color(0, 0, 0, 180).rgb)
-                Fonts.font35.drawString("UserName:" + mc.player!!.name, 45.0f - Fonts.font35.getStringWidth("UserName:" + mc.player!!.name).toFloat() / 2.0f + 28.0f, 40.0f, java.awt.Color(0, 0, 0, 180).rgb)
-                Fonts.font35.drawString("FPS:" + Minecraft.getDebugFPS(), 45.0f - Fonts.font35.getStringWidth("FPS:" + Minecraft.getDebugFPS()).toFloat() / 2.0f + 28.0f, 52.0f, java.awt.Color(0, 0, 0, 180).rgb)
+                Fonts.font80.drawCenteredString(ClientName.get(), 71.0f, 7.0f, Color(0, 0, 0, 180).rgb)
+                Fonts.font35.drawCenteredString("by" + DevName.get() , 71.0f, 25.0f, Color(0, 0, 0, 180).rgb)
+                Fonts.font80.drawString("_______________", 6.0f, 19.0f, Color(0, 0, 0, 180).rgb)
+                Fonts.font35.drawString("UserName:" + mc.player!!.name, 45.0f - Fonts.font35.getStringWidth("UserName:" + mc.player!!.name).toFloat() / 2.0f + 28.0f, 40.0f, Color(0, 0, 0, 180).rgb)
+                Fonts.font35.drawString("FPS:" + Minecraft.getDebugFPS(), 45.0f - Fonts.font35.getStringWidth("FPS:" + Minecraft.getDebugFPS()).toFloat() / 2.0f + 28.0f, 52.0f, Color(0, 0, 0, 180).rgb)
             }
         }
         if (mc.currentScreen is GuiHudDesigner)
@@ -166,6 +245,16 @@ class HUD : Module() {
             ResourceLocation("pride/blur.json")
         ) else if (mc.entityRenderer.shaderGroup != null &&
                 mc.entityRenderer.shaderGroup.shaderGroupName.contains("pride/blur.json")) mc.entityRenderer.stopUseShader()
+    }
+    fun getAnimPos(pos: Float): Float {
+        hotBarX = if (state && hotbarModeSection.get() == "Pride") AnimationUtil.animate(
+            pos,
+            hotBarX,
+            0.02F * RenderUtils.deltaTime.toFloat()
+        )
+        else pos
+
+        return hotBarX
     }
 
     init {

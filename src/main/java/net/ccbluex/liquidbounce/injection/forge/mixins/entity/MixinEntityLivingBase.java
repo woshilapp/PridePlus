@@ -11,8 +11,10 @@ import net.ccbluex.liquidbounce.event.StrafeEvent;
 import net.ccbluex.liquidbounce.features.module.modules.movement.AirJump;
 import net.ccbluex.liquidbounce.features.module.modules.movement.LiquidWalk;
 import net.ccbluex.liquidbounce.features.module.modules.movement.NoJumpDelay;
+import net.ccbluex.liquidbounce.features.module.modules.movement.StrafeFix;
 import net.ccbluex.liquidbounce.features.module.modules.render.Animations;
 import net.ccbluex.liquidbounce.features.module.modules.render.AntiBlind;
+import net.ccbluex.liquidbounce.utils.RotationUtils;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -101,12 +103,17 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
             return;
 
         this.motionY = jumpEvent.getMotion();
+        final StrafeFix strafeFix = (StrafeFix) LiquidBounce.moduleManager.getModule(StrafeFix.class);
 
         if (this.isPotionActive(MobEffects.JUMP_BOOST))
             this.motionY += (float) (this.getActivePotionEffect(MobEffects.JUMP_BOOST).getAmplifier() + 1) * 0.1F;
 
         if (this.isSprinting()) {
-            float f = this.rotationYaw * 0.017453292F;
+            float fixedYaw = this.rotationYaw;
+            if(RotationUtils.targetRotation != null && strafeFix.getDoFix()) {
+                fixedYaw = RotationUtils.targetRotation.getYaw();
+            }
+            float f = fixedYaw / 180F * 3.1415927F;
             this.motionX -= MathHelper.sin(f) * 0.2F;
             this.motionZ += MathHelper.cos(f) * 0.2F;
         }
@@ -158,7 +165,13 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
             return;
 
         final StrafeEvent strafeEvent = new StrafeEvent(strafe, forward, friction);
+        final StrafeFix strafeFix = (StrafeFix) LiquidBounce.moduleManager.getModule(StrafeFix.class);
+
         LiquidBounce.eventManager.callEvent(strafeEvent);
+
+        if (strafeFix.getDoFix()) { //Run StrafeFix process on Post Strafe 2023/02/15
+            strafeFix.runStrafeFixLoop(strafeFix.getSilentFix(), strafeEvent);
+        }
 
         if (strafeEvent.isCancelled())
             callbackInfo.cancel();

@@ -40,9 +40,11 @@ class KeyBinds(x: Double = 85.11, y: Double = 21.11, scale: Float = 1F,
     private val bgalphaValue = IntegerValue("Background-Alpha", 120, 0, 255)
     private var GameInfoRows = 0
     override fun drawElement(): Border? {
-        var y2 = 0
+        var y2 = this.GameInfoRows * 18+16+20
 
         RenderUtils.drawRoundRect(0F, this.GameInfoRows * 18F + 12, 176F, this.GameInfoRows * 18F + 25F,5F, Color(redValue.get(), greenValue.get(), blueValue.get(), bgalphaValue.get()).rgb)
+
+        RenderUtils.drawRoundRect(0F,this.GameInfoRows * 18F + 30F,176F,y2.toFloat(),5F,Color(bgredValue.get(),bggreenValue.get(),bgblueValue.get(),bgalphaValue.get()).rgb)
 
         if (shadowValue.get()){
             RenderUtils.drawShadow2(0, this.GameInfoRows * 18 + 12, 176F, this.GameInfoRows * 18F + 25)
@@ -57,9 +59,8 @@ class KeyBinds(x: Double = 85.11, y: Double = 21.11, scale: Float = 1F,
 
         //draw Title
         val fwidth = 10F
-        FontLoaders.F16.drawString("按键显示", fwidth, 4.5f, -1, true)
 
-        FontLoaders.F16.drawStringWithShadow("KeyBinds", 7.0,
+        FontLoaders.F16.drawStringWithShadow("按键显示", 7.0,
             (this.GameInfoRows * 18 + 16).toDouble(),Color(255,255,255,255).rgb)
         for (m : Module in LiquidBounce.moduleManager.modules){
             if (m.keyBind == 0) continue
@@ -74,7 +75,6 @@ class KeyBinds(x: Double = 85.11, y: Double = 21.11, scale: Float = 1F,
             y2 += 10
 
         }
-        RenderUtils.drawRoundRect(0F,this.GameInfoRows * 18F + 30F,176F,y2.toFloat(),5F,Color(bgredValue.get(),bggreenValue.get(),bgblueValue.get(),bgalphaValue.get()).rgb)
 
         return Border(0F, this.GameInfoRows * 18F + 12F, 176F, 80F)
     }
