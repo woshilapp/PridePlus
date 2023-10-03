@@ -1,32 +1,27 @@
-package op.wawa.lbp.newVer;
+package net.ccbluex.liquidbounce.ui.client.clickgui.newVer;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
-import op.wawa.lbp.newVer.element.CategoryElement;
-import op.wawa.lbp.newVer.element.SearchElement;
-import op.wawa.lbp.newVer.element.module.ModuleElement;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
-import net.ccbluex.liquidbounce.features.module.modules.other.NewGUI;
+import net.ccbluex.liquidbounce.features.module.modules.other.ClickGUINew;
+import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.CategoryElement;
+import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.SearchElement;
+import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.module.ModuleElement;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.ccbluex.liquidbounce.utils.render.Stencil;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.texture.AbstractTexture;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
+import op.wawa.utils.MouseUtils;
 import op.wawa.utils.animation.AnimationUtil;
-import op.wawa.utils.ClickEffect;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -34,8 +29,6 @@ import static org.lwjgl.opengl.GL11.*;
 public class NewUi extends GuiScreen {
 
     private static NewUi instance;
-    private List<ClickEffect> clickEffects = new ArrayList<>();
-
     public static final NewUi getInstance() {
         return instance == null ? instance = new NewUi() : instance;
     }
@@ -52,7 +45,6 @@ public class NewUi extends GuiScreen {
 
     public final List<CategoryElement> categoryElements = new ArrayList<>();
 
-    private boolean got = false;
     private float startYAnim = height / 2F;
     private float endYAnim = height / 2F;
 
@@ -82,19 +74,11 @@ public class NewUi extends GuiScreen {
 
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         // will draw reduced ver once it gets under 1140x780.
-        drawFullSized(mouseX, mouseY, partialTicks, NewGUI.getAccentColor());
-        if(clickEffects.size() > 0) {
-            Iterator<ClickEffect> clickEffectIterator= clickEffects.iterator();
-            while(clickEffectIterator.hasNext()){
-                ClickEffect clickEffect = clickEffectIterator.next();
-                clickEffect.draw();
-                if (clickEffect.canRemove()) clickEffectIterator.remove();
-            }
-        }
+        drawFullSized(mouseX, mouseY, partialTicks, ClickGUINew.getAccentColor());
     }
 
     private void drawFullSized(int mouseX, int mouseY, float partialTicks, Color accentColor) {
-        RenderUtils.drawRoundedRect(30F, 30F, this.width - 30F, this.height - 30F, 8, new Color(238, 238, 238).getRGB());
+        RenderUtils.originalRoundedRect(30F, 30F, this.width - 30F, this.height - 30F, 8F, 0xFF101010);
         // something to make it look more like windoze
         if (MouseUtils.mouseWithinBounds(mouseX, mouseY, this.width - 54F, 30F, this.width - 30F, 50F))
             fading += 0.2F * RenderUtils.deltaTime * 0.045F;
@@ -106,24 +90,10 @@ public class NewUi extends GuiScreen {
         RenderUtils.drawImage(IconManager.removeIcon, this.width - 47, 35, 10, 10);
         GlStateManager.enableAlpha();
         Stencil.write(true);
-        RenderUtils.drawFilledCircle((int) 65F, (int) 80F, 25F, new Color(45, 45, 45));
+        RenderUtils.drawFilledCircle(65, 80, 25F, new Color(45, 45, 45));
         Stencil.erase(true);
-        if (mc.player != null) {
-            final ResourceLocation skin;
-            if(!got){
-                try {
-                    mc.getTextureManager().loadTexture(
-                            (ResourceLocation) new ResourceLocation("sb"),
-                            (AbstractTexture) new DynamicTexture(ImageIO.read(new URL("https://q.qlogo.cn/headimg_dl?dst_uin=" + LiquidBounce.userQQ + "&spec=640&img_type=png"))));
-                            got = true;
-
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-
-            mc.getTextureManager().bindTexture(new ResourceLocation("sb"));
+        if (mc.getConnection() != null) {
+            final ResourceLocation skin = mc.getConnection().getPlayerInfo(mc.player.getUniqueID()).getLocationSkin();
             glPushMatrix();
             glTranslatef(40F, 55F, 0F);
             glDisable(GL_DEPTH_TEST);
@@ -131,7 +101,9 @@ public class NewUi extends GuiScreen {
             glDepthMask(false);
             OpenGlHelper.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
             glColor4f(1f, 1f, 1f, 1f);
-            RenderUtils.drawImage(new ResourceLocation("sb"), 0, 0, 50, 50);
+            mc.getTextureManager().bindTexture(skin);
+            Gui.drawScaledCustomSizeModalRect(0, 0, 8F, 8F, 8, 8, 50, 50,
+                    64F, 64F);
             glDepthMask(true);
             glDisable(GL_BLEND);
             glEnable(GL_DEPTH_TEST);
@@ -139,10 +111,10 @@ public class NewUi extends GuiScreen {
         }
         Stencil.dispose();
 
-        if (Fonts.font35.getStringWidth(mc.player.getGameProfile().getName()) > 70)
-            Fonts.font40.drawString(Fonts.font40.getStringWidth(mc.player.getName()) + "...", 100, 60 - Fonts.font40.getFontHeight()+ 15, new Color(26, 26, 26).getRGB());
+        if (Fonts.posterama50.getStringWidth(mc.player.getGameProfile().getName()) > 70)
+            Fonts.posterama50.drawString(Fonts.posterama50.trimStringToWidth(mc.player.getGameProfile().getName(), 50) + "...", 100, 78 - Fonts.posterama50.FONT_HEIGHT + 15, -1);
         else
-            Fonts.font40.drawString(mc.player.getName(), 100, 60 - Fonts.font40.getFontHeight() + 15,  new Color(26, 26, 26).getRGB());
+            Fonts.posterama50.drawString(mc.player.getGameProfile().getName(), 100, 78 - Fonts.posterama50.FONT_HEIGHT + 15, -1);
 
         if (searchElement.drawBox(mouseX, mouseY, accentColor)) {
             searchElement.drawPanel(mouseX, mouseY, 230, 50, width - 260, height - 80, Mouse.getDWheel(), categoryElements, accentColor);
@@ -154,14 +126,14 @@ public class NewUi extends GuiScreen {
         for (CategoryElement ce : categoryElements) {
             ce.drawLabel(mouseX, mouseY, 30F, startY, 200F, elementHeight);
             if (ce.getFocused()) {
-                startYAnim = NewGUI.fastRenderValue.get() ? startY + 6F : (float) AnimationUtil.animate(startY + 6F, startYAnim, (startYAnim - (startY + 5F) > 0 ? 0.65F : 0.55F) * RenderUtils.deltaTime * 0.025F);
-                endYAnim = NewGUI.fastRenderValue.get() ? startY + elementHeight - 6F : (float) AnimationUtil.animate(startY + elementHeight - 6F, endYAnim, (endYAnim - (startY + elementHeight - 5F) < 0 ? 0.65F : 0.55F) * RenderUtils.deltaTime * 0.025F);
+                startYAnim = ClickGUINew.fastRenderValue.get() ? startY + 6F : AnimationUtil.animate(startY + 6F, startYAnim, (startYAnim - (startY + 5F) > 0 ? 0.65F : 0.55F) * RenderUtils.deltaTime * 0.025F);
+                endYAnim = ClickGUINew.fastRenderValue.get() ? startY + elementHeight - 6F : AnimationUtil.animate(startY + elementHeight - 6F, endYAnim, (endYAnim - (startY + elementHeight - 5F) < 0 ? 0.65F : 0.55F) * RenderUtils.deltaTime * 0.025F);
 
                 ce.drawPanel(mouseX, mouseY, 230, 50, width - 260, height - 80, Mouse.getDWheel(), accentColor);
             }
             startY += elementHeight;
         }
-        RenderUtils.drawRoundedRect(32F, startYAnim, 34F, endYAnim, 1, accentColor.getRGB());
+        RenderUtils.originalRoundedRect(32F, startYAnim, 34F, endYAnim, 1F, accentColor.getRGB());
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
@@ -172,8 +144,6 @@ public class NewUi extends GuiScreen {
         }
         final float elementHeight = 24;
         float startY = 140F;
-        ClickEffect clickEffect = new ClickEffect(mouseX, mouseY);
-        clickEffects.add(clickEffect);
         searchElement.handleMouseClick(mouseX, mouseY, mouseButton, 230, 50, width - 260, height - 80, categoryElements);
         if (!searchElement.isTyping()) for (CategoryElement ce : categoryElements) {
             if (ce.getFocused())

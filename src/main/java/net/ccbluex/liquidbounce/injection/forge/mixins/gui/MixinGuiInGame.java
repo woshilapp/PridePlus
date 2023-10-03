@@ -12,6 +12,7 @@ import net.ccbluex.liquidbounce.features.module.modules.render.HUD;
 import net.ccbluex.liquidbounce.features.module.modules.render.NoScoreboard;
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer;
 import net.ccbluex.liquidbounce.utils.ClassUtils;
+import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiIngame;
@@ -28,6 +29,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -57,83 +59,202 @@ public abstract class MixinGuiInGame extends MixinGui {
     private void renderTooltip(ScaledResolution sr, float partialTicks, CallbackInfo callbackInfo) {
         final HUD hud = (HUD) LiquidBounce.moduleManager.getModule(HUD.class);
 
-        if (Minecraft.getMinecraft().getRenderViewEntity() instanceof EntityPlayer && hud.getState() && hud.getBlackHotbarValue().get()) {
-            EntityPlayer entityPlayer = (EntityPlayer) this.mc.getRenderViewEntity();
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            ItemStack offHandItemStack = entityPlayer.getHeldItemOffhand();
-            EnumHandSide enumhandside = entityPlayer.getPrimaryHand().opposite();
-            int middleScreen = sr.getScaledWidth() / 2;
-            float f = this.zLevel;
-            int j = 182;
-            int k = 91;
-            this.zLevel = -90.0F;
+        if (Minecraft.getMinecraft().getRenderViewEntity() instanceof EntityPlayer && hud.getState()) {
+            switch (HUD.getHotbarModeSection().get().toLowerCase()) {
+                case "prideplus": {
+                    EntityPlayer entityPlayer = (EntityPlayer) this.mc.getRenderViewEntity();
+                    GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                    ItemStack offHandItemStack = entityPlayer.getHeldItemOffhand();
+                    EnumHandSide enumhandside = entityPlayer.getPrimaryHand().opposite();
+                    int middleScreen = sr.getScaledWidth() / 2;
+                    float f = this.zLevel;
+                    int j = 182;
+                    int k = 91;
+                    this.zLevel = -90.0F;
 
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            GuiIngame.drawRect(middleScreen - 91, sr.getScaledHeight() - 24, middleScreen + 90, sr.getScaledHeight(), Integer.MIN_VALUE);
-            GuiIngame.drawRect(middleScreen - 91 - 1 + entityPlayer.inventory.currentItem * 20 + 1, sr.getScaledHeight() - 24, middleScreen - 91 - 1 + entityPlayer.inventory.currentItem * 20 + 22, sr.getScaledHeight() - 22 - 1 + 24, Integer.MAX_VALUE);
+                    GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                    GuiIngame.drawRect(middleScreen - 91, sr.getScaledHeight() - 24, middleScreen + 90, sr.getScaledHeight(), Integer.MIN_VALUE);
+                    GuiIngame.drawRect(middleScreen - 91 - 1 + entityPlayer.inventory.currentItem * 20 + 1, sr.getScaledHeight() - 24, middleScreen - 91 - 1 + entityPlayer.inventory.currentItem * 20 + 22, sr.getScaledHeight() - 22 - 1 + 24, Integer.MAX_VALUE);
 
-            this.mc.getTextureManager().bindTexture(WIDGETS_TEX_PATH);
+                    this.mc.getTextureManager().bindTexture(WIDGETS_TEX_PATH);
 
-            if (!offHandItemStack.isEmpty()) {
-                int x;
+                    if (!offHandItemStack.isEmpty()) {
+                        int x;
 
-                if (enumhandside == EnumHandSide.LEFT) {
-                    x = middleScreen - 91 - 29;
-                } else {
-                    x = middleScreen + 91;
-                }
+                        if (enumhandside == EnumHandSide.LEFT) {
+                            x = middleScreen - 91 - 29;
+                        } else {
+                            x = middleScreen + 91;
+                        }
 
-                int y = sr.getScaledHeight() - 23;
-                GuiIngame.drawRect(x, y, x + 29, y + 24, Integer.MIN_VALUE);
-            }
-
-            this.zLevel = f;
-            GlStateManager.enableRescaleNormal();
-            GlStateManager.enableBlend();
-            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-            RenderHelper.enableGUIStandardItemLighting();
-
-            for (int l = 0; l < 9; ++l) {
-                int i1 = middleScreen - 90 + l * 20 + 2;
-                int j1 = sr.getScaledHeight() - 16 - 3;
-                this.renderHotbarItem(i1, j1, partialTicks, entityPlayer, entityPlayer.inventory.mainInventory.get(l));
-            }
-
-            if (!offHandItemStack.isEmpty()) {
-                int l1 = sr.getScaledHeight() - 16 - 3;
-
-                if (enumhandside == EnumHandSide.LEFT) {
-                    this.renderHotbarItem(middleScreen - 91 - 26, l1, partialTicks, entityPlayer, offHandItemStack);
-                } else {
-                    this.renderHotbarItem(middleScreen + 91 + 10, l1, partialTicks, entityPlayer, offHandItemStack);
-                }
-            }
-
-            if (this.mc.gameSettings.attackIndicator == 2) {
-                float f1 = this.mc.player.getCooledAttackStrength(0.0F);
-
-                if (f1 < 1.0F) {
-                    int i2 = sr.getScaledHeight() - 20;
-                    int j2 = middleScreen + 91 + 6;
-
-                    if (enumhandside == EnumHandSide.RIGHT) {
-                        j2 = middleScreen - 91 - 22;
+                        int y = sr.getScaledHeight() - 23;
+                        GuiIngame.drawRect(x, y, x + 29, y + 24, Integer.MIN_VALUE);
                     }
 
-                    this.mc.getTextureManager().bindTexture(Gui.ICONS);
-                    int k1 = (int) (f1 * 19.0F);
+                    this.zLevel = f;
+                    GlStateManager.enableRescaleNormal();
+                    GlStateManager.enableBlend();
+                    GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                    RenderHelper.enableGUIStandardItemLighting();
+
+                    for (int l = 0; l < 9; ++l) {
+                        int i1 = middleScreen - 90 + l * 20 + 2;
+                        int j1 = sr.getScaledHeight() - 16 - 3;
+                        this.renderHotbarItem(i1, j1, partialTicks, entityPlayer, entityPlayer.inventory.mainInventory.get(l));
+                    }
+
+                    if (!offHandItemStack.isEmpty()) {
+                        int l1 = sr.getScaledHeight() - 16 - 3;
+
+                        if (enumhandside == EnumHandSide.LEFT) {
+                            this.renderHotbarItem(middleScreen - 91 - 26, l1, partialTicks, entityPlayer, offHandItemStack);
+                        } else {
+                            this.renderHotbarItem(middleScreen + 91 + 10, l1, partialTicks, entityPlayer, offHandItemStack);
+                        }
+                    }
+
+                    if (this.mc.gameSettings.attackIndicator == 2) {
+                        float f1 = this.mc.player.getCooledAttackStrength(0.0F);
+
+                        if (f1 < 1.0F) {
+                            int i2 = sr.getScaledHeight() - 20;
+                            int j2 = middleScreen + 91 + 6;
+
+                            if (enumhandside == EnumHandSide.RIGHT) {
+                                j2 = middleScreen - 91 - 22;
+                            }
+
+                            this.mc.getTextureManager().bindTexture(Gui.ICONS);
+                            int k1 = (int) (f1 * 19.0F);
+                            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                            this.drawTexturedModalRect(j2, i2, 0, 94, 18, 18);
+                            this.drawTexturedModalRect(j2, i2 + 18 - k1, 18, 112 - k1, 18, k1);
+                        }
+                    }
+
+                    RenderHelper.disableStandardItemLighting();
+                    GlStateManager.disableRescaleNormal();
+                    GlStateManager.disableBlend();
+
+                    callRender2DEvent(partialTicks);
+                    callbackInfo.cancel();
+                    break;
+                }
+                case "pride": {
+                    EntityPlayer entityPlayer = (EntityPlayer) this.mc.getRenderViewEntity();
+                    int middleScreen = sr.getScaledWidth() / 2;
+
+                    final Minecraft mc = Minecraft.getMinecraft();
+                    float posInv = hud.getAnimPos(entityPlayer.inventory.currentItem * 20F);
+
+                    GlStateManager.resetColor();
                     GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                    this.drawTexturedModalRect(j2, i2, 0, 94, 18, 18);
-                    this.drawTexturedModalRect(j2, i2 + 18 - k1, 18, 112 - k1, 18, k1);
+                    mc.getTextureManager().bindTexture(WIDGETS_TEX_PATH);
+
+                    float f = this.zLevel;
+                    this.zLevel = -90.0F;
+
+
+                    GlStateManager.resetColor();
+                    RenderUtils.originalRoundedRect(middleScreen - 91, sr.getScaledHeight() - 2, middleScreen + 91, sr.getScaledHeight() - 22, 3F, Integer.MIN_VALUE);
+                    RenderUtils.originalRoundedRect(middleScreen - 91 + posInv, sr.getScaledHeight() - 2, middleScreen - 91 + posInv + 22, sr.getScaledHeight() - 22, 3F, Integer.MAX_VALUE);
+
+
+                    this.zLevel = f;
+                    GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                    GlStateManager.enableRescaleNormal();
+                    GlStateManager.enableBlend();
+                    GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+                    pridePlus$lighting(sr, partialTicks, entityPlayer, middleScreen);
+
+                    RenderHelper.disableStandardItemLighting();
+                    GlStateManager.disableRescaleNormal();
+                    GlStateManager.disableBlend();
+                    GlStateManager.resetColor();
+                    LiquidBounce.eventManager.callEvent(new Render2DEvent(partialTicks));
+                    AWTFontRenderer.Companion.garbageCollectionTick();
+                    callbackInfo.cancel();
+                    break;
+                }
+                case "liquidbounce": {
+                    EntityPlayer entityPlayer = (EntityPlayer) this.mc.getRenderViewEntity();
+                    GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                    ItemStack offHandItemStack = entityPlayer.getHeldItemOffhand();
+                    EnumHandSide enumhandside = entityPlayer.getPrimaryHand().opposite();
+                    int middleScreen = sr.getScaledWidth() / 2;
+                    float f = this.zLevel;
+                    int j = 182;
+                    int k = 91;
+                    this.zLevel = -90.0F;
+
+                    GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                    GuiIngame.drawRect(middleScreen - 91, sr.getScaledHeight() - 24, middleScreen + 90, sr.getScaledHeight(), Integer.MIN_VALUE);
+                    GuiIngame.drawRect(middleScreen - 91 - 1 + entityPlayer.inventory.currentItem * 20 + 1, sr.getScaledHeight() - 24, middleScreen - 91 - 1 + entityPlayer.inventory.currentItem * 20 + 22, sr.getScaledHeight() - 22 - 1 + 24, Integer.MAX_VALUE);
+
+                    this.mc.getTextureManager().bindTexture(WIDGETS_TEX_PATH);
+
+                    if (!offHandItemStack.isEmpty()) {
+                        int x;
+
+                        if (enumhandside == EnumHandSide.LEFT) {
+                            x = middleScreen - 91 - 29;
+                        } else {
+                            x = middleScreen + 91;
+                        }
+
+                        int y = sr.getScaledHeight() - 23;
+                        GuiIngame.drawRect(x, y, x + 29, y + 24, Integer.MIN_VALUE);
+                    }
+
+                    this.zLevel = f;
+                    GlStateManager.enableRescaleNormal();
+                    GlStateManager.enableBlend();
+                    GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                    RenderHelper.enableGUIStandardItemLighting();
+
+                    for (int l = 0; l < 9; ++l) {
+                        int i1 = middleScreen - 90 + l * 20 + 2;
+                        int j1 = sr.getScaledHeight() - 16 - 3;
+                        this.renderHotbarItem(i1, j1, partialTicks, entityPlayer, entityPlayer.inventory.mainInventory.get(l));
+                    }
+
+                    if (!offHandItemStack.isEmpty()) {
+                        int l1 = sr.getScaledHeight() - 16 - 3;
+
+                        if (enumhandside == EnumHandSide.LEFT) {
+                            this.renderHotbarItem(middleScreen - 91 - 26, l1, partialTicks, entityPlayer, offHandItemStack);
+                        } else {
+                            this.renderHotbarItem(middleScreen + 91 + 10, l1, partialTicks, entityPlayer, offHandItemStack);
+                        }
+                    }
+
+                    if (this.mc.gameSettings.attackIndicator == 2) {
+                        float f1 = this.mc.player.getCooledAttackStrength(0.0F);
+
+                        if (f1 < 1.0F) {
+                            int i2 = sr.getScaledHeight() - 20;
+                            int j2 = middleScreen + 91 + 6;
+
+                            if (enumhandside == EnumHandSide.RIGHT) {
+                                j2 = middleScreen - 91 - 22;
+                            }
+
+                            this.mc.getTextureManager().bindTexture(Gui.ICONS);
+                            int k1 = (int) (f1 * 19.0F);
+                            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                            this.drawTexturedModalRect(j2, i2, 0, 94, 18, 18);
+                            this.drawTexturedModalRect(j2, i2 + 18 - k1, 18, 112 - k1, 18, k1);
+                        }
+                    }
+
+                    RenderHelper.disableStandardItemLighting();
+                    GlStateManager.disableRescaleNormal();
+                    GlStateManager.disableBlend();
+
+                    callRender2DEvent(partialTicks);
+                    callbackInfo.cancel();
                 }
             }
-
-            RenderHelper.disableStandardItemLighting();
-            GlStateManager.disableRescaleNormal();
-            GlStateManager.disableBlend();
-
-            callRender2DEvent(partialTicks);
-            callbackInfo.cancel();
         }
     }
 
@@ -156,5 +277,16 @@ public abstract class MixinGuiInGame extends MixinGui {
 
         if (antiBlind.getState() && antiBlind.getPumpkinEffect().get())
             callbackInfo.cancel();
+    }
+
+    @Unique
+    private void pridePlus$lighting(ScaledResolution sr, float partialTicks, EntityPlayer entityPlayer, int middleScreen) {
+        RenderHelper.enableGUIStandardItemLighting();
+
+        for (int l = 0; l < 9; ++l) {
+            int i1 = middleScreen - 90 + l * 20 + 2;
+            int j1 = sr.getScaledHeight() - 16 - 3;
+            this.renderHotbarItem(i1, j1, partialTicks, entityPlayer, entityPlayer.inventory.mainInventory.get(l));
+        }
     }
 }

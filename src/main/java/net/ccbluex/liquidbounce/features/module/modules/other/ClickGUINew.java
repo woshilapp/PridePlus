@@ -8,19 +8,19 @@ package net.ccbluex.liquidbounce.features.module.modules.other;
 import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.features.module.ModuleInfo;
+import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.NewUi;
 import net.ccbluex.liquidbounce.utils.render.ColorUtils;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.ccbluex.liquidbounce.features.value.BoolValue;
 import net.ccbluex.liquidbounce.features.value.FloatValue;
 import net.ccbluex.liquidbounce.features.value.IntegerValue;
 import net.ccbluex.liquidbounce.features.value.ListValue;
-import op.wawa.lbp.newVer.NewUi;
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
 
-@ModuleInfo(name = "NewGUI", description = "next generation clickgui.", category = ModuleCategory.RENDER,keyBind = Keyboard.KEY_P,canEnable = false)
-public class NewGUI extends Module {
+@ModuleInfo(name = "ClickGUINew", description = "next generation clickgui.", category = ModuleCategory.RENDER,keyBind = Keyboard.KEY_RSHIFT,canEnable = false)
+public class ClickGUINew extends Module {
     public static final BoolValue fastRenderValue = new BoolValue("FastRender", true);
 
     private static final ListValue colorModeValue = new ListValue("Color", new String[] {"Custom", "Sky", "Rainbow", "LiquidSlowly", "Fade"}, "Custom");

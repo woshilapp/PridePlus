@@ -48,8 +48,9 @@ object AntiKnockback : Module() {
     val horizontalValue = FloatValue("Horizontal", 0f, -2f, 2f).displayable { modeValue.equals("Simple") || modeValue.equals("Tick") }
     val verticalValue = FloatValue("Vertical", 0f, -2f, 2f).displayable { modeValue.equals("Simple") || modeValue.equals("Tick") }
     val chanceValue = IntegerValue("Chance", 100, 0, 100).displayable { modeValue.equals("Simple") }
-    val sendC03Value = BoolValue("Grim-SendC03", true).displayable { modeValue.equals("GrimAC") }
-    val breakValue = BoolValue("Grim-BreakBlock", true).displayable { modeValue.equals("GrimAC") }
+    val sendC03Value = BoolValue("Grim-SendC03", true).displayable { modeValue.get() == "GrimAC" }
+    val breakValue = BoolValue("Grim-BreakBlock", true).displayable { modeValue.get() == "GrimAC" }
+    val c0fTestValue = BoolValue("Grim-C0FTest", false).displayable { modeValue.get() == "GrimAC" }
     val onlyCombatValue = BoolValue("OnlyCombat", false)
     // private val onlyHitVelocityValue = BoolValue("OnlyHitVelocity",false)
     private val noFireValue = BoolValue("noFire", false)

@@ -80,22 +80,24 @@ public abstract class MixinSplashProgressRunnable {
             GL11.glVertex2f(0.0F, (float) height);
             GL11.glEnd();
             GL11.glDisable(3553);
-            float rectX = (float) width * 0.2F;
-            float rectX2 = (float) width * 0.8F;
+            float rectX = (float) width * 0.332F;
+            float rectX2 = (float) width * 0.664F;
             float progress = (float) animatedValue.sync(getProgress());
 
             if (progress != 1.0F) {
                 GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.3F);
-                RenderUtils.drawRoundedCornerRect(0, (float) height, width, (float) (height - 10), 0.0F, (new Color(49, 51, 53, 150)).getRGB());
+                RenderUtils.drawRoundedCornerRect(rectX, (float) height / 2 - 5, rectX2, (float) height / 2 - 13, 0.0F, (new Color(49, 51, 53, 255)).getRGB());
             }
 
             if (progress != 0.0F) {
                 GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-                RenderUtils.drawRoundedCornerRect(0, (float) height, width * progress, (float) (height - 10), 0.0F, (new Color(255, 255, 255, 170)).getRGB());
+                RenderUtils.drawRoundedCornerRect(rectX, (float) height / 2 - 5, rectX + ((rectX2 - rectX) * progress), (float) height / 2 - 13, 0.0F, (new Color(255, 255, 255, 255)).getRGB());
             }
 
             DecimalFormat decimalFormat = new DecimalFormat("#");
             String progress2 = decimalFormat.format(progress * 100.0F);
+
+            FontLoaders.getFont("misans.ttf", 55, true).drawCenteredString("PridePlus-NextGen 加载中...", (double) width / 2, (double) height / 2 - 70, Color.WHITE.getRGB(), true);
 
             SplashProgress.mutex.acquireUninterruptibly();
             Display.update();

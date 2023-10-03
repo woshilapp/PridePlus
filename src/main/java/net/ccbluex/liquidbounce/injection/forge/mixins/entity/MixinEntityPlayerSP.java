@@ -10,10 +10,7 @@ import net.ccbluex.liquidbounce.event.*;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.AntiHunger;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.PortalMenu;
-import net.ccbluex.liquidbounce.features.module.modules.movement.InventoryMove;
-import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow;
-import net.ccbluex.liquidbounce.features.module.modules.movement.Sneak;
-import net.ccbluex.liquidbounce.features.module.modules.movement.Sprint;
+import net.ccbluex.liquidbounce.features.module.modules.movement.*;
 import net.ccbluex.liquidbounce.features.module.modules.render.NoSwing;
 import net.ccbluex.liquidbounce.utils.MovementUtils;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
@@ -155,6 +152,8 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
      */
     @Overwrite
     public void onUpdateWalkingPlayer() {
+        final StrafeFix strafeFix = (StrafeFix) LiquidBounce.moduleManager.getModule(StrafeFix.class);
+        strafeFix.updateOverwrite();
         LiquidBounce.eventManager.callEvent(new MotionEvent(EventState.PRE));
 
         final InventoryMove inventoryMove = (InventoryMove) LiquidBounce.moduleManager.getModule(InventoryMove.class);
@@ -273,7 +272,6 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         } catch (Throwable e) {
             e.printStackTrace();
         }
-
         ++this.sprintingTicksLeft;
 
         if (this.sprintToggleTimer > 0) {
@@ -327,6 +325,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         float f = 0.8F;
         boolean flag2 = this.movementInput.moveForward >= 0.8F;
         this.movementInput.updatePlayerMoveState();
+
         final NoSlow noSlow = (NoSlow) LiquidBounce.moduleManager.getModule(NoSlow.class);
         final KillAura killAura = (KillAura) LiquidBounce.moduleManager.getModule(KillAura.class);
 
@@ -358,6 +357,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             this.pushOutOfBlocks(this.posX + (double) this.width * 0.35D, axisalignedbb.minY + 0.5D, this.posZ - (double) this.width * 0.35D);
             this.pushOutOfBlocks(this.posX + (double) this.width * 0.35D, axisalignedbb.minY + 0.5D, this.posZ + (double) this.width * 0.35D);
         }
+
         final Sprint sprint = (Sprint) LiquidBounce.moduleManager.getModule(Sprint.class);
 
         boolean flag4 = !sprint.foodValue.get() || (float) this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying;

@@ -8,6 +8,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.antikbs.AntiKBMod
 import net.minecraft.client.Minecraft
 import net.minecraft.client.network.NetHandlerPlayClient
 import net.minecraft.network.Packet
+import net.minecraft.network.play.client.CPacketConfirmTransaction
 import net.minecraft.network.play.client.CPacketPlayer
 import net.minecraft.network.play.client.CPacketPlayerDigging
 import net.minecraft.network.play.server.SPacketEntityVelocity
@@ -42,6 +43,10 @@ class GrimVelocity : AntiKBMode("GrimAC") {
 
         val pos = BlockPos(mc.player.posX, mc.player.posY + 1.0, mc.player.posZ)
         connection.sendPacket(CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, pos, EnumFacing.DOWN))
+
+        if ((LiquidBounce.moduleManager[AntiKnockback::class.java] as AntiKnockback).c0fTestValue.get()){
+            connection.sendPacket(CPacketConfirmTransaction())
+        }
 
         if ((LiquidBounce.moduleManager[AntiKnockback::class.java] as AntiKnockback).breakValue.get()) {
             mc.world.setBlockToAir(pos)

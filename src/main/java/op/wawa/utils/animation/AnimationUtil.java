@@ -1,5 +1,6 @@
 package op.wawa.utils.animation;
 
+import ca.weblite.objc.Client;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 
 public class AnimationUtil {
@@ -103,4 +104,19 @@ public class AnimationUtil {
     public static float easeOut(float t, float d) {
         return (t = t / d - 1) * t * t + 1;
     }
+    private static float curve(float t) {
+        return AnimationUtil.clamp(t < 0.2f ? 3.125f * t * t : (t > 0.8f ? -3.125f * t * t + 6.25f * t - 2.125f : 1.25f * t - 0.125f));
+    }
+
+    private static double curve(double t) {
+        return AnimationUtil.clamp(t < 0.2 ? 3.125 * t * t : (t > 0.8 ? -3.125 * t * t + 6.25 * t - 2.125 : 1.25 * t - 0.125));
+    }
+    private static double clamp(double t) {
+        return t < 0.0 ? 0.0 : Math.min(t, 1.0);
+    }
+
+    private static float clamp(float t) {
+        return t < 0.0f ? 0.0f : Math.min(t, 1.0f);
+    }
+
 }

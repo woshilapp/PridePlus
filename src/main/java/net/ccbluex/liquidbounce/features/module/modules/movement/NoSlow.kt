@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import me.utils.PacketUtils
+import op.wawa.utils.PacketUtils
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
@@ -19,6 +19,7 @@ import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.createUseItemPacket
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
+import net.minecraft.block.Block
 import net.minecraft.item.*
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayServer
@@ -27,8 +28,8 @@ import net.minecraft.network.play.server.SPacketWindowItems
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.MathHelper.floor
+import op.wawa.utils.PacketUtils.cancelC08
 import java.util.*
 
 @ModuleInfo(name = "NoSlow", description = "Cancels slowness effects caused by SoulSand and using items.",
@@ -38,8 +39,6 @@ class NoSlow : Module() {
     private val modeValue = ListValue("PacketMode", arrayOf("None",
         "Vanilla",
         "GrimAC",
-        "GrimC07",
-        "GrimTest",
         "NoPacket",
         "FakeBlock",
         "AAC",
@@ -76,15 +75,11 @@ class NoSlow : Module() {
         return mc.player.isActiveItemStackBlocking || killAura.blockingStatus
     }
 
-    fun fuckKotline(value: Int): Boolean{
-        return value == 1
-    }
-
-    private fun OnPre(event : MotionEvent): Boolean {
+    private fun onPre(event : MotionEvent): Boolean {
         return event.eventState == EventState.PRE
     }
 
-    private fun OnPost(event : MotionEvent): Boolean {
+    private fun onPost(event : MotionEvent): Boolean {
         return event.eventState == EventState.POST
     }
 
@@ -110,14 +105,14 @@ class NoSlow : Module() {
             return
         }
 
-        if(SendC07 && OnPre(Event)) {
+        if(SendC07 && onPre(Event)) {
             if(Delay && Timer.hasTimePassed(DelayValue)) {
                 mc.connection!!.sendPacket(digging)
             } else if(!Delay) {
                 mc.connection!!.sendPacket(digging)
             }
         }
-        if(SendC08 && OnPost(Event)) {
+        if(SendC08 && onPost(Event)) {
             if(Delay && Timer.hasTimePassed(DelayValue) && !Hypixel) {
                 mc.connection!!.sendPacket(blockPlace)
                 Timer.reset()
@@ -132,23 +127,12 @@ class NoSlow : Module() {
     @EventTarget
     fun onMotion(event: MotionEvent) {
         val player = mc.player ?: return
-        var test = fuckKotline(mc.player!!.ticksExisted and 1)
-        val heldItem = player.getHeldItem(EnumHand.MAIN_HAND)
 
         if (!MovementUtils.isMoving) {
             return
         }
 
         when(modeValue.get().toLowerCase()) {
-            "grimtest" -> {
-                val item = heldItem.item
-                if (item is ItemBlock) return
-                if (event.eventState == EventState.PRE && (item is ItemSword) && isBlocking) {
-                    mc.connection!!.sendPacket(CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM,
-                        BlockPos.ORIGIN, EnumFacing.DOWN))
-                    mc.connection!!.sendPacket(CPacketPlayerTryUseItemOnBlock(BlockPos(-1,-1,-1), EnumFacing.values()[255], EnumHand.MAIN_HAND, 0F, 0F, 0F))
-                }
-            }
             "custom" -> {
                 sendPacket(event,true,true,true,customDelayValue.get().toLong(),customOnGround.get())
             }
@@ -158,24 +142,20 @@ class NoSlow : Module() {
                 mc.player!!.motionZ = mc.player!!.motionZ
             }
             "grimac"->{
-                if (event.eventState == EventState.PRE && mc.player!!.getHeldItem(EnumHand.MAIN_HAND).item is ItemSword && isBlocking) {
-                    mc.connection!!.sendPacket(CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM,
-                        BlockPos.ORIGIN, EnumFacing.DOWN))
-                    mc.connection!!.sendPacket(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))
-                }
-            }
-            "grimc07"->{
-                if (event.eventState == EventState.PRE && heldItem.item is ItemSword && isBlocking) {
-                    mc.connection!!.sendPacket(CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM,
-                        BlockPos.ORIGIN, EnumFacing.DOWN))
+                if (!player.isActiveItemStackBlocking && !killAura.blockingStatus)
+                    return
+
+                if (onPre(event)){
+                    mc.connection!!.sendPacket(CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+                } else {
+                    mc.connection!!.sendPacket(CPacketConfirmTransaction())
+                    PacketUtils.sendTryUseItem()
                 }
             }
             "aac" -> {
-                if (mc.player!!.ticksExisted % 3 == 0) {
-                    sendPacket(event, true, false, false, 0, false)
-                } else {
-                    sendPacket(event, false, true, false, 0, false)
-                }
+                if (mc.player!!.ticksExisted % 3 == 0) sendPacket(event, true, false, false, 0, false)
+                else sendPacket(event, false, true, false, 0, false)
+
             }
             "aac5" -> {
                 if (mc.player!!.isHandActive || mc.player!!.isActiveItemStackBlocking || isBlock()) {
@@ -184,13 +164,12 @@ class NoSlow : Module() {
                 }
             }
         }
-
-
     }
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
+        cancelC08(event, packet)
         if(modeValue.equals("Matrix") || modeValue.equals("Vulcan")&& nextTemp) {
             if((packet is CPacketPlayerDigging || packet is CPacketPlayerTryUseItemOnBlock) && isBlocking) {
                 event.cancelEvent()
@@ -214,7 +193,6 @@ class NoSlow : Module() {
             }
         }
     }
-
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         if((modeValue.equals("Matrix") || modeValue.equals("Vulcan")) && (lastBlockingStat || isBlocking)) {

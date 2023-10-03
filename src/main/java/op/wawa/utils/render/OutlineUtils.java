@@ -1,4 +1,4 @@
-package co.uk.hexeption.utils;
+package op.wawa.utils.render;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;

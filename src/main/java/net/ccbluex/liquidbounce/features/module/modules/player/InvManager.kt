@@ -62,6 +62,7 @@ class InvManager : Module() {
     private val simulateInventory = BoolValue("SimulateInventory", true)
     private val noMoveValue = BoolValue("NoMove", false)
     private val swingValue = BoolValue("SwingItem", false)
+    private val ignoreChainArmorValue = BoolValue("IgnoreChainArmor", false)
     private val ignoreVehiclesValue = BoolValue("IgnoreVehicles", false)
     private val randomSlotValue = BoolValue("RandomSlot", false)
     private val sortValue = BoolValue("Sort", true)
@@ -93,7 +94,7 @@ class InvManager : Module() {
             // Find best armor
             val armorPieces = IntStream.range(0, 36).filter { i: Int ->
                 val itemStack = mc.player!!.inventory.getStackInSlot(i)
-                itemStack != null && itemStack.item is ItemArmor && (i < 9 || System.currentTimeMillis() - (itemStack as IMixinItemStack).itemDelay >= itemDelayValue.get())
+                itemStack != null && (itemStack.item is ItemArmor && (!ignoreChainArmorValue.get() || !(itemStack.unlocalizedName == "item.helmetChain" || itemStack.unlocalizedName == "item.leggingsChain")))  && (i < 9 || System.currentTimeMillis() - (itemStack as IMixinItemStack).itemDelay >= itemDelayValue.get())
             }.mapToObj { i: Int ->
                 ArmorPiece(
                     mc.player!!.inventory.getStackInSlot(
@@ -198,7 +199,9 @@ class InvManager : Module() {
                         stack, SHARPNESS
                     )
                 }
-            } else if (item is ItemBow) {
+            } else if (item is ItemArmor && (ignoreChainArmorValue.get() && (itemStack.unlocalizedName == "item.helmetChain" || itemStack.unlocalizedName == "item.leggingsChain")))
+                false
+            else if (item is ItemBow) {
                 val currPower =
                     ItemUtils.getEnchantment(itemStack, POWER)
 
