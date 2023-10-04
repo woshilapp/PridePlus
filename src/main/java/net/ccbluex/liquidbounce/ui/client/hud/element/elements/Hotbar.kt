@@ -7,7 +7,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
-import net.ccbluex.liquidbounce.utils.hotbarutil
+import net.ccbluex.liquidbounce.utils.HotbarUtil
 import java.awt.Color
 import kotlin.collections.ArrayList
 
@@ -15,13 +15,13 @@ import kotlin.collections.ArrayList
 @ElementInfo(name = "Hotbar") class Hotbar(x: Double = 40.0, y: Double = 100.0) : Element(x, y) {
 
 
-    val slotlist = mutableListOf<hotbarutil>()
+    val slotlist = mutableListOf<HotbarUtil>()
 
     private var lastSlot = -1
 
     init {
         for (i in 0..8) {
-            val slot = hotbarutil()
+            val slot = HotbarUtil()
             slotlist.add(slot)
         }
     }
