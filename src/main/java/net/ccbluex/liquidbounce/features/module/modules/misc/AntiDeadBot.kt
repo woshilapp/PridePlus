@@ -18,7 +18,7 @@ import java.util.regex.Pattern
  * @date 2023/9/15 21:12
  * @author WaWa
  */
-@ModuleInfo(name = "Germ", category = ModuleCategory.MISC, description = "HYTGetName")
+@ModuleInfo(name = "AntiDeadBot", category = ModuleCategory.MISC, description = "HYTGetName")
 class AntiDeadBot : Module() {
     private val autoModeValue = BoolValue("AutoSwitch", false)
     private val mode = ListValue("Mode", arrayOf("Classic4v4", "BW32", "BW16", "Kit"), "classic4v4").displayable { autoModeValue.get() }
