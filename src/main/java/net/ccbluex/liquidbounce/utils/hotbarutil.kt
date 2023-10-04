@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.utils
 
+import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.mc
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.Translate
@@ -24,7 +25,10 @@ class hotbarutil {
             }
             RenderUtils.drawTexturedRect((xPos - 7).toInt(), (yPos -7).toInt(), 30, 30,"hotbar",  ScaledResolution(mc));
             RenderUtils.drawTexturedRect((xPos - 7).toInt(), (yPos -7).toInt(), 30, 30,"hotbar",  ScaledResolution(mc));
-
+            if (lvt_7_1_ > 0.0f) {
+                GlStateManager.popMatrix()
+            }
+            mc.renderItem.renderItemOverlays(Fonts.font35, itemStack, xPos.toInt(), yPos.toInt())
         }
     }
 }
