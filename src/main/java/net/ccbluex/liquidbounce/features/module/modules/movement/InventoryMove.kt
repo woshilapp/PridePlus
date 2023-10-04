@@ -9,10 +9,11 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.gui.inventory.GuiContainer
+import net.minecraft.client.settings.GameSettings
 import net.minecraft.client.settings.KeyBinding
 import net.minecraft.network.play.client.CPacketPlayer
 import org.lwjgl.input.Keyboard
@@ -25,34 +26,34 @@ class InventoryMove : Module() {
     private val noMoveClicksValue = BoolValue("NoMoveClicks", false)
 
     private val blinkPacketList = mutableListOf<CPacketPlayer>()
-    var lastInvOpen = false
-        private set
-    var invOpen = false
-        private set
+    private var lastInvOpen = false
+    private var invOpen = false
 
     private fun updateKeyState() {
         if (mc.currentScreen != null && mc.currentScreen !is GuiChat && (!noDetectableValue.get() || mc.currentScreen !is GuiContainer)) {
-            mc.gameSettings.keyBindForward.pressed = mc.gameSettings.keyBindRight.isKeyDown
-            mc.gameSettings.keyBindLeft.pressed = mc.gameSettings.keyBindLeft.isKeyDown
-            mc.gameSettings.keyBindJump.pressed = mc.gameSettings.keyBindJump.isKeyDown
-            mc.gameSettings.keyBindSprint.pressed = mc.gameSettings.keyBindSprint.isKeyDown
+            KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.keyCode, GameSettings.isKeyDown(mc.gameSettings.keyBindForward))
+            KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.keyCode, GameSettings.isKeyDown(mc.gameSettings.keyBindRight))
+            KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.keyCode, GameSettings.isKeyDown(mc.gameSettings.keyBindLeft))
+            KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.keyCode, GameSettings.isKeyDown(mc.gameSettings.keyBindBack))
+            KeyBinding.setKeyBindState(mc.gameSettings.keyBindJump.keyCode, GameSettings.isKeyDown(mc.gameSettings.keyBindJump))
+            KeyBinding.setKeyBindState(mc.gameSettings.keyBindSprint.keyCode, GameSettings.isKeyDown(mc.gameSettings.keyBindSprint))
 
             if (rotateValue.get()) {
                 if (Keyboard.isKeyDown(Keyboard.KEY_UP)) {
-                    if (mc.player!!.rotationPitch > -90) {
-                        mc.player!!.rotationPitch -= 5
+                    if (mc.player.rotationPitch > -90) {
+                        mc.player.rotationPitch -= 5
                     }
                 }
                 if (Keyboard.isKeyDown(Keyboard.KEY_DOWN)) {
-                    if (mc.player!!.rotationPitch < 90) {
-                        mc.player!!.rotationPitch += 5
+                    if (mc.player.rotationPitch < 90) {
+                        mc.player.rotationPitch += 5
                     }
                 }
                 if (Keyboard.isKeyDown(Keyboard.KEY_LEFT)) {
-                    mc.player!!.rotationYaw -= 5
+                    mc.player.rotationYaw -= 5
                 }
                 if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT)) {
-                    mc.player!!.rotationYaw += 5
+                    mc.player.rotationYaw += 5
                 }
             }
         }
@@ -83,23 +84,23 @@ class InventoryMove : Module() {
     }
 
     override fun onDisable() {
-        if (!mc.gameSettings.keyBindForward.isKeyDown || mc.currentScreen != null) {
-            mc.gameSettings.keyBindForward.pressed = false
+        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindForward) || mc.currentScreen != null) {
+            KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.keyCode, false)
         }
-        if (!mc.gameSettings.keyBindBack.isKeyDown || mc.currentScreen != null) {
-            mc.gameSettings.keyBindBack.pressed = false
+        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindBack) || mc.currentScreen != null) {
+            KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.keyCode, false)
         }
-        if (!mc.gameSettings.keyBindRight.isKeyDown || mc.currentScreen != null) {
-            mc.gameSettings.keyBindRight.pressed = false
+        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindRight) || mc.currentScreen != null) {
+            KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.keyCode, false)
         }
-        if (!mc.gameSettings.keyBindLeft.isKeyDown || mc.currentScreen != null) {
-            mc.gameSettings.keyBindLeft.pressed = false
+        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindLeft) || mc.currentScreen != null) {
+            KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.keyCode, false)
         }
-        if (!mc.gameSettings.keyBindJump.isKeyDown || mc.currentScreen != null) {
-            mc.gameSettings.keyBindJump.pressed = false
+        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindJump) || mc.currentScreen != null) {
+            KeyBinding.setKeyBindState(mc.gameSettings.keyBindJump.keyCode, false)
         }
-        if (!mc.gameSettings.keyBindSprint.isKeyDown || mc.currentScreen != null) {
-            mc.gameSettings.keyBindSprint.pressed = false
+        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindSprint) || mc.currentScreen != null) {
+            KeyBinding.setKeyBindState(mc.gameSettings.keyBindSprint.keyCode, false)
         }
 
     }
