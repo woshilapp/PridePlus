@@ -51,10 +51,10 @@ class Gapple : Module() {
             }
             "legitauto" -> {
                 if (eating == -1) {
-                    val gappleInHotbar = InventoryUtils.findItem2(36, 45, Items.GOLDEN_APPLE)
+                    val gappleInHotbar = InventoryUtils.findItem(36, 45, Items.GOLDEN_APPLE)
                     if(gappleInHotbar == -1) return
                     mc.connection!!.sendPacket(CPacketHeldItemChange(gappleInHotbar - 36))
-                    mc.connection!!.sendPacket(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))
+                    mc.connection!!.sendPacket(CPacketPlayerTryUseItem(EnumHand.OFF_HAND))
                     eating = 0
                 } else if (eating > 35) {
                     mc.connection!!.sendPacket(CPacketHeldItemChange(mc.player!!.inventory.currentItem))
@@ -68,7 +68,7 @@ class Gapple : Module() {
                     val headInHotbar = InventoryUtils.findItem2(36, 45, Items.SKULL)
                     if(headInHotbar != -1) {
                         mc.connection!!.sendPacket(CPacketHeldItemChange(headInHotbar - 36))
-                        mc.connection!!.sendPacket(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))
+                        mc.connection!!.sendPacket(CPacketPlayerTryUseItem(EnumHand.OFF_HAND))
                         mc.connection!!.sendPacket(CPacketHeldItemChange(mc.player!!.inventory.currentItem))
                         timer.reset()
                     }
