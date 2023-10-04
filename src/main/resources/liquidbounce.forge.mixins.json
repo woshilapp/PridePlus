@@ -41,7 +41,6 @@
     "gui.MixinTabCompleter",
     "item.MixinItemRenderer",
     "item.MixinMixinItemStack",
-    "network.MixinNetHandlerLoginClient",
     "network.MixinNetHandlerPlayClient",
     "network.MixinNetworkManager",
     "network.MixinNetworkPlayerInfo",

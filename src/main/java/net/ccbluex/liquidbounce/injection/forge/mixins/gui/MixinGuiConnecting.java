@@ -5,11 +5,9 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
-import com.mojang.authlib.GameProfile;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.ServerUtils;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
-import net.mcleaks.MCLeaks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiScreen;
@@ -60,14 +58,6 @@ public abstract class MixinGuiConnecting extends GuiScreen {
         ServerUtils.serverData = (new ServerData("", ip + ":" + port, false));
     }
 
-    @Inject(method = "connect", at = @At(value = "NEW", target = "net/minecraft/network/login/client/CPacketLoginStart"), cancellable = true)
-    private void mcLeaks(CallbackInfo callbackInfo) {
-        if (MCLeaks.isAltActive()) {
-            networkManager.sendPacket(new CPacketLoginStart(new GameProfile(null, MCLeaks.getSession().getUsername())));
-            callbackInfo.cancel();
-        }
-    }
-
     /**
      * @author CCBlueX
      */
@@ -87,7 +77,7 @@ public abstract class MixinGuiConnecting extends GuiScreen {
                 networkManager = NetworkManager.createNetworkManagerAndConnect(inetaddress, port, mc.gameSettings.isUsingNativeTransport());
                 networkManager.setNetHandler(new NetHandlerLoginClient(networkManager, mc, previousGuiScreen));
                 networkManager.sendPacket(new C00Handshake(ip, port, EnumConnectionState.LOGIN, true));
-                networkManager.sendPacket(new CPacketLoginStart(MCLeaks.isAltActive() ? new GameProfile(null, MCLeaks.getSession().getUsername()) : mc.getSession().getProfile()));
+                networkManager.sendPacket(new CPacketLoginStart(mc.getSession().getProfile()));
             } catch (UnknownHostException unknownhostexception) {
                 if (cancel)
                     return;
