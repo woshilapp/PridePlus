@@ -61,7 +61,8 @@ class HUD : Module() {
     val domainValue = TextValue("Scoreboard-Domain", "PridePlus-2K23")
     val hueInterpolation = BoolValue("DoubleColor-Interpolate", false)
     val liteInfo = BoolValue("LiteInfo", true)
-
+    val rainbowStart = FloatValue("RainbowStart", 0.41f, 0f, 1f)
+    val rainbowStop = FloatValue("RainbowStop", 0.58f, 0f, 1f)
     val customColor = Color(redValue.get(), greenValue.get(), blueValue.get())
     val customTextColor = Color(textRedValue.get(), textGreenValue.get(), textBlueValue.get()).rgb
 
