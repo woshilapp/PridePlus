@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import op.wawa.utils.PacketUtils
 import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
@@ -17,9 +16,10 @@ import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.MovementUtils
+import net.ccbluex.liquidbounce.utils.createOpenInventoryPacket
 import net.ccbluex.liquidbounce.utils.createUseItemPacket
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
-import net.minecraft.block.Block
+import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.item.*
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayServer
@@ -29,8 +29,10 @@ import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper.floor
+import op.wawa.utils.PacketUtils
 import op.wawa.utils.PacketUtils.cancelC08
 import java.util.*
+
 
 @ModuleInfo(name = "NoSlow", description = "Cancels slowness effects caused by SoulSand and using items.",
     category = ModuleCategory.MOVEMENT)
@@ -46,6 +48,7 @@ class NoSlow : Module() {
         "Matrix",
         "Vulcan",
         "Custom"), "GrimAC")
+    private val grimFoodValue = ListValue("GrimFoodMode", arrayOf("Inv", "HuaYuTing"), "GrimAC").displayable { modeValue.get() == "GrimAC" }
     private val blockForwardMultiplier = FloatValue("BlockForwardMultiplier", 1.0F, 0.2F, 1.0F)
     private val blockStrafeMultiplier = FloatValue("BlockStrafeMultiplier", 1.0F, 0.2F, 1.0F)
     private val consumeForwardMultiplier = FloatValue("ConsumeForwardMultiplier", 1.0F, 0.2F, 1.0F)
@@ -68,6 +71,10 @@ class NoSlow : Module() {
     private var waitC03 = false
     private var lastBlockingStat = false
 
+    //GrimAC
+    private var isOpenContainer = false
+    private val grimTimer = MSTimer()
+
     private val killAura = LiquidBounce.moduleManager[KillAura::class.java] as KillAura
 
 
@@ -89,11 +96,13 @@ class NoSlow : Module() {
     override fun onDisable() {
         Timer.reset()
         msTimer.reset()
+        grimTimer.reset()
         pendingFlagApplyPacket = false
         sendBuf = false
         packetBuf.clear()
         nextTemp = false
         waitC03 = false
+        isOpenContainer = false
     }
 
     private fun sendPacket(Event : MotionEvent,SendC07 : Boolean, SendC08 : Boolean,Delay : Boolean,DelayValue : Long,onGround : Boolean,Hypixel : Boolean = false) {
@@ -195,6 +204,28 @@ class NoSlow : Module() {
     }
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
+        if(modeValue.equals("GrimAC")){
+/*          BiliBili BV1sN411E747
+            wxcer3 Lv3
+            其实就是吃一下瞬间打开背包
+            20分钟前 回复*/
+            if (mc.currentScreen is GuiContainer && this.isOpenContainer)
+                mc.connection!!.sendPacket(CPacketCloseWindow())
+
+            if (mc.player.isHandActive) {
+                val item = mc.player.inventory.getCurrentItem().item
+                if ((item is ItemFood || item is ItemPotion || item is ItemBucketMilk) && !this.isOpenContainer && grimTimer.hasTimePassed(20)) {
+                    //完了发现精髓了send "/report"
+                    when (grimFoodValue.get().toLowerCase()){
+                        "huayuting" -> mc.player.sendChatMessage("/report")
+                        "inv" -> mc.connection!!.sendPacket(createOpenInventoryPacket())
+                    }
+                    grimTimer.reset()
+                    this.isOpenContainer = true
+                } else this.isOpenContainer = false
+            }
+        }
+
         if((modeValue.equals("Matrix") || modeValue.equals("Vulcan")) && (lastBlockingStat || isBlocking)) {
             if(msTimer.hasTimePassed(230) && nextTemp) {
                 nextTemp = false
