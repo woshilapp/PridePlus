@@ -1,9 +1,9 @@
-![image](Logo.png)
-# PridePlus - NextGen
-A free mixin-based injection hacked-client for Minecraft using Minecraft Forge, supporting versions 1.12.2
-
-## Based
-Based **LiquidBounce** & **Pride**. Thank **_CCBlueX_** and **_JieMo_**
+<div align=center>
+<img width="128" height="128" src="Logo.png" alt="PridePlus"/>
+<h1>PridePlus - NextGen</h1>
+<h4>A free mixin-based injection hacked-client for Minecraft using Minecraft Forge, supporting versions 1.12.2.</h4>
+Based LiquidBounce & Pride. Thanks CCBlueX and Pride-Team
+</div>
 
 ## QQ Group
 Group : 921796320
