@@ -20,7 +20,7 @@ import net.minecraft.network.play.client.CPacketEntityAction
 @ModuleInfo(name = "SuperKnockback", description = "Increases knockback dealt to other entities.", category = ModuleCategory.COMBAT)
 class SuperKnockback : Module() {
 
-    private val modeValue = ListValue("Mode", arrayOf("Sprint-Packet","Sneak-Packet","W-Tap"),"Sprint-Packet")
+    private val modeValue = ListValue("Mode", arrayOf("Sprint-Packet","W-Tap"),"Sprint-Packet")
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
     val onlyGround = BoolValue("OnlyGround", true)
     val onlyMove = BoolValue("OnlyMove", true)
@@ -41,15 +41,6 @@ class SuperKnockback : Module() {
                     mc.connection!!.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.START_SPRINTING))
                     mc.connection!!.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.STOP_SPRINTING))
                     mc.connection!!.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.START_SPRINTING))
-                    player.isSprinting = true
-                    player.serverSprintState = true
-                }
-                "sneak-packet" -> {
-                    if (player.isSneaking)
-                        mc.connection!!.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.STOP_SNEAKING))
-
-                    mc.connection!!.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.START_SNEAKING))
-                    mc.connection!!.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.STOP_SNEAKING))
                     player.isSprinting = true
                     player.serverSprintState = true
                 }
