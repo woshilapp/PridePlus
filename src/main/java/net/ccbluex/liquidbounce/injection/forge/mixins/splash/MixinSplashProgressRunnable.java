@@ -94,11 +94,6 @@ public abstract class MixinSplashProgressRunnable {
                 RenderUtils.drawRoundedCornerRect(rectX, (float) height / 2 - 5, rectX + ((rectX2 - rectX) * progress), (float) height / 2 - 13, 0.0F, (new Color(255, 255, 255, 255)).getRGB());
             }
 
-            DecimalFormat decimalFormat = new DecimalFormat("#");
-            String progress2 = decimalFormat.format(progress * 100.0F);
-
-            FontLoaders.getFont("misans.ttf", 55, true).drawCenteredString("PridePlus-NextGen 加载中...", (double) width / 2, (double) height / 2 - 70, Color.WHITE.getRGB(), true);
-
             SplashProgress.mutex.acquireUninterruptibly();
             Display.update();
             SplashProgress.mutex.release();
