@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
+ * PridePlus Hacked Client
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * https://github.com/MolokyMC/PridePlus/
  */
 
 package net.ccbluex.liquidbounce.utils
@@ -17,9 +17,9 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils.translateAlternateColorC
 import org.lwjgl.input.Keyboard
 
 /*
- * LiquidBounce Hacked Client
+ * PridePlus Hacked Client
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * https://github.com/MolokyMC/PridePlus/
  */
 object SettingsUtils {
 

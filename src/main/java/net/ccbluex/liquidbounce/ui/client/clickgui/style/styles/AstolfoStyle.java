@@ -1,7 +1,7 @@
 /*
- * ColorByte Hacked Client
+ * PridePlus Hacked Client
  * A free half-open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/SkidderRyF/ColorByte/
+ * https://github.com/MolokyMC/PridePlus/
  */
 
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles;
