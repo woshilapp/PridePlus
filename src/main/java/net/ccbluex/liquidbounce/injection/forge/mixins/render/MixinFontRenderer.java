@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.event.TextEvent;
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowFontShader;
 import net.minecraft.client.gui.FontRenderer;
@@ -81,11 +81,11 @@ public class MixinFontRenderer {
     private String renderString(final String string) {
         if (string == null)
             return null;
-        if (LiquidBounce.eventManager == null)
+        if (Pride.eventManager == null)
             return string;
 
         final TextEvent textEvent = new TextEvent(string);
-        LiquidBounce.eventManager.callEvent(textEvent);
+        Pride.eventManager.callEvent(textEvent);
         return textEvent.getText();
     }
 
@@ -93,11 +93,11 @@ public class MixinFontRenderer {
     private String getStringWidth(final String string) {
         if (string == null)
             return null;
-        if (LiquidBounce.eventManager == null)
+        if (Pride.eventManager == null)
             return string;
 
         final TextEvent textEvent = new TextEvent(string);
-        LiquidBounce.eventManager.callEvent(textEvent);
+        Pride.eventManager.callEvent(textEvent);
         return textEvent.getText();
     }
 }

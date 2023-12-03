@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.antikbs.aac
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.JumpEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.antikbs.AntiKBMode
@@ -32,7 +32,7 @@ class AACPushVelocity : AntiKBMode("AACPush") {
 
             // Reduce Y
             if (mc.player.hurtResistantTime > 0 && aacPushYReducerValue.get() &&
-                !LiquidBounce.moduleManager[Speed::class.java].state) {
+                !Pride.moduleManager[Speed::class.java].state) {
                 mc.player.motionY -= 0.014999993
             }
         }
@@ -51,7 +51,7 @@ class AACPushVelocity : AntiKBMode("AACPush") {
             return
         }
 
-        if ((velocity.OnlyGround.get() && !mc.player.onGround) || (velocity.onlyCombatValue.get() && !LiquidBounce.combatManager.inCombat)) {
+        if ((velocity.OnlyGround.get() && !mc.player.onGround) || (velocity.onlyCombatValue.get() && !Pride.combatManager.inCombat)) {
             return
         }
 

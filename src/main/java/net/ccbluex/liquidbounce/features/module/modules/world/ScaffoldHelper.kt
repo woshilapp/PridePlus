@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
@@ -57,7 +57,7 @@ class ScaffoldHelper : Module() {
 
     override fun onDisable() {
         when (scaffoldModeValue.get().toLowerCase()) {
-            "scaffold" -> LiquidBounce.moduleManager[Scaffold::class.java].state = false
+            "scaffold" -> Pride.moduleManager[Scaffold::class.java].state = false
         }
 
         (mc.timer as IMixinTimer).timerSpeed = 1F
@@ -90,7 +90,7 @@ class ScaffoldHelper : Module() {
 
             if (modeValue.get().toLowerCase() == "state") {
                 when (scaffoldModeValue.get().toLowerCase()) {
-                    "scaffold" -> LiquidBounce.moduleManager[Scaffold::class.java].state = false
+                    "scaffold" -> Pride.moduleManager[Scaffold::class.java].state = false
                 }
             }
         }else {
@@ -98,7 +98,7 @@ class ScaffoldHelper : Module() {
                 (mc.timer as IMixinTimer).timerSpeed = 1F
             if (modeValue.get().toLowerCase() == "state") {
                 when (scaffoldModeValue.get().toLowerCase()) {
-                    "scaffold" -> LiquidBounce.moduleManager[Scaffold::class.java].state = true
+                    "scaffold" -> Pride.moduleManager[Scaffold::class.java].state = true
                 }
             }
         }

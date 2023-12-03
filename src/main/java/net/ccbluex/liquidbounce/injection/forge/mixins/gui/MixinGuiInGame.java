@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.event.Render2DEvent;
 import net.ccbluex.liquidbounce.features.module.modules.render.AntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.render.HUD;
@@ -51,13 +51,13 @@ public abstract class MixinGuiInGame extends MixinGui {
 
     @Inject(method = "renderScoreboard", at = @At("HEAD"), cancellable = true)
     private void renderScoreboard(CallbackInfo callbackInfo) {
-        if (LiquidBounce.moduleManager.getModule(HUD.class).getState() || NoScoreboard.INSTANCE.getState())
+        if (Pride.moduleManager.getModule(HUD.class).getState() || NoScoreboard.INSTANCE.getState())
             callbackInfo.cancel();
     }
 
     @Inject(method = "renderHotbar", at = @At("HEAD"), cancellable = true)
     private void renderTooltip(ScaledResolution sr, float partialTicks, CallbackInfo callbackInfo) {
-        final HUD hud = (HUD) LiquidBounce.moduleManager.getModule(HUD.class);
+        final HUD hud = (HUD) Pride.moduleManager.getModule(HUD.class);
 
         if (Minecraft.getMinecraft().getRenderViewEntity() instanceof EntityPlayer && hud.getState()) {
             switch (HUD.getHotbarModeSection().get().toLowerCase()) {
@@ -171,7 +171,7 @@ public abstract class MixinGuiInGame extends MixinGui {
                     GlStateManager.disableRescaleNormal();
                     GlStateManager.disableBlend();
                     GlStateManager.resetColor();
-                    LiquidBounce.eventManager.callEvent(new Render2DEvent(partialTicks));
+                    Pride.eventManager.callEvent(new Render2DEvent(partialTicks));
                     AWTFontRenderer.Companion.garbageCollectionTick();
                     callbackInfo.cancel();
                     break;
@@ -266,14 +266,14 @@ public abstract class MixinGuiInGame extends MixinGui {
 
     private void callRender2DEvent(float partialTicks) {
         if (!ClassUtils.hasClass("net.labymod.api.LabyModAPI")) {
-            LiquidBounce.eventManager.callEvent(new Render2DEvent(partialTicks));
+            Pride.eventManager.callEvent(new Render2DEvent(partialTicks));
             AWTFontRenderer.Companion.garbageCollectionTick();
         }
     }
 
     @Inject(method = "renderPumpkinOverlay", at = @At("HEAD"), cancellable = true)
     private void renderPumpkinOverlay(final CallbackInfo callbackInfo) {
-        final AntiBlind antiBlind = (AntiBlind) LiquidBounce.moduleManager.getModule(AntiBlind.class);
+        final AntiBlind antiBlind = (AntiBlind) Pride.moduleManager.getModule(AntiBlind.class);
 
         if (antiBlind.getState() && antiBlind.getPumpkinEffect().get())
             callbackInfo.cancel();

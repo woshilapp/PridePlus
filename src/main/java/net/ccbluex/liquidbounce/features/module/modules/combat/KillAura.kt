@@ -5,10 +5,9 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import me.utils.PacketUtils
 import me.utils.player.PlayerUtil.isMoving
 import me.utils.render.GLUtils
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
@@ -31,7 +30,6 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils.LiquidSlowly
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.fade
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
-import net.minecraft.block.Block
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.settings.KeyBinding
@@ -304,7 +302,7 @@ class KillAura : Module() {
         }
         if (event.eventState == EventState.PRE) {
             update()
-            val strafeFix = LiquidBounce.moduleManager[StrafeFix::class.java] as StrafeFix
+            val strafeFix = Pride.moduleManager[StrafeFix::class.java] as StrafeFix
             strafeFix.applyForceStrafe(
                 rotationStrafeValue.get() == "Silent",
                 rotationStrafeValue.get() != "Off" && rotations.get() != "None"
@@ -1117,10 +1115,10 @@ class KillAura : Module() {
                 if (player.isSpectator || AntiBot.isBot(player))
                     return false
 
-                if (player.isClientFriend() && !LiquidBounce.moduleManager[NoFriends::class.java].state)
+                if (player.isClientFriend() && !Pride.moduleManager[NoFriends::class.java].state)
                     return false
 
-                val teams = LiquidBounce.moduleManager[Teams::class.java] as Teams
+                val teams = Pride.moduleManager[Teams::class.java] as Teams
 
                 return !teams.state || !teams.isInYourTeam(entity)
             }
@@ -1145,7 +1143,7 @@ class KillAura : Module() {
         }
 
         // Call attack event
-        LiquidBounce.eventManager.callEvent(AttackEvent(entity))
+        Pride.eventManager.callEvent(AttackEvent(entity))
 
         // Attack target
         mc.connection!!.sendPacket(CPacketUseEntity(entity))
@@ -1166,7 +1164,7 @@ class KillAura : Module() {
         }
 
         // Extra critical effects
-        val criticals = LiquidBounce.moduleManager[Criticals::class.java] as Criticals
+        val criticals = Pride.moduleManager[Criticals::class.java] as Criticals
 
         for (i in 0..2) {
             // Critical Effect
@@ -1485,7 +1483,7 @@ class KillAura : Module() {
             })
 
             if (raycastValue.get() && raycastedEntity != null && raycastedEntity is EntityLivingBase
-                && (LiquidBounce.moduleManager[NoFriends::class.java].state || !(raycastedEntity is EntityPlayer && raycastedEntity.isClientFriend())))
+                && (Pride.moduleManager[NoFriends::class.java].state || !(raycastedEntity is EntityPlayer && raycastedEntity.isClientFriend())))
                 currentTarget = raycastedEntity
 
             hitable = if (maxTurnSpeed.get() > 0F) currentTarget == raycastedEntity else true
@@ -1603,7 +1601,7 @@ class KillAura : Module() {
      */
     private val cancelRun: Boolean
         inline get() = mc.player!!.isSpectator || !isAlive(mc.player!!)
-                || LiquidBounce.moduleManager[Blink::class.java].state || LiquidBounce.moduleManager[FreeCam::class.java].state
+                || Pride.moduleManager[Blink::class.java].state || Pride.moduleManager[FreeCam::class.java].state
 
     /**
      * Check if [entity] is alive

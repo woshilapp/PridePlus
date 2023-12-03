@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.command.commands
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.utils.misc.StringUtils
 
@@ -17,7 +17,7 @@ class ShortcutCommand : Command("shortcut") {
         when {
             args.size > 3 && args[1].equals("add", true) -> {
                 try {
-                    LiquidBounce.commandManager.registerShortcut(args[2],
+                    Pride.commandManager.registerShortcut(args[2],
                             StringUtils.toCompleteString(args, 3))
 
                     chat("Successfully added shortcut.")
@@ -27,7 +27,7 @@ class ShortcutCommand : Command("shortcut") {
             }
 
             args.size >= 3 && args[1].equals("remove", true) -> {
-                if (LiquidBounce.commandManager.unregisterShortcut(args[2]))
+                if (Pride.commandManager.unregisterShortcut(args[2]))
                     chat("Successfully removed shortcut.")
                 else
                     chat("Shortcut does not exist.")

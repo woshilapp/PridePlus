@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.minecraft.util.TabCompleter;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -29,7 +29,7 @@ public abstract class MixinTabCompleter {
     @Inject(method = "complete", at = @At("HEAD"))
     private void complete(CallbackInfo ci) {
         completions.sort(
-                Comparator.comparing(s -> !LiquidBounce.fileManager.friendsConfig.isFriend(s)));
+                Comparator.comparing(s -> !Pride.fileManager.friendsConfig.isFriend(s)));
     }
 
     /**
@@ -40,10 +40,10 @@ public abstract class MixinTabCompleter {
      */
     @Inject(method = "requestCompletions", at = @At("HEAD"), cancellable = true)
     private void handleClientCommandCompletion(String prefix, CallbackInfo callbackInfo) {
-        if (LiquidBounce.commandManager.autoComplete(prefix)) {
+        if (Pride.commandManager.autoComplete(prefix)) {
             requestedCompletions = true;
 
-            String[] latestAutoComplete = LiquidBounce.commandManager.getLatestAutoComplete();
+            String[] latestAutoComplete = Pride.commandManager.getLatestAutoComplete();
 
             if (prefix.toLowerCase().endsWith(latestAutoComplete[latestAutoComplete.length - 1].toLowerCase()))
                 return;
@@ -63,7 +63,7 @@ public abstract class MixinTabCompleter {
      */
     @Inject(method = "setCompletions", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/TabCompleter;complete()V", shift = At.Shift.BEFORE), cancellable = true)
     private void onAutocompleteResponse(String[] autoCompleteResponse, CallbackInfo callbackInfo) {
-        if (LiquidBounce.commandManager.getLatestAutoComplete().length != 0) callbackInfo.cancel();
+        if (Pride.commandManager.getLatestAutoComplete().length != 0) callbackInfo.cancel();
     }
 
 }

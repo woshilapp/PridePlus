@@ -9,7 +9,7 @@ import jdk.internal.dynalink.beans.StaticClass
 import jdk.nashorn.api.scripting.JSObject
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory
 import jdk.nashorn.api.scripting.ScriptUtils
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.script.api.ScriptCommand
@@ -56,9 +56,9 @@ class Script(val scriptFile: File) : MinecraftInstance() {
         // Global instances
         scriptEngine.put("mc", mc)
 
-        scriptEngine.put("moduleManager", LiquidBounce.moduleManager)
-        scriptEngine.put("commandManager", LiquidBounce.commandManager)
-        scriptEngine.put("scriptManager", LiquidBounce.scriptManager)
+        scriptEngine.put("moduleManager", Pride.moduleManager)
+        scriptEngine.put("commandManager", Pride.commandManager)
+        scriptEngine.put("scriptManager", Pride.scriptManager)
 
         // Utils
         scriptEngine.put("MovementUtils", MovementUtils)
@@ -105,7 +105,7 @@ class Script(val scriptFile: File) : MinecraftInstance() {
     @Suppress("unused")
     fun registerModule(moduleObject: JSObject, callback: JSObject) {
         val module = ScriptModule(moduleObject)
-        LiquidBounce.moduleManager.registerModule(module)
+        Pride.moduleManager.registerModule(module)
         registeredModules += module
         callback.call(moduleObject, module)
     }
@@ -119,7 +119,7 @@ class Script(val scriptFile: File) : MinecraftInstance() {
     @Suppress("unused")
     fun registerCommand(commandObject: JSObject, callback: JSObject) {
         val command = ScriptCommand(commandObject)
-        LiquidBounce.commandManager.registerCommand(command)
+        Pride.commandManager.registerCommand(command)
         registeredCommands += command
         callback.call(commandObject, command)
     }
@@ -161,7 +161,7 @@ class Script(val scriptFile: File) : MinecraftInstance() {
     private fun supportLegacyScripts() {
         if (getMagicComment("api_version") != "2") {
             ClientUtils.getLogger().info("[ScriptAPI] Running script '${scriptFile.name}' with legacy support.")
-            val legacyScript = LiquidBounce::class.java.getResource("/assets/minecraft/liquidbounce/scriptapi/legacy.js").readText()
+            val legacyScript = Pride::class.java.getResource("/assets/minecraft/liquidbounce/scriptapi/legacy.js").readText()
             scriptEngine.eval(legacyScript)
         }
     }
@@ -192,8 +192,8 @@ class Script(val scriptFile: File) : MinecraftInstance() {
     fun onDisable() {
         if (!state) return
 
-        registeredModules.forEach { LiquidBounce.moduleManager.unregisterModule(it) }
-        registeredCommands.forEach { LiquidBounce.commandManager.unregisterCommand(it) }
+        registeredModules.forEach { Pride.moduleManager.unregisterModule(it) }
+        registeredCommands.forEach { Pride.commandManager.unregisterCommand(it) }
 
         callEvent("disable")
         state = false
@@ -204,7 +204,7 @@ class Script(val scriptFile: File) : MinecraftInstance() {
      * @param scriptFile Path to the file to be imported.
      */
     fun import(scriptFile: String) {
-        val scriptText = File(LiquidBounce.scriptManager.scriptsFolder, scriptFile).readText()
+        val scriptText = File(Pride.scriptManager.scriptsFolder, scriptFile).readText()
 
         scriptEngine.eval(scriptText)
     }

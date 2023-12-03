@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
@@ -155,14 +155,14 @@ class AntiDeadBot : Module() {
 
     private fun botchange(name: String, cooldown: Long) {
         bots++
-        LiquidBounce.fileManager.friendsConfig.addFriend(name)
+        Pride.fileManager.friendsConfig.addFriend(name)
         if (msg.get()) {
             logString(name, "add")
         }
         Thread {
             try {
                 Thread.sleep(cooldown)
-                LiquidBounce.fileManager.friendsConfig.removeFriend(name)
+                Pride.fileManager.friendsConfig.removeFriend(name)
                 bots--
                 if (msg.get()) {
                     logString(name, "remove")
@@ -178,20 +178,20 @@ class AntiDeadBot : Module() {
             when (mode.toLowerCase()) {
                 "add" -> {
                     when (logMode.get().toLowerCase()) {
-                        "old" -> "§8[§c§l${LiquidBounce.CLIENT_NAME}提醒您§8] §d添加无敌人：§7$name"
+                        "old" -> "§8[§c§l${Pride.CLIENT_NAME}提醒您§8] §d添加无敌人：§7$name"
                         "fdpclient" -> "§7[§cAntiBot§7] §fAdded §7$name§f due to it being a bot."
                         "nullclient" -> "§7[§cAntiBots§7] §fAdded a bot(§7$name§f)"
-                        "wawa" -> "§6${LiquidBounce.CLIENT_NAME} §7=» §f玩家 §7$name §f狂暴死去"
-                        else -> "§8[§c§l${LiquidBounce.CLIENT_NAME}提醒您§8] §d添加无敌人：§7$name"
+                        "wawa" -> "§6${Pride.CLIENT_NAME} §7=» §f玩家 §7$name §f狂暴死去"
+                        else -> "§8[§c§l${Pride.CLIENT_NAME}提醒您§8] §d添加无敌人：§7$name"
                     }
                 }
                 "remove" -> {
                     when (logMode.get().toLowerCase()) {
-                        "old" -> ("§8[§c§l${LiquidBounce.CLIENT_NAME}提醒您§8] §d删除无敌人：§7$name")
+                        "old" -> ("§8[§c§l${Pride.CLIENT_NAME}提醒您§8] §d删除无敌人：§7$name")
                         "fdpclient" -> ("§7[§cAntiBot§7] §fRemoved §7$name§f due to respawn.")
                         "nullclient" -> ("§7[§cAntiBots§7] §fRemoved a bot(§7$name§f)")
-                        "wawa" -> "§6${LiquidBounce.CLIENT_NAME} §7=» §f玩家 §7$name §f炸裂归来"
-                        else -> "§8[§c§l${LiquidBounce.CLIENT_NAME}提醒您§8] §d添加无敌人：§7$name"
+                        "wawa" -> "§6${Pride.CLIENT_NAME} §7=» §f玩家 §7$name §f炸裂归来"
+                        else -> "§8[§c§l${Pride.CLIENT_NAME}提醒您§8] §d添加无敌人：§7$name"
                     }
                 }
                 else -> ""
@@ -201,7 +201,7 @@ class AntiDeadBot : Module() {
 
 
     private fun clearAll() {
-        LiquidBounce.fileManager.friendsConfig.clearFriends()
+        Pride.fileManager.friendsConfig.clearFriends()
     }
 
     override val tag: String

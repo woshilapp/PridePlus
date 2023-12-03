@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
@@ -18,7 +18,6 @@ import net.ccbluex.liquidbounce.utils.misc.FallingPlayer
 import net.ccbluex.liquidbounce.utils.timer.TickTimer
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.utils.block.BlockUtils
 import net.ccbluex.liquidbounce.utils.extensions.sendUseItem
 import net.minecraft.block.BlockLiquid
 import net.minecraft.init.Blocks
@@ -56,7 +55,7 @@ class NoFall : Module() {
         if (mc.player!!.motionY > 0)
             jumped = true
 
-        if (!state || LiquidBounce.moduleManager.getModule(FreeCam::class.java)!!.state)
+        if (!state || Pride.moduleManager.getModule(FreeCam::class.java)!!.state)
             return
 
         if (collideBlock(mc.player.entityBoundingBox) { it is BlockLiquid } || collideBlock(

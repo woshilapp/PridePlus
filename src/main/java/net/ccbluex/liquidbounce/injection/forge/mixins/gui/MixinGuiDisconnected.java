@@ -11,7 +11,7 @@ import com.mojang.authlib.yggdrasil.YggdrasilUserAuthentication;
 import com.thealtening.AltService;
 import com.thealtening.api.TheAltening;
 import com.thealtening.api.data.AccountData;
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.event.SessionEvent;
 import net.ccbluex.liquidbounce.features.special.AntiForge;
 import net.ccbluex.liquidbounce.features.special.AutoReconnect;
@@ -80,11 +80,11 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
 
                         final YggdrasilUserAuthentication yggdrasilUserAuthentication = new YggdrasilUserAuthentication(new YggdrasilAuthenticationService(Proxy.NO_PROXY, ""), Agent.MINECRAFT);
                         yggdrasilUserAuthentication.setUsername(account.getToken());
-                        yggdrasilUserAuthentication.setPassword(LiquidBounce.INSTANCE.getCLIENT_NAME());
+                        yggdrasilUserAuthentication.setPassword(Pride.INSTANCE.getCLIENT_NAME());
                         yggdrasilUserAuthentication.logIn();
 
                         mc.session = new Session(yggdrasilUserAuthentication.getSelectedProfile().getName(), yggdrasilUserAuthentication.getSelectedProfile().getId().toString(), yggdrasilUserAuthentication.getAuthenticatedToken(), "mojang");
-                        LiquidBounce.eventManager.callEvent(new SessionEvent());
+                        Pride.eventManager.callEvent(new SessionEvent());
                         ServerUtils.connectToLastServer();
                         break;
                     } catch (final Throwable throwable) {
@@ -92,7 +92,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
                     }
                 }
 
-                final List<MinecraftAccount> accounts = LiquidBounce.fileManager.accountsConfig.getAccounts();
+                final List<MinecraftAccount> accounts = Pride.fileManager.accountsConfig.getAccounts();
                 if (accounts.isEmpty()) break;
 
                 final MinecraftAccount minecraftAccount = accounts.get(new Random().nextInt(accounts.size()));
@@ -106,7 +106,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
             case 5:
                 AntiForge.enabled = !AntiForge.enabled;
                 forgeBypassButton.displayString = "Bypass AntiForge: " + (AntiForge.enabled ? "On" : "Off");
-                LiquidBounce.fileManager.saveConfig(LiquidBounce.fileManager.valuesConfig);
+                Pride.fileManager.saveConfig(Pride.fileManager.valuesConfig);
                 break;
         }
     }

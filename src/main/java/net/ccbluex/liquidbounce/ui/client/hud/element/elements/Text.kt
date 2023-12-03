@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
@@ -132,9 +132,9 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
 
         return when (str) {
             "username" -> mc.session.username
-            "clientname" -> LiquidBounce.CLIENT_NAME
-            "clientversion" -> "${LiquidBounce.CLIENT_VERSION}"
-            "clientcreator" -> LiquidBounce.CLIENT_CREATOR
+            "clientname" -> Pride.CLIENT_NAME
+            "clientversion" -> "${Pride.CLIENT_VERSION}"
+            "clientcreator" -> Pride.CLIENT_CREATOR
             "fps" -> Minecraft.getDebugFPS().toString()
             "date" -> DATE_FORMAT.format(System.currentTimeMillis())
             "time" -> HOUR_FORMAT.format(System.currentTimeMillis())

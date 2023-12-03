@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.KeyEvent
 import net.ccbluex.liquidbounce.event.Listenable
@@ -20,7 +20,7 @@ class ModuleManager : Listenable {
     private val moduleClassMap = hashMapOf<Class<*>, Module>()
 
     init {
-        LiquidBounce.eventManager.registerListener(this)
+        Pride.eventManager.registerListener(this)
     }
 
     /**
@@ -44,7 +44,7 @@ class ModuleManager : Listenable {
         moduleClassMap[module.javaClass] = module
 
         generateCommand(module)
-        LiquidBounce.eventManager.registerListener(module)
+        Pride.eventManager.registerListener(module)
     }
 
     /**
@@ -67,7 +67,7 @@ class ModuleManager : Listenable {
     fun unregisterModule(module: Module) {
         modules.remove(module)
         moduleClassMap.remove(module::class.java)
-        LiquidBounce.eventManager.unregisterListener(module)
+        Pride.eventManager.unregisterListener(module)
     }
 
     /**
@@ -79,7 +79,7 @@ class ModuleManager : Listenable {
         if (values.isEmpty())
             return
 
-        LiquidBounce.commandManager.registerCommand(ModuleCommand(module, values))
+        Pride.commandManager.registerCommand(ModuleCommand(module, values))
     }
 
     /**

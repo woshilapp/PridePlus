@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
@@ -30,9 +30,9 @@ class AutoLobby : Module(){
 
     @EventTarget
     fun onUpdate(event: UpdateEvent){
-        val killAura = LiquidBounce.moduleManager[KillAura::class.java] as KillAura
-        val velocity = LiquidBounce.moduleManager[AntiKnockback::class.java] as AntiKnockback
-        val speed = LiquidBounce.moduleManager[Speed::class.java] as Speed
+        val killAura = Pride.moduleManager[KillAura::class.java] as KillAura
+        val velocity = Pride.moduleManager[AntiKnockback::class.java] as AntiKnockback
+        val speed = Pride.moduleManager[Speed::class.java] as Speed
         if (mc.player!!.health < health.get()){
             if(keepArmor.get()) {
                 for (i in 0..3) {

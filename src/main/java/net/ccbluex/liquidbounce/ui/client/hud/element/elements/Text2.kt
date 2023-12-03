@@ -2,7 +2,7 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import me.utils.render.BlurBuffer
 import me.utils.render.ShadowUtils
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.module.modules.render.HUD
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
@@ -48,7 +48,7 @@ class Text2(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
         fun defaultClient(): Text2 {
             val text = Text2(x = 2.0, y = 2.0, scale = 2F)
 
-            text.displayString.set( LiquidBounce.CLIENT_NAME + " |" + "Fps:%fps% ")
+            text.displayString.set( Pride.CLIENT_NAME + " |" + "Fps:%fps% ")
             text.shadow.set(true)
             text.fontValue.set(Fonts.font40)
             text.setColor(Color(0, 111, 255))
@@ -100,13 +100,13 @@ class Text2(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
     private var prevClick = 0L
 
     private var speedStr = ""
-    private var displayText: String = LiquidBounce.CLIENT_NAME
-    val hud = LiquidBounce.moduleManager[HUD::class.java] as HUD
+    private var displayText: String = Pride.CLIENT_NAME
+    val hud = Pride.moduleManager[HUD::class.java] as HUD
     //val username: String = mc.player!!.name
     private val display: String
         get() {
             val textContent = if (displayString.get().isEmpty() && !editMode)
-                LiquidBounce.CLIENT_NAME + " | Dev: WaWa"
+                Pride.CLIENT_NAME + " | Dev: WaWa"
             else
                 displayString.get()
 
@@ -143,9 +143,9 @@ class Text2(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
         }
 
         return when (str) {
-            "clientname" -> LiquidBounce.CLIENT_NAME
-            "clientversion" -> "b${LiquidBounce.CLIENT_VERSION}"
-            "clientcreator" -> LiquidBounce.CLIENT_CREATOR
+            "clientname" -> Pride.CLIENT_NAME
+            "clientversion" -> "b${Pride.CLIENT_VERSION}"
+            "clientcreator" -> Pride.CLIENT_CREATOR
             "fps" -> Minecraft.getDebugFPS().toString()
             "date" -> DATE_FORMAT.format(System.currentTimeMillis())
             "time" -> HOUR_FORMAT.format(System.currentTimeMillis())
@@ -154,9 +154,9 @@ class Text2(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
             "mcps" -> return CPSCounter.getCPS(CPSCounter.MouseButton.MIDDLE).toString()
             "rcps" -> return CPSCounter.getCPS(CPSCounter.MouseButton.RIGHT).toString()
             "userName" -> mc.session.username
-            "clientName" -> LiquidBounce.CLIENT_NAME
-            "clientVersion" -> LiquidBounce.CLIENT_VERSION
-            "clientCreator" -> LiquidBounce.CLIENT_CREATOR
+            "clientName" -> Pride.CLIENT_NAME
+            "clientVersion" -> Pride.CLIENT_VERSION
+            "clientCreator" -> Pride.CLIENT_CREATOR
             "fps" -> Minecraft.getDebugFPS().toString()
             "date" -> DATE_FORMAT.format(System.currentTimeMillis())
             "time" -> HOUR_FORMAT.format(System.currentTimeMillis())

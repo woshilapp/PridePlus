@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.client;
 
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.features.module.modules.movement.InventoryMove;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.settings.IKeyConflictContext;
@@ -22,7 +22,7 @@ public abstract class MixinKeyBinding {
      */
     @Overwrite
     public boolean isKeyDown() {
-        InventoryMove inventoryMove = (InventoryMove) LiquidBounce.moduleManager.get(InventoryMove.class);
+        InventoryMove inventoryMove = (InventoryMove) Pride.moduleManager.get(InventoryMove.class);
         boolean InvMove = inventoryMove.getState() ? this.pressed : this.pressed && this.getKeyConflictContext().isActive() && this.getKeyModifier().isActive(this.getKeyConflictContext());
         return InvMove;
     }

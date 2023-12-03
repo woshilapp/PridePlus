@@ -1,26 +1,17 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-import me.utils.render.ShadowUtils
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.FloatValue
-import net.ccbluex.liquidbounce.features.value.FontValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.cnfont.FontLoaders
-import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.renderer.GlStateManager
-import org.lwjgl.input.Keyboard
-import org.lwjgl.opengl.GL11
 import java.awt.Color
-import java.text.DecimalFormat
-import java.text.DecimalFormatSymbols
-import java.util.*
 
 
 @ElementInfo(name = "KeyBinds")
@@ -62,7 +53,7 @@ class KeyBinds(x: Double = 85.11, y: Double = 21.11, scale: Float = 1F,
 
         FontLoaders.F16.drawStringWithShadow("按键显示", 7.0,
             (this.GameInfoRows * 18 + 16).toDouble(),Color(255,255,255,255).rgb)
-        for (m : Module in LiquidBounce.moduleManager.modules){
+        for (m : Module in Pride.moduleManager.modules){
             if (m.keyBind == 0) continue
             if (onlyState.get()) {
                 if (!m.state) continue

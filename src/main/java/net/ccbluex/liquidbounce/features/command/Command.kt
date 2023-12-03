@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.command
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 
@@ -30,27 +30,27 @@ abstract class Command(val command: String, vararg val alias: String) : Minecraf
     /**
      * Print [msg] to chat
      */
-    protected fun chat(msg: String) = ClientUtils.displayChatMessage("§8[§9§l${LiquidBounce.CLIENT_NAME}§8] §3$msg")
+    protected fun chat(msg: String) = ClientUtils.displayChatMessage("§8[§9§l${Pride.CLIENT_NAME}§8] §3$msg")
 
     /**
      * Print [syntax] of command to chat
      */
-    protected fun chatSyntax(syntax: String) = ClientUtils.displayChatMessage("§8[§9§l${LiquidBounce.CLIENT_NAME}§8] §3Syntax: §7${LiquidBounce.commandManager.prefix}$syntax")
+    protected fun chatSyntax(syntax: String) = ClientUtils.displayChatMessage("§8[§9§l${Pride.CLIENT_NAME}§8] §3Syntax: §7${Pride.commandManager.prefix}$syntax")
 
     /**
      * Print [syntaxes] of command to chat
      */
     protected fun chatSyntax(syntaxes: Array<String>) {
-        ClientUtils.displayChatMessage("§8[§9§l${LiquidBounce.CLIENT_NAME}§8] §3Syntax:")
+        ClientUtils.displayChatMessage("§8[§9§l${Pride.CLIENT_NAME}§8] §3Syntax:")
 
         for (syntax in syntaxes)
-            ClientUtils.displayChatMessage("§8> §7${LiquidBounce.commandManager.prefix}$command ${syntax.toLowerCase()}")
+            ClientUtils.displayChatMessage("§8> §7${Pride.commandManager.prefix}$command ${syntax.toLowerCase()}")
     }
 
     /**
      * Print a syntax error to chat
      */
-    protected fun chatSyntaxError() = ClientUtils.displayChatMessage("§8[§9§l${LiquidBounce.CLIENT_NAME}§8] §3Syntax error")
+    protected fun chatSyntaxError() = ClientUtils.displayChatMessage("§8[§9§l${Pride.CLIENT_NAME}§8] §3Syntax error")
 
     /**
      * Play edit sound

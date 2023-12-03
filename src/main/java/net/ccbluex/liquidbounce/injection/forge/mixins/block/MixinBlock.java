@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.block;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.event.BlockBBEvent;
 import net.ccbluex.liquidbounce.features.module.modules.combat.Criticals;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.GhostHand;
@@ -59,7 +59,7 @@ public abstract class MixinBlock {
 
             if (world != null) {
                 BlockBBEvent blockBBEvent = new BlockBBEvent(pos, world.getBlockState(pos).getBlock(), axisalignedbb);
-                LiquidBounce.eventManager.callEvent(blockBBEvent);
+                Pride.eventManager.callEvent(blockBBEvent);
 
                 axisalignedbb = blockBBEvent.getBoundingBox() == null ? null : blockBBEvent.getBoundingBox();
             }
@@ -81,7 +81,7 @@ public abstract class MixinBlock {
 
     @Inject(method = "shouldSideBeRendered", at = @At("HEAD"), cancellable = true)
     private void shouldSideBeRendered(CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
-        final XRay xray = (XRay) LiquidBounce.moduleManager.getModule(XRay.class);
+        final XRay xray = (XRay) Pride.moduleManager.getModule(XRay.class);
 
         if (Objects.requireNonNull(xray).getState())
             //noinspection SuspiciousMethodCalls
@@ -90,7 +90,7 @@ public abstract class MixinBlock {
 
     @Inject(method = "isCollidable", at = @At("HEAD"), cancellable = true)
     private void isCollidable(CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
-        final GhostHand ghostHand = (GhostHand) LiquidBounce.moduleManager.getModule(GhostHand.class);
+        final GhostHand ghostHand = (GhostHand) Pride.moduleManager.getModule(GhostHand.class);
 
         if (Objects.requireNonNull(ghostHand).getState() && !(ghostHand.getBlockValue().get() == Block.getIdFromBlock((Block) (Object) this)))
             callbackInfoReturnable.setReturnValue(false);
@@ -98,7 +98,7 @@ public abstract class MixinBlock {
 
     @Inject(method = "getAmbientOcclusionLightValue", at = @At("HEAD"), cancellable = true)
     private void getAmbientOcclusionLightValue(final CallbackInfoReturnable<Float> floatCallbackInfoReturnable) {
-        if (Objects.requireNonNull(LiquidBounce.moduleManager.getModule(XRay.class)).getState())
+        if (Objects.requireNonNull(Pride.moduleManager.getModule(XRay.class)).getState())
             floatCallbackInfoReturnable.setReturnValue(1F);
     }
 
@@ -107,7 +107,7 @@ public abstract class MixinBlock {
         float f = callbackInfo.getReturnValue();
 
         // NoSlowBreak
-        final NoSlowBreak noSlowBreak = (NoSlowBreak) LiquidBounce.moduleManager.getModule(NoSlowBreak.class);
+        final NoSlowBreak noSlowBreak = (NoSlowBreak) Pride.moduleManager.getModule(NoSlowBreak.class);
         if (Objects.requireNonNull(noSlowBreak).getState()) {
             if (noSlowBreak.getWaterValue().get() && playerIn.isInsideOfMaterial(Material.WATER) &&
                     !EnchantmentHelper.getAquaAffinityModifier(playerIn)) {
@@ -118,8 +118,8 @@ public abstract class MixinBlock {
                 f *= 5.0F;
             }
         } else if (playerIn.onGround) { // NoGround
-            final NoFall noFall = (NoFall) LiquidBounce.moduleManager.getModule(NoFall.class);
-            final Criticals criticals = (Criticals) LiquidBounce.moduleManager.getModule(Criticals.class);
+            final NoFall noFall = (NoFall) Pride.moduleManager.getModule(NoFall.class);
+            final Criticals criticals = (Criticals) Pride.moduleManager.getModule(Criticals.class);
 
             if (Objects.requireNonNull(noFall).getState() && noFall.modeValue.get().equalsIgnoreCase("NoGround") ||
                     Objects.requireNonNull(criticals).getState() && criticals.getModeValue().get().equalsIgnoreCase("NoGround")) {

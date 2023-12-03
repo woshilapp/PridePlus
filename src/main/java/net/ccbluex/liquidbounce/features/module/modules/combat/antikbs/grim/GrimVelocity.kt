@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.antikbs.grim
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.TickEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.AntiKnockback
@@ -33,7 +33,7 @@ class GrimVelocity : AntiKBMode("GrimAC") {
 
         val systemTime = Minecraft.getSystemTime()
 
-        if ((LiquidBounce.moduleManager[AntiKnockback::class.java] as AntiKnockback).sendC03Value.get()) {
+        if ((Pride.moduleManager[AntiKnockback::class.java] as AntiKnockback).sendC03Value.get()) {
             connection.sendPacket(CPacketPlayer(mc.player.onGround))
             mc.timer.lastSyncSysClock = if (mc.player.onGround)
                 mc.timer.lastSyncSysClock + 50L
@@ -44,11 +44,11 @@ class GrimVelocity : AntiKBMode("GrimAC") {
         val pos = BlockPos(mc.player.posX, mc.player.posY + 1.0, mc.player.posZ)
         connection.sendPacket(CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, pos, EnumFacing.DOWN))
 
-        if ((LiquidBounce.moduleManager[AntiKnockback::class.java] as AntiKnockback).c0fTestValue.get()){
+        if ((Pride.moduleManager[AntiKnockback::class.java] as AntiKnockback).c0fTestValue.get()){
             connection.sendPacket(CPacketConfirmTransaction())
         }
 
-        if ((LiquidBounce.moduleManager[AntiKnockback::class.java] as AntiKnockback).breakValue.get()) {
+        if ((Pride.moduleManager[AntiKnockback::class.java] as AntiKnockback).breakValue.get()) {
             mc.world.setBlockToAir(pos)
         }
 

@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.ui.client.clickgui;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.module.ModuleCategory;
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI;
@@ -52,7 +52,7 @@ public class ClickGui extends GuiScreen {
 
                 @Override
                 public void setupItems() {
-                    for (Module module : LiquidBounce.moduleManager.getModules())
+                    for (Module module : Pride.moduleManager.getModules())
                         if (module.getCategory() == category)
                             getElements().add(new ModuleElement(module));
                 }
@@ -209,7 +209,7 @@ public class ClickGui extends GuiScreen {
         if (progress < 1) progress += 0.1 * (1 - partialTicks);
         else progress = 1;
 
-        switch (((ClickGUI) Objects.requireNonNull(LiquidBounce.moduleManager.getModule(ClickGUI.class))).animationValue.get().toLowerCase()) {
+        switch (((ClickGUI) Objects.requireNonNull(Pride.moduleManager.getModule(ClickGUI.class))).animationValue.get().toLowerCase()) {
             case "slidebounce":
             case "zoombounce":
                 slide = EaseUtils.easeOutBack(progress);
@@ -230,7 +230,7 @@ public class ClickGui extends GuiScreen {
         // Enable DisplayList optimization
         AWTFontRenderer.Companion.setAssumeNonVolatile(true);
 
-        final double scale = ((ClickGUI) Objects.requireNonNull(LiquidBounce.moduleManager.getModule(ClickGUI.class))).scaleValue.get();
+        final double scale = ((ClickGUI) Objects.requireNonNull(Pride.moduleManager.getModule(ClickGUI.class))).scaleValue.get();
         GlStateManager.translate(0, scroll, 0);
         mouseY-=scroll;
 
@@ -240,7 +240,7 @@ public class ClickGui extends GuiScreen {
         this.mouseX = mouseX;
         this.mouseY = mouseY;
 
-        switch (((ClickGUI) Objects.requireNonNull(LiquidBounce.moduleManager.getModule(ClickGUI.class))).backgroundValue.get()) {
+        switch (((ClickGUI) Objects.requireNonNull(Pride.moduleManager.getModule(ClickGUI.class))).backgroundValue.get()) {
             case "Default":
                 drawDefaultBackground();
                 ScaledResolution sr = new ScaledResolution(Minecraft.getMinecraft());
@@ -253,7 +253,7 @@ public class ClickGui extends GuiScreen {
         RenderUtils.drawImage(hudIcon, 9, height - 41, 32, 32);
         GlStateManager.enableAlpha();
 
-        switch (((ClickGUI) Objects.requireNonNull(LiquidBounce.moduleManager.getModule(ClickGUI.class))).animationValue.get().toLowerCase()) {
+        switch (((ClickGUI) Objects.requireNonNull(Pride.moduleManager.getModule(ClickGUI.class))).animationValue.get().toLowerCase()) {
             case "azura":
                 GlStateManager.translate(0, (1.0 - slide) * height * 2.0, 0);
                 GlStateManager.scale(scale, scale + (1.0 - slide) * 2.0, scale);
@@ -312,7 +312,7 @@ public class ClickGui extends GuiScreen {
                 }
             }
         }
-        switch (((ClickGUI) Objects.requireNonNull(LiquidBounce.moduleManager.getModule(ClickGUI.class))).animationValue.get().toLowerCase()) {
+        switch (((ClickGUI) Objects.requireNonNull(Pride.moduleManager.getModule(ClickGUI.class))).animationValue.get().toLowerCase()) {
             case "azura":
                 GlStateManager.translate(0, (1.0 - slide) * height * -2.0, 0);
                 break;
@@ -337,7 +337,7 @@ public class ClickGui extends GuiScreen {
 
     @Override
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-        final double scale = ((ClickGUI) Objects.requireNonNull(LiquidBounce.moduleManager.getModule(ClickGUI.class))).scaleValue.get();
+        final double scale = ((ClickGUI) Objects.requireNonNull(Pride.moduleManager.getModule(ClickGUI.class))).scaleValue.get();
         mouseY-=scroll;
         mouseX /= scale;
         mouseY /= scale;
@@ -366,7 +366,7 @@ public class ClickGui extends GuiScreen {
 
     @Override
     public void mouseReleased(int mouseX, int mouseY, int state) {
-        final double scale = ((ClickGUI) Objects.requireNonNull(LiquidBounce.moduleManager.getModule(ClickGUI.class))).scaleValue.get();
+        final double scale = ((ClickGUI) Objects.requireNonNull(Pride.moduleManager.getModule(ClickGUI.class))).scaleValue.get();
         mouseY-=scroll;
         mouseX /= scale;
         mouseY /= scale;
@@ -410,7 +410,7 @@ public class ClickGui extends GuiScreen {
 
     @Override
     public void onGuiClosed() {
-        LiquidBounce.fileManager.saveConfig(LiquidBounce.fileManager.clickGuiConfig);
+        Pride.fileManager.saveConfig(Pride.fileManager.clickGuiConfig);
     }
 
     @Override

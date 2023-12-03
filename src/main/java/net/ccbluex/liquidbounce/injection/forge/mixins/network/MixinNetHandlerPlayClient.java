@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.network;
 
 import io.netty.buffer.Unpooled;
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.event.EntityMovementEvent;
 import net.ccbluex.liquidbounce.features.special.AntiForge;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
@@ -96,6 +96,6 @@ public abstract class MixinNetHandlerPlayClient {
         final Entity entity = packetIn.getEntity(this.clientWorldController);
 
         if (entity != null)
-            LiquidBounce.eventManager.callEvent(new EntityMovementEvent(entity));
+            Pride.eventManager.callEvent(new EntityMovementEvent(entity));
     }
 }

@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.utils;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.event.EventTarget;
 import net.ccbluex.liquidbounce.event.Listenable;
 import net.ccbluex.liquidbounce.event.PacketEvent;
@@ -140,7 +140,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         final double posZ = target.posZ + (predict ? (target.posZ - target.prevPosZ) * predictSize : 0) - (player.posZ + (predict ? (player.posZ - player.prevPosZ) : 0));
         final double posSqrt = Math.sqrt(posX * posX + posZ * posZ);
 
-        float velocity = LiquidBounce.moduleManager.getModule(FastBow.class).getState() ? 1F : player.getItemInUseCount() / 20F;
+        float velocity = Pride.moduleManager.getModule(FastBow.class).getState() ? 1F : player.getItemInUseCount() / 20F;
         velocity = (velocity * velocity + velocity * 2) / 3;
 
         if (velocity > 1) velocity = 1;

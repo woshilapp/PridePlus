@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
@@ -67,7 +67,7 @@ object Fucker : Module() {
         val player = mc.player ?: return
 
         if (noHitValue.get()) {
-            val killAura = LiquidBounce.moduleManager.getModule(KillAura::class.java) as KillAura
+            val killAura = Pride.moduleManager.getModule(KillAura::class.java) as KillAura
 
             if (killAura.state && killAura.target != null)
                 return
@@ -131,7 +131,7 @@ object Fucker : Module() {
             // Destory block
             actionValue.get().equals("destroy", true) || surroundings -> {
                 // Auto Tool
-                val autoTool = LiquidBounce.moduleManager[AutoTool::class.java] as AutoTool
+                val autoTool = Pride.moduleManager[AutoTool::class.java] as AutoTool
                 if (autoTool.state)
                     autoTool.switchSlot(currentPos)
 

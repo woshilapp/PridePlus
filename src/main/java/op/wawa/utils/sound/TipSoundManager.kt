@@ -2,7 +2,7 @@
 package op.wawa.utils.sound
 
 import me.utils.FileUtils
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import java.io.File
 
 class TipSoundManager {
@@ -10,8 +10,8 @@ class TipSoundManager {
     var disableSound : TipSoundPlayer
 
     init {
-        val enableSoundFile = File(LiquidBounce.fileManager.soundsDir,"enable.wav")
-        val disableSoundFile = File(LiquidBounce.fileManager.soundsDir,"disable.wav")
+        val enableSoundFile = File(Pride.fileManager.soundsDir,"enable.wav")
+        val disableSoundFile = File(Pride.fileManager.soundsDir,"disable.wav")
 
         if(!enableSoundFile.exists())
             FileUtils.unpackFile(enableSoundFile,"assets/minecraft/pride/sound/enable.wav")

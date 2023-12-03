@@ -10,7 +10,7 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 import op.wawa.utils.render.BlurUtils
 import me.utils.render.ShadowUtils
 import me.utils.render.VisualUtils
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
@@ -626,13 +626,13 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
     }
 
     override fun updateElement() {
-        modules = if (abcOrder.get()) LiquidBounce.moduleManager.modules
+        modules = if (abcOrder.get()) Pride.moduleManager.modules
             .filter { it.array && (if (hAnimation.get().equals("none", ignoreCase = true)) it.state else it.slide > 0) }
-        else LiquidBounce.moduleManager.modules
+        else Pride.moduleManager.modules
             .filter { it.array && (if (hAnimation.get().equals("none", ignoreCase = true)) it.state else it.slide > 0) }
             .sortedBy { -fontValue.get().getStringWidth(getModName(it)) }
-        sortedModules = if (abcOrder.get()) LiquidBounce.moduleManager.modules.toList()
-        else LiquidBounce.moduleManager.modules.sortedBy { -fontValue.get().getStringWidth(getModName(it)) }.toList()
+        sortedModules = if (abcOrder.get()) Pride.moduleManager.modules.toList()
+        else Pride.moduleManager.modules.sortedBy { -fontValue.get().getStringWidth(getModName(it)) }.toList()
     }
 
     private fun getModTag(m: Module): String {

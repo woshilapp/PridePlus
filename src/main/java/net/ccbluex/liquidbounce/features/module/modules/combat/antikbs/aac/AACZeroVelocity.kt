@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.antikbs.aac
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.JumpEvent
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
@@ -32,7 +32,7 @@ class AACZeroVelocity : AntiKBMode("AACZero") {
             return
         }
 
-        if ((velocity.OnlyGround.get() && !mc.player.onGround) || (velocity.onlyCombatValue.get() && !LiquidBounce.combatManager.inCombat)) {
+        if ((velocity.OnlyGround.get() && !mc.player.onGround) || (velocity.onlyCombatValue.get() && !Pride.combatManager.inCombat)) {
             return
         }
 

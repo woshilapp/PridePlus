@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.features.value
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.minecraft.client.gui.FontRenderer
@@ -39,7 +39,7 @@ abstract class Value<T>(val name: String, var value: T) {
             onChange(oldValue, newValue)
             changeValue(newValue)
             onChanged(oldValue, newValue)
-            LiquidBounce.fileManager.saveConfig(LiquidBounce.fileManager.valuesConfig)
+            Pride.fileManager.saveConfig(Pride.fileManager.valuesConfig)
         } catch (e: Exception) {
             ClientUtils.getLogger().error("[ValueSystem ($name)]: ${e.javaClass.name} (${e.message}) [$oldValue >> $newValue]")
         }

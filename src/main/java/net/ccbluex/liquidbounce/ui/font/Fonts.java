@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.ui.font;
 
 import com.google.gson.*;
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.ccbluex.liquidbounce.utils.MinecraftInstance;
 import net.minecraft.client.Minecraft;
@@ -141,7 +141,7 @@ public class Fonts extends MinecraftInstance {
         try {
             CUSTOM_FONT_RENDERERS.clear();
 
-            final File fontsFile = new File(LiquidBounce.fileManager.fontsDir, "fonts.json");
+            final File fontsFile = new File(Pride.fileManager.fontsDir, "fonts.json");
 
             if (fontsFile.exists()) {
                 final JsonElement jsonElement = new JsonParser().parse(new BufferedReader(new FileReader(fontsFile)));

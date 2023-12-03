@@ -5,13 +5,12 @@
  */
 package net.ccbluex.liquidbounce.features.module
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
 import net.ccbluex.liquidbounce.utils.render.Translate
 import net.ccbluex.liquidbounce.features.value.Value
 import org.lwjgl.input.Keyboard
@@ -28,15 +27,15 @@ open class Module : MinecraftInstance(), Listenable {
         set(keyBind) {
             field = keyBind
 
-            if (!LiquidBounce.isStarting)
-                LiquidBounce.fileManager.saveConfig(LiquidBounce.fileManager.modulesConfig)
+            if (!Pride.isStarting)
+                Pride.fileManager.saveConfig(Pride.fileManager.modulesConfig)
         }
     var array = true
         set(array) {
             field = array
 
-            if (!LiquidBounce.isStarting)
-                LiquidBounce.fileManager.saveConfig(LiquidBounce.fileManager.modulesConfig)
+            if (!Pride.isStarting)
+                Pride.fileManager.saveConfig(Pride.fileManager.modulesConfig)
         }
     private val canEnable: Boolean
 
@@ -63,15 +62,15 @@ open class Module : MinecraftInstance(), Listenable {
             onToggle(value)
 
             // Play sound and add notification
-            if (!LiquidBounce.isStarting) {
+            if (!Pride.isStarting) {
                 //mc.soundHandler.playSound("random.click", 1F)
-                LiquidBounce.hud.addNotification(Notification("Module","${if (value) "Enabled " else "Disabled "}$name", if(value) NotifyType.SUCCESS else NotifyType.ERROR))
+                Pride.hud.addNotification(Notification("Module","${if (value) "Enabled " else "Disabled "}$name", if(value) NotifyType.SUCCESS else NotifyType.ERROR))
             }
 
             // Call on enabled or disabled
             if (value) {
                 // Enable Sound
-                LiquidBounce.tipSoundManager.enableSound.asyncPlay()
+                Pride.tipSoundManager.enableSound.asyncPlay()
 
                 onEnable()
 
@@ -79,14 +78,14 @@ open class Module : MinecraftInstance(), Listenable {
                     field = true
             } else {
                 // Disable Sound
-                LiquidBounce.tipSoundManager.disableSound.asyncPlay()
+                Pride.tipSoundManager.disableSound.asyncPlay()
 
                 onDisable()
                 field = false
             }
 
             // Save module state
-            LiquidBounce.fileManager.saveConfig(LiquidBounce.fileManager.modulesConfig)
+            Pride.fileManager.saveConfig(Pride.fileManager.modulesConfig)
         }
 
 

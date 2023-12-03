@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.cape.CapeInfo;
 import net.ccbluex.liquidbounce.features.module.modules.misc.NameProtect;
 import net.ccbluex.liquidbounce.features.module.modules.render.Cape;
@@ -32,7 +32,7 @@ public abstract class MixinAbstractClientPlayer extends MixinEntityPlayer {
 
     @Inject(method = "getLocationCape", at = @At("HEAD"), cancellable = true)
     private void getCape(CallbackInfoReturnable<ResourceLocation> callbackInfoReturnable) {
-        final Cape capeMod = (Cape) LiquidBounce.moduleManager.getModule(Cape.class);
+        final Cape capeMod = (Cape) Pride.moduleManager.getModule(Cape.class);
         if (capeMod.getState() && Objects.equals(getGameProfile().getName(), Minecraft.getMinecraft().player.getGameProfile().getName())) {
             callbackInfoReturnable.setReturnValue(capeMod.getCapeLocation(capeMod.getStyleValue().get()));
         }
@@ -40,7 +40,7 @@ public abstract class MixinAbstractClientPlayer extends MixinEntityPlayer {
 
     @Inject(method = "getFovModifier", at = @At("HEAD"), cancellable = true)
     private void getFovModifier(CallbackInfoReturnable<Float> callbackInfoReturnable) {
-        final NoFOV fovModule = (NoFOV) LiquidBounce.moduleManager.getModule(NoFOV.class);
+        final NoFOV fovModule = (NoFOV) Pride.moduleManager.getModule(NoFOV.class);
 
         if (Objects.requireNonNull(fovModule).getState()) {
             float newFOV = fovModule.getFovValue().get();
@@ -65,7 +65,7 @@ public abstract class MixinAbstractClientPlayer extends MixinEntityPlayer {
 
     @Inject(method = "getLocationSkin()Lnet/minecraft/util/ResourceLocation;", at = @At("HEAD"), cancellable = true)
     private void getSkin(CallbackInfoReturnable<ResourceLocation> callbackInfoReturnable) {
-        final NameProtect nameProtect = (NameProtect) LiquidBounce.moduleManager.getModule(NameProtect.class);
+        final NameProtect nameProtect = (NameProtect) Pride.moduleManager.getModule(NameProtect.class);
 
         if (Objects.requireNonNull(nameProtect).getState() && nameProtect.skinProtectValue.get()) {
             if (!nameProtect.allPlayersValue.get() && !Objects.equals(getGameProfile().getName(), Minecraft.getMinecraft().player.getGameProfile().getName()))

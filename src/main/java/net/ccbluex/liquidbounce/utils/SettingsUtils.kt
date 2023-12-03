@@ -6,7 +6,7 @@
 
 package net.ccbluex.liquidbounce.utils
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.modules.misc.NameProtect
 import net.ccbluex.liquidbounce.features.module.modules.misc.Spammer
@@ -44,7 +44,7 @@ object SettingsUtils {
                     val url = if (urlRaw.startsWith("http"))
                         urlRaw
                     else
-                        "${LiquidBounce.CLIENT_CLOUD}/settings/${urlRaw.toLowerCase()}"
+                        "${Pride.CLIENT_CLOUD}/settings/${urlRaw.toLowerCase()}"
 
                     try {
                         ClientUtils.displayChatMessage("§7[§3§lAutoSettings§7] §7Loading settings from §a§l$url§7...")
@@ -89,7 +89,7 @@ object SettingsUtils {
                     val moduleName = args[0]
                     val valueName = args[1]
                     val value = args[2]
-                    val module = LiquidBounce.moduleManager.getModule(moduleName)
+                    val module = Pride.moduleManager.getModule(moduleName)
 
                     if (module == null) {
                         ClientUtils.displayChatMessage("§7[§3§lAutoSettings§7] §cModule §a§l$moduleName§c was not found!")
@@ -131,7 +131,7 @@ object SettingsUtils {
             }
         }
 
-        LiquidBounce.fileManager.saveConfig(LiquidBounce.fileManager.valuesConfig)
+        Pride.fileManager.saveConfig(Pride.fileManager.valuesConfig)
     }
 
     /**
@@ -140,7 +140,7 @@ object SettingsUtils {
     fun generateScript(values: Boolean, binds: Boolean, states: Boolean): String {
         val stringBuilder = StringBuilder()
 
-        LiquidBounce.moduleManager.modules.filter {
+        Pride.moduleManager.modules.filter {
             it.category != ModuleCategory.RENDER && it !is NameProtect && it !is Spammer
         }.forEach {
             if (values)

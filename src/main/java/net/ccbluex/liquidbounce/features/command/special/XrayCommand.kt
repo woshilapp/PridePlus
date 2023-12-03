@@ -1,13 +1,13 @@
 package net.ccbluex.liquidbounce.features.command.special
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.module.modules.render.XRay
 import net.minecraft.block.Block
 
 class XrayCommand : Command("xray") {
 
-    val xRay = LiquidBounce.moduleManager.getModule(XRay::class.java) as XRay
+    val xRay = Pride.moduleManager.getModule(XRay::class.java) as XRay
 
     /**
      * Execute commands with provided [args]
@@ -36,7 +36,7 @@ class XrayCommand : Command("xray") {
                         }
 
                         xRay.xrayBlocks.add(block)
-                        LiquidBounce.fileManager.saveConfig(LiquidBounce.fileManager.xrayConfig)
+                        Pride.fileManager.saveConfig(Pride.fileManager.xrayConfig)
                         chat("§7Added block §8${block.localizedName}§7.")
                         playEdit()
                     } catch (exception: NumberFormatException) {
@@ -72,7 +72,7 @@ class XrayCommand : Command("xray") {
                         }
 
                         xRay.xrayBlocks.remove(block)
-                        LiquidBounce.fileManager.saveConfig(LiquidBounce.fileManager.xrayConfig)
+                        Pride.fileManager.saveConfig(Pride.fileManager.xrayConfig)
                         chat("§7Removed block §8${block.localizedName}§7.")
                         playEdit()
                     } catch (exception: NumberFormatException) {

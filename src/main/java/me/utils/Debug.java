@@ -1,14 +1,10 @@
 package me.utils;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.features.module.modules.render.Animations;
 import net.ccbluex.liquidbounce.utils.MinecraftInstance;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
-import org.lwjgl.opengl.GL11;
-
-import java.util.Objects;
 
 public class Debug extends MinecraftInstance {
 

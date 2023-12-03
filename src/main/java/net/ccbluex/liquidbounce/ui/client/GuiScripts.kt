@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.ui.client
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.ClientUtils
@@ -59,10 +59,10 @@ class GuiScripts(private val prevGui: GuiScreen) : GuiScreen() {
                 val fileName = file.name
 
                 if (fileName.endsWith(".js")) {
-                    LiquidBounce.scriptManager.importScript(file)
+                    Pride.scriptManager.importScript(file)
 
-                    LiquidBounce.clickGui = ClickGui()
-                    LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.clickGuiConfig)
+                    Pride.clickGui = ClickGui()
+                    Pride.fileManager.loadConfig(Pride.fileManager.clickGuiConfig)
                     return
                 } else if (fileName.endsWith(".zip")) {
                     val zipFile = ZipFile(file)
@@ -72,7 +72,7 @@ class GuiScripts(private val prevGui: GuiScreen) : GuiScreen() {
                     while (entries.hasMoreElements()) {
                         val entry = entries.nextElement()
                         val entryName = entry.name
-                        val entryFile = File(LiquidBounce.scriptManager.scriptsFolder, entryName)
+                        val entryFile = File(Pride.scriptManager.scriptsFolder, entryName)
 
                         if (entry.isDirectory) {
                             entryFile.mkdir()
@@ -90,11 +90,11 @@ class GuiScripts(private val prevGui: GuiScreen) : GuiScreen() {
                             scriptFiles.add(entryFile)
                     }
 
-                    scriptFiles.forEach { scriptFile -> LiquidBounce.scriptManager.loadScript(scriptFile) }
+                    scriptFiles.forEach { scriptFile -> Pride.scriptManager.loadScript(scriptFile) }
 
-                    LiquidBounce.clickGui = ClickGui()
-                    LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.clickGuiConfig)
-                    LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.hudConfig)
+                    Pride.clickGui = ClickGui()
+                    Pride.fileManager.loadConfig(Pride.fileManager.clickGuiConfig)
+                    Pride.fileManager.loadConfig(Pride.fileManager.hudConfig)
                     return
                 }
 
@@ -106,26 +106,26 @@ class GuiScripts(private val prevGui: GuiScreen) : GuiScreen() {
 
             2 -> try {
                 if (list.getSelectedSlot() != -1) {
-                    val script = LiquidBounce.scriptManager.scripts[list.getSelectedSlot()]
+                    val script = Pride.scriptManager.scripts[list.getSelectedSlot()]
 
-                    LiquidBounce.scriptManager.deleteScript(script)
+                    Pride.scriptManager.deleteScript(script)
 
-                    LiquidBounce.clickGui = ClickGui()
-                    LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.clickGuiConfig)
-                    LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.hudConfig)
+                    Pride.clickGui = ClickGui()
+                    Pride.fileManager.loadConfig(Pride.fileManager.clickGuiConfig)
+                    Pride.fileManager.loadConfig(Pride.fileManager.hudConfig)
                 }
             } catch (t: Throwable) {
                 ClientUtils.getLogger().error("Something went wrong while deleting a script.", t)
                 MiscUtils.showErrorPopup(t.javaClass.name, t.message)
             }
             3 -> try {
-                LiquidBounce.scriptManager.reloadScripts()
+                Pride.scriptManager.reloadScripts()
             } catch (t: Throwable) {
                 ClientUtils.getLogger().error("Something went wrong while reloading all scripts.", t)
                 MiscUtils.showErrorPopup(t.javaClass.name, t.message)
             }
             4 -> try {
-                Desktop.getDesktop().open(LiquidBounce.scriptManager.scriptsFolder)
+                Desktop.getDesktop().open(Pride.scriptManager.scriptsFolder)
             } catch (t: Throwable) {
                 ClientUtils.getLogger().error("Something went wrong while trying to open your scripts folder.", t)
                 MiscUtils.showErrorPopup(t.javaClass.name, t.message)
@@ -161,16 +161,16 @@ class GuiScripts(private val prevGui: GuiScreen) : GuiScreen() {
 
         override fun isSelected(id: Int) = selectedSlot == id
 
-        internal fun getSelectedSlot() = if (selectedSlot > LiquidBounce.scriptManager.scripts.size) -1 else selectedSlot
+        internal fun getSelectedSlot() = if (selectedSlot > Pride.scriptManager.scripts.size) -1 else selectedSlot
 
-        override fun getSize() = LiquidBounce.scriptManager.scripts.size
+        override fun getSize() = Pride.scriptManager.scripts.size
 
         public override fun elementClicked(id: Int, doubleClick: Boolean, var3: Int, var4: Int) {
             selectedSlot = id
         }
 
         override fun drawSlot(id: Int, x: Int, y: Int, var4: Int, var5: Int, var6: Int, f: Float) {
-            val script = LiquidBounce.scriptManager.scripts[id]
+            val script = Pride.scriptManager.scripts[id]
             Fonts.font40.drawCenteredString("§9" + script.scriptName + " §7v" + script.scriptVersion, width / 2.0f, y + 2.0f, Color.LIGHT_GRAY.rgb)
             Fonts.font40.drawCenteredString("by §c" + script.scriptAuthors.joinToString(", "), width / 2.0f, y + 15.0f, Color.LIGHT_GRAY.rgb)
         }

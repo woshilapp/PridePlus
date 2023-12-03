@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.antikbs
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.AntiKnockback
 import net.ccbluex.liquidbounce.features.value.Value
@@ -11,7 +11,7 @@ abstract class AntiKBMode(val modeName: String) : MinecraftInstance() {
     protected val valuePrefix = "$modeName-"
 
     protected val velocity: AntiKnockback
-        get() = LiquidBounce.moduleManager[AntiKnockback::class.java]!! as AntiKnockback
+        get() = Pride.moduleManager[AntiKnockback::class.java]!! as AntiKnockback
 
     open val values: List<Value<*>>
         get() = ClassUtils.getValues(this.javaClass, this)

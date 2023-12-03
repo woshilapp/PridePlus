@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.command.commands
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.Render2DEvent
@@ -36,7 +36,7 @@ class TacoCommand : Command("taco"), Listenable {
     )
 
     init {
-        LiquidBounce.eventManager.registerListener(this)
+        Pride.eventManager.registerListener(this)
     }
 
     /**

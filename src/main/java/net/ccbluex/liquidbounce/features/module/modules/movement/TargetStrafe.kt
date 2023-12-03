@@ -1,20 +1,17 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import op.wawa.manager.ColorManager
-import me.utils.player.PlayerUtil
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.MovementUtils
-import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.minecraft.entity.EntityLivingBase
 import org.lwjgl.opengl.GL11
 import java.awt.Color
@@ -215,7 +212,7 @@ class TargetStrafe : Module() {
     }
 
     private fun canStrafe(target: EntityLivingBase?): Boolean {
-        return target != null && (!holdSpaceValue.get() || mc.player.movementInput.jump) && (!onlySpeedValue.get() || LiquidBounce.moduleManager[Speed::class.java]!!.state)
+        return target != null && (!holdSpaceValue.get() || mc.player.movementInput.jump) && (!onlySpeedValue.get() || Pride.moduleManager[Speed::class.java]!!.state)
     }
 
     fun modifyStrafe(event: StrafeEvent):Boolean {
@@ -228,7 +225,7 @@ class TargetStrafe : Module() {
     }
 
     fun toggleStrafe(): Boolean {
-        return targetEntity != null && (!holdSpaceValue.get() || mc.player.movementInput.jump) && (!onlySpeedValue.get() || LiquidBounce.moduleManager[Speed::class.java]!!.state)
+        return targetEntity != null && (!holdSpaceValue.get() || mc.player.movementInput.jump) && (!onlySpeedValue.get() || Pride.moduleManager[Speed::class.java]!!.state)
     }
 
     @EventTarget

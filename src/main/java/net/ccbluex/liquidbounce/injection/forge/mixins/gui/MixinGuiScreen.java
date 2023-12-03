@@ -5,18 +5,14 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.features.module.modules.misc.ComponentOnHover;
 import net.ccbluex.liquidbounce.features.module.modules.render.HUD;
 import net.ccbluex.liquidbounce.ui.client.GuiBackground;
 import net.ccbluex.liquidbounce.utils.render.ParticleUtils;
-import net.ccbluex.liquidbounce.utils.render.shader.shaders.BackgroundShader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
@@ -68,7 +64,7 @@ public abstract class MixinGuiScreen {
 
     @Inject(method = "drawWorldBackground", at = @At("HEAD"))
     private void drawWorldBackground(final CallbackInfo callbackInfo) {
-        final HUD hud = (HUD) LiquidBounce.moduleManager.getModule(HUD.class);
+        final HUD hud = (HUD) Pride.moduleManager.getModule(HUD.class);
 
         if (hud.getInventoryParticle().get() && mc.player != null) {
             final ScaledResolution scaledResolution = new ScaledResolution(mc);
@@ -124,17 +120,17 @@ public abstract class MixinGuiScreen {
 
     @Inject(method = "sendChatMessage(Ljava/lang/String;Z)V", at = @At("HEAD"), cancellable = true)
     private void messageSend(String msg, boolean addToChat, final CallbackInfo callbackInfo) {
-        if (msg.startsWith(String.valueOf(LiquidBounce.commandManager.getPrefix())) && addToChat) {
+        if (msg.startsWith(String.valueOf(Pride.commandManager.getPrefix())) && addToChat) {
             this.mc.ingameGUI.getChatGUI().addToSentMessages(msg);
 
-            LiquidBounce.commandManager.executeCommands(msg);
+            Pride.commandManager.executeCommands(msg);
             callbackInfo.cancel();
         }
     }
 
     @Inject(method = "handleComponentHover", at = @At("HEAD"))
     private void handleHoverOverComponent(ITextComponent component, int x, int y, final CallbackInfo callbackInfo) {
-        if (component == null || component.getStyle().getClickEvent() == null || !LiquidBounce.moduleManager.getModule(ComponentOnHover.class).getState())
+        if (component == null || component.getStyle().getClickEvent() == null || !Pride.moduleManager.getModule(ComponentOnHover.class).getState())
             return;
 
         final Style chatStyle = component.getStyle();

@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.file.configs
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.shortcuts.Shortcut
 import net.ccbluex.liquidbounce.file.FileConfig
@@ -45,12 +45,12 @@ class ShortcutsConfig(file: File) : FileConfig(file) {
                 val commandName = scriptCommand.get("name")?.asString ?: continue
                 val arguments = scriptCommand.get("arguments")?.asJsonArray ?: continue
 
-                val command = LiquidBounce.commandManager.getCommand(commandName) ?: continue
+                val command = Pride.commandManager.getCommand(commandName) ?: continue
 
                 script.add(Pair(command, arguments.map { it.asString }.toTypedArray()))
             }
 
-            LiquidBounce.commandManager.registerCommand(Shortcut(name, script))
+            Pride.commandManager.registerCommand(Shortcut(name, script))
         }
     }
 
@@ -62,7 +62,7 @@ class ShortcutsConfig(file: File) : FileConfig(file) {
     override fun saveConfig() {
         val jsonArray = JsonArray()
 
-        for (command in LiquidBounce.commandManager.commands) {
+        for (command in Pride.commandManager.commands) {
             if (command !is Shortcut)
                 continue
 

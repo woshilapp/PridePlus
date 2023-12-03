@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
@@ -56,7 +56,7 @@ class Target : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertical.
     }
 
     override fun drawElement(): Border? {
-        var target=(LiquidBounce.moduleManager[KillAura::class.java] as KillAura).target
+        var target=(Pride.moduleManager[KillAura::class.java] as KillAura).target
         val time=System.currentTimeMillis()
         val pct = (time - lastUpdate) / (switchAnimSpeedValue.get()*50f)
         lastUpdate=System.currentTimeMillis()

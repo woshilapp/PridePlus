@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.features.module.Module
@@ -23,7 +23,7 @@ class BanChecker : Module(){
             if(matcher.find()){
                 ban ++
                 val banname = matcher.group(1)
-                LiquidBounce.hud.addNotification(Notification("BanChecker","$banname was banned. (banned:$ban)",NotifyType.INFO, animeTime = 1000))
+                Pride.hud.addNotification(Notification("BanChecker","$banname was banned. (banned:$ban)",NotifyType.INFO, animeTime = 1000))
                 mc.player!!.sendChatMessage("@ $banname  主播你怎么ban了啊 这都ban了" + ban + "个人了 ")
             }
         }

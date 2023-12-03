@@ -5,12 +5,9 @@
  */
 package net.ccbluex.liquidbounce.features.command
 
-import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.features.command.commands.*
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.command.shortcuts.Shortcut
 import net.ccbluex.liquidbounce.features.command.shortcuts.ShortcutParser
-import net.ccbluex.liquidbounce.features.command.special.XrayCommand
-import net.ccbluex.liquidbounce.features.module.modules.combat.antikbs.AntiKBMode
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.ClientUtils
 
@@ -153,7 +150,7 @@ class CommandManager {
                 Pair(command, it.toTypedArray())
             }))
 
-            LiquidBounce.fileManager.saveConfig(LiquidBounce.fileManager.shortcutsConfig)
+            Pride.fileManager.saveConfig(Pride.fileManager.shortcutsConfig)
         } else {
             throw IllegalArgumentException("Command already exists!")
         }
@@ -164,7 +161,7 @@ class CommandManager {
             it is Shortcut && it.command.equals(name, ignoreCase = true)
         }
 
-        LiquidBounce.fileManager.saveConfig(LiquidBounce.fileManager.shortcutsConfig)
+        Pride.fileManager.saveConfig(Pride.fileManager.shortcutsConfig)
 
         return removed
     }

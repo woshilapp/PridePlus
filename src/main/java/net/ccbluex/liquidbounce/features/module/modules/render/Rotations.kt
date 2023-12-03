@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
@@ -53,5 +53,5 @@ class Rotations : Module() {
         }
     }
 
-    private fun getState(module: Class<*>) = LiquidBounce.moduleManager[module]!!.state
+    private fun getState(module: Class<*>) = Pride.moduleManager[module]!!.state
 }

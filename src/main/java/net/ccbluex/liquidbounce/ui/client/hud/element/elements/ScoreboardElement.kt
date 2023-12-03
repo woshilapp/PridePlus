@@ -5,7 +5,7 @@ import com.google.common.collect.Iterables
 import com.google.common.collect.Lists
 import com.mojang.realmsclient.gui.ChatFormatting
 import me.utils.render.ShadowUtils
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.module.modules.render.HUD
 import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
@@ -195,14 +195,14 @@ class ScoreboardElement(
             GlStateManager.resetColor()
 
             var listColor = textColor
-            val hud = LiquidBounce.moduleManager.getModule(HUD::class.java) as HUD
+            val hud = Pride.moduleManager.getModule(HUD::class.java) as HUD
             var scorename = hud.domainValue.get()
             if (!serverValue.equals("none")) {
                 for (domain in allowedDomains) {
                     if (name.contains(domain, true)) {
                         name = when (serverValue.get().toLowerCase()) {
                             "clientname" -> "${scorename}"
-                            else -> LiquidBounce.CLIENT_NAME
+                            else -> Pride.CLIENT_NAME
                         }
                         listColor = if(domainrainbow.get()){net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow().rgb}
                         else {

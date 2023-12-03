@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.ui.client
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.misc.MiscUtils
 import net.minecraft.client.gui.GuiButton
@@ -54,23 +54,23 @@ class GuiBackground(val prevGui: GuiScreen) : GuiScreen() {
                 if (file.isDirectory) return
 
                 try {
-                    Files.copy(file.toPath(), FileOutputStream(LiquidBounce.fileManager.backgroundFile))
+                    Files.copy(file.toPath(), FileOutputStream(Pride.fileManager.backgroundFile))
 
-                    val image = ImageIO.read(FileInputStream(LiquidBounce.fileManager.backgroundFile))
+                    val image = ImageIO.read(FileInputStream(Pride.fileManager.backgroundFile))
                     val location = ResourceLocation("pride/background.png")
 
-                    LiquidBounce.background = location
+                    Pride.background = location
 
                     mc.textureManager.loadTexture(location, DynamicTexture(image))
                 } catch (e: Exception) {
                     e.printStackTrace()
                     MiscUtils.showErrorPopup("Error", "Exception class: " + e.javaClass.name + "\nMessage: " + e.message)
-                    LiquidBounce.fileManager.backgroundFile.delete()
+                    Pride.fileManager.backgroundFile.delete()
                 }
             }
             4 -> {
-                LiquidBounce.background = null
-                LiquidBounce.fileManager.backgroundFile.delete()
+                Pride.background = null
+                Pride.fileManager.backgroundFile.delete()
             }
             0 -> mc.displayGuiScreen(prevGui)
         }

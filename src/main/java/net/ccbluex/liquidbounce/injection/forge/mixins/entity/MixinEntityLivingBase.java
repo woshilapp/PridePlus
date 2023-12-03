@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.event.JumpEvent;
 import net.ccbluex.liquidbounce.event.StrafeEvent;
 import net.ccbluex.liquidbounce.features.module.modules.movement.AirJump;
@@ -88,7 +88,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
 
     @Overwrite
     private int getArmSwingAnimationEnd() {
-        int speed = LiquidBounce.moduleManager.getModule(Animations.class).getState() ? 2 + (20 - Animations.SpeedSwing.get()) : 6;
+        int speed = Pride.moduleManager.getModule(Animations.class).getState() ? 2 + (20 - Animations.SpeedSwing.get()) : 6;
         return this.isPotionActive(MobEffects.SPEED) ? speed - (1 + this.getActivePotionEffect(MobEffects.SPEED).getAmplifier()) : (this.isPotionActive(MobEffects.SLOWNESS) ? speed + (1 + this.getActivePotionEffect(MobEffects.SLOWNESS).getAmplifier()) * 2 : speed);
     }
 
@@ -98,12 +98,12 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     @Overwrite
     protected void jump() {
         final JumpEvent jumpEvent = new JumpEvent(this.getJumpUpwardsMotion());
-        LiquidBounce.eventManager.callEvent(jumpEvent);
+        Pride.eventManager.callEvent(jumpEvent);
         if (jumpEvent.isCancelled())
             return;
 
         this.motionY = jumpEvent.getMotion();
-        final StrafeFix strafeFix = (StrafeFix) LiquidBounce.moduleManager.getModule(StrafeFix.class);
+        final StrafeFix strafeFix = (StrafeFix) Pride.moduleManager.getModule(StrafeFix.class);
 
         if (this.isPotionActive(MobEffects.JUMP_BOOST))
             this.motionY += (float) (this.getActivePotionEffect(MobEffects.JUMP_BOOST).getAmplifier() + 1) * 0.1F;
@@ -124,18 +124,18 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
 
     @Inject(method = "onLivingUpdate", at = @At("HEAD"))
     private void headLiving(CallbackInfo callbackInfo) {
-        if (Objects.requireNonNull(LiquidBounce.moduleManager.getModule(NoJumpDelay.class)).getState())
+        if (Objects.requireNonNull(Pride.moduleManager.getModule(NoJumpDelay.class)).getState())
             jumpTicks = 0;
     }
 
     @Inject(method = "onLivingUpdate", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;isJumping:Z", ordinal = 1))
     private void onJumpSection(CallbackInfo callbackInfo) {
-        if (Objects.requireNonNull(LiquidBounce.moduleManager.getModule(AirJump.class)).getState() && isJumping && this.jumpTicks == 0) {
+        if (Objects.requireNonNull(Pride.moduleManager.getModule(AirJump.class)).getState() && isJumping && this.jumpTicks == 0) {
             this.jump();
             this.jumpTicks = 10;
         }
 
-        final LiquidWalk liquidWalk = (LiquidWalk) LiquidBounce.moduleManager.getModule(LiquidWalk.class);
+        final LiquidWalk liquidWalk = (LiquidWalk) Pride.moduleManager.getModule(LiquidWalk.class);
 
         if (Objects.requireNonNull(liquidWalk).getState() && !isJumping && !isSneaking() && isInWater() &&
                 liquidWalk.getModeValue().get().equalsIgnoreCase("Swim")) {
@@ -152,7 +152,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
 
     @Inject(method = "isPotionActive(Lnet/minecraft/potion/Potion;)Z", at = @At("HEAD"), cancellable = true)
     private void isPotionActive(Potion p_isPotionActive_1_, final CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
-        final AntiBlind antiBlind = (AntiBlind) LiquidBounce.moduleManager.getModule(AntiBlind.class);
+        final AntiBlind antiBlind = (AntiBlind) Pride.moduleManager.getModule(AntiBlind.class);
 
         if ((p_isPotionActive_1_ == MobEffects.NAUSEA || p_isPotionActive_1_ == MobEffects.BLINDNESS) && Objects.requireNonNull(antiBlind).getState() && antiBlind.getConfusionEffect().get())
             callbackInfoReturnable.setReturnValue(false);
@@ -165,9 +165,9 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
             return;
 
         final StrafeEvent strafeEvent = new StrafeEvent(strafe, forward, friction);
-        final StrafeFix strafeFix = (StrafeFix) LiquidBounce.moduleManager.getModule(StrafeFix.class);
+        final StrafeFix strafeFix = (StrafeFix) Pride.moduleManager.getModule(StrafeFix.class);
 
-        LiquidBounce.eventManager.callEvent(strafeEvent);
+        Pride.eventManager.callEvent(strafeEvent);
 
         if (strafeFix.getDoFix()) { //Run StrafeFix process on Post Strafe 2023/02/15
             strafeFix.runStrafeFixLoop(strafeFix.getSilentFix(), strafeEvent);

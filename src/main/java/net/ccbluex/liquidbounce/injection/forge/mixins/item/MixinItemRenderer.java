@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.item;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.render.Animations;
 import net.ccbluex.liquidbounce.features.module.modules.render.AntiBlind;
@@ -108,9 +108,9 @@ public abstract class MixinItemRenderer {
         } else {
             if (!(stack.getItem() instanceof ItemShield)) {
 
-                final KillAura killAura = (KillAura) LiquidBounce.moduleManager.getModule(KillAura.class);
+                final KillAura killAura = (KillAura) Pride.moduleManager.getModule(KillAura.class);
 
-                final Animations anim = (Animations) LiquidBounce.moduleManager.getModule(Animations.class);
+                final Animations anim = (Animations) Pride.moduleManager.getModule(Animations.class);
 
                 boolean flag1 = enumhandside == EnumHandSide.RIGHT;
 
@@ -301,7 +301,7 @@ public abstract class MixinItemRenderer {
 
     @Inject(method = "renderFireInFirstPerson", at = @At("HEAD"), cancellable = true)
     private void renderFireInFirstPerson(final CallbackInfo callbackInfo) {
-        final AntiBlind antiBlind = (AntiBlind) LiquidBounce.moduleManager.getModule(AntiBlind.class);
+        final AntiBlind antiBlind = (AntiBlind) Pride.moduleManager.getModule(AntiBlind.class);
 
         if (antiBlind.getState() && antiBlind.getFireEffect().get()) callbackInfo.cancel();
     }
@@ -581,7 +581,7 @@ public abstract class MixinItemRenderer {
 
     @Overwrite
     public void updateEquippedItem() {
-        final Animations oldhiting = (Animations) LiquidBounce.moduleManager.getModule(Animations.class);
+        final Animations oldhiting = (Animations) Pride.moduleManager.getModule(Animations.class);
 
         this.prevEquippedProgressMainHand = this.equippedProgressMainHand;
         this.prevEquippedProgressOffHand = this.equippedProgressOffHand;

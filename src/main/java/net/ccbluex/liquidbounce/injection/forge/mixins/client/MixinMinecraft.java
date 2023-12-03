@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.client;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.event.*;
 import net.ccbluex.liquidbounce.features.module.modules.combat.AutoClicker;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.AbortBreaking;
@@ -89,7 +89,7 @@ public abstract class MixinMinecraft {
 
     @Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;checkGLError(Ljava/lang/String;)V", ordinal = 2, shift = At.Shift.AFTER))
     private void startGame(CallbackInfo callbackInfo) {
-        LiquidBounce.INSTANCE.startClient();
+        Pride.INSTANCE.startClient();
     }
 
     @Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;displayGuiScreen(Lnet/minecraft/client/gui/GuiScreen;)V", shift = At.Shift.AFTER))
@@ -98,7 +98,7 @@ public abstract class MixinMinecraft {
 
     @Inject(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;setTitle(Ljava/lang/String;)V", shift = At.Shift.AFTER))
     private void createDisplay(CallbackInfo callbackInfo) {
-        Display.setTitle(LiquidBounce.INSTANCE.getCLIENT_NAME()+" "+LiquidBounce.CLIENT_VERSION+" | "+LiquidBounce.CLIENT_TITLE);
+        Display.setTitle(Pride.INSTANCE.getCLIENT_NAME()+" "+ Pride.CLIENT_VERSION);
     }
 
     @Inject(method = "displayGuiScreen", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;currentScreen:Lnet/minecraft/client/gui/GuiScreen;", shift = At.Shift.AFTER))
@@ -111,7 +111,7 @@ public abstract class MixinMinecraft {
             skipRenderWorld = false;
         }
 
-        LiquidBounce.eventManager.callEvent(new ScreenEvent(currentScreen == null ? null : currentScreen));
+        Pride.eventManager.callEvent(new ScreenEvent(currentScreen == null ? null : currentScreen));
     }
 
     @Inject(method = "runGameLoop", at = @At("HEAD"))
@@ -129,13 +129,13 @@ public abstract class MixinMinecraft {
 
     @Inject(method = "runTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;joinPlayerCounter:I", shift = At.Shift.BEFORE))
     private void onTick(final CallbackInfo callbackInfo) {
-        LiquidBounce.eventManager.callEvent(new TickEvent());
+        Pride.eventManager.callEvent(new TickEvent());
     }
 
     @Inject(method = "runTickKeyboard", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;dispatchKeypresses()V", shift = At.Shift.AFTER))
     private void onKey(CallbackInfo callbackInfo) {
         if (Keyboard.getEventKeyState() && currentScreen == null)
-            LiquidBounce.eventManager.callEvent(new KeyEvent(Keyboard.getEventKey() == 0 ? Keyboard.getEventCharacter() + 256 : Keyboard.getEventKey()));
+            Pride.eventManager.callEvent(new KeyEvent(Keyboard.getEventKey() == 0 ? Keyboard.getEventCharacter() + 256 : Keyboard.getEventKey()));
     }
 
     @Inject(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/RayTraceResult;getBlockPos()Lnet/minecraft/util/math/BlockPos;"))
@@ -143,7 +143,7 @@ public abstract class MixinMinecraft {
         IBlockState blockState = world.getBlockState(objectMouseOver.getBlockPos());
 
         if (this.leftClickCounter == 0 && blockState.getBlock().getMaterial(blockState) != Material.AIR) {
-            LiquidBounce.eventManager.callEvent(new ClickBlockEvent(objectMouseOver.getBlockPos(), this.objectMouseOver.sideHit));
+            Pride.eventManager.callEvent(new ClickBlockEvent(objectMouseOver.getBlockPos(), this.objectMouseOver.sideHit));
         }
     }
 
@@ -160,14 +160,14 @@ public abstract class MixinMinecraft {
 
     @Inject(method = "shutdown", at = @At("HEAD"))
     private void shutdown(CallbackInfo callbackInfo) {
-        LiquidBounce.INSTANCE.stopClient();
+        Pride.INSTANCE.stopClient();
     }
 
     @Inject(method = "clickMouse", at = @At("HEAD"))
     private void clickMouse(CallbackInfo callbackInfo) {
         CPSCounter.registerClick(CPSCounter.MouseButton.LEFT);
 
-        if (LiquidBounce.moduleManager.getModule(AutoClicker.class).getState())
+        if (Pride.moduleManager.getModule(AutoClicker.class).getState())
             leftClickCounter = 0;
     }
 
@@ -180,7 +180,7 @@ public abstract class MixinMinecraft {
     private void rightClickMouse(final CallbackInfo callbackInfo) {
         CPSCounter.registerClick(CPSCounter.MouseButton.RIGHT);
 
-        final FastPlace fastPlace = (FastPlace) LiquidBounce.moduleManager.getModule(FastPlace.class);
+        final FastPlace fastPlace = (FastPlace) Pride.moduleManager.getModule(FastPlace.class);
 
         if (fastPlace.getState())
             rightClickDelayTimer = fastPlace.getSpeedValue().get();
@@ -192,7 +192,7 @@ public abstract class MixinMinecraft {
             MiniMapRegister.INSTANCE.unloadAllChunks();
         }
 
-        LiquidBounce.eventManager.callEvent(new WorldEvent(p_loadWorld_1_ == null ? null : p_loadWorld_1_));
+        Pride.eventManager.callEvent(new WorldEvent(p_loadWorld_1_ == null ? null : p_loadWorld_1_));
     }
 
     /**
@@ -203,12 +203,12 @@ public abstract class MixinMinecraft {
         if (!leftClick)
             this.leftClickCounter = 0;
 
-        if (this.leftClickCounter <= 0 && (!this.player.isHandActive() || LiquidBounce.moduleManager.getModule(MultiActions.class).getState())) {
+        if (this.leftClickCounter <= 0 && (!this.player.isHandActive() || Pride.moduleManager.getModule(MultiActions.class).getState())) {
             if (leftClick && this.objectMouseOver != null && this.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK) {
                 BlockPos blockPos = this.objectMouseOver.getBlockPos();
 
                 if (this.leftClickCounter == 0)
-                    LiquidBounce.eventManager.callEvent(new ClickBlockEvent(blockPos, this.objectMouseOver.sideHit));
+                    Pride.eventManager.callEvent(new ClickBlockEvent(blockPos, this.objectMouseOver.sideHit));
 
 
                 IBlockState bs = this.world.getBlockState(blockPos);
@@ -217,7 +217,7 @@ public abstract class MixinMinecraft {
                     this.effectRenderer.addBlockHitEffects(blockPos, this.objectMouseOver.sideHit);
                     this.player.swingArm(EnumHand.MAIN_HAND);
                 }
-            } else if (!LiquidBounce.moduleManager.getModule(AbortBreaking.class).getState()) {
+            } else if (!Pride.moduleManager.getModule(AbortBreaking.class).getState()) {
                 this.playerController.resetBlockRemoving();
             }
         }

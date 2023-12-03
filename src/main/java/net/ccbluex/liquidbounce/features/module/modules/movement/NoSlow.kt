@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
@@ -75,7 +75,7 @@ class NoSlow : Module() {
     private var isOpenContainer = false
     private val grimTimer = MSTimer()
 
-    private val killAura = LiquidBounce.moduleManager[KillAura::class.java] as KillAura
+    private val killAura = Pride.moduleManager[KillAura::class.java] as KillAura
 
 
     private fun isBlock(): Boolean {
@@ -91,7 +91,7 @@ class NoSlow : Module() {
     }
 
     private val isBlocking: Boolean
-        get() = (mc.player!!.isHandActive || (LiquidBounce.moduleManager[KillAura::class.java] as KillAura).blockingStatus) && mc.player!!.getHeldItem(EnumHand.MAIN_HAND).item is ItemSword
+        get() = (mc.player!!.isHandActive || (Pride.moduleManager[KillAura::class.java] as KillAura).blockingStatus) && mc.player!!.getHeldItem(EnumHand.MAIN_HAND).item is ItemSword
 
     override fun onDisable() {
         Timer.reset()
@@ -106,7 +106,7 @@ class NoSlow : Module() {
     }
 
     private fun sendPacket(Event : MotionEvent,SendC07 : Boolean, SendC08 : Boolean,Delay : Boolean,DelayValue : Long,onGround : Boolean,Hypixel : Boolean = false) {
-        val aura = LiquidBounce.moduleManager[KillAura::class.java] as KillAura
+        val aura = Pride.moduleManager[KillAura::class.java] as KillAura
         val digging = CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos(-1,-1,-1),EnumFacing.DOWN)
         val blockPlace = CPacketPlayerTryUseItem(EnumHand.MAIN_HAND)
         val blockMent = CPacketPlayerTryUseItemOnBlock(BlockPos(-1, -1, -1), EnumFacing.values()[255], EnumHand.MAIN_HAND, 0f, 0f, 0f)

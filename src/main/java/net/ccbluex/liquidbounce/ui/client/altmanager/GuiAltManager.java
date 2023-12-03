@@ -9,7 +9,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.thealtening.AltService;
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.ui.client.altmanager.sub.*;
 import net.ccbluex.liquidbounce.ui.client.altmanager.sub.altgenerator.GuiTheAltening;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
@@ -51,7 +51,7 @@ public class GuiAltManager extends GuiScreen {
     public static void loadGenerators() {
         try {
             // Read versions json from cloud
-            final JsonElement jsonElement = new JsonParser().parse(HttpUtils.get(LiquidBounce.CLIENT_CLOUD + "/generators.json"));
+            final JsonElement jsonElement = new JsonParser().parse(HttpUtils.get(Pride.CLIENT_CLOUD + "/generators.json"));
 
             // Check json is valid object
             if (jsonElement.isJsonObject()) {
@@ -87,7 +87,7 @@ public class GuiAltManager extends GuiScreen {
         if (result == LoginUtils.LoginResult.LOGGED) {
             String userName = Minecraft.getMinecraft().getSession().getUsername();
             minecraftAccount.setAccountName(userName);
-            LiquidBounce.fileManager.saveConfig(LiquidBounce.fileManager.accountsConfig);
+            Pride.fileManager.saveConfig(Pride.fileManager.accountsConfig);
             return "§cYour name is now §f§l" + userName + "§c.";
         }
 
@@ -117,8 +117,8 @@ public class GuiAltManager extends GuiScreen {
 
         int index = -1;
 
-        for (int i = 0; i < LiquidBounce.fileManager.accountsConfig.getAccounts().size(); i++) {
-            MinecraftAccount minecraftAccount = LiquidBounce.fileManager.accountsConfig.getAccounts().get(i);
+        for (int i = 0; i < Pride.fileManager.accountsConfig.getAccounts().size(); i++) {
+            MinecraftAccount minecraftAccount = Pride.fileManager.accountsConfig.getAccounts().get(i);
 
             if (minecraftAccount != null && (((minecraftAccount.getPassword() == null || minecraftAccount.getPassword().isEmpty()) && minecraftAccount.getName() != null && minecraftAccount.getName().equals(mc.getSession().getUsername())) || minecraftAccount.getAccountName() != null && minecraftAccount.getAccountName().equals(mc.getSession().getUsername()))) {
                 index = i;
@@ -158,7 +158,7 @@ public class GuiAltManager extends GuiScreen {
         altsList.drawScreen(mouseX, mouseY, partialTicks);
 
         Fonts.font40.drawCenteredString("AltManager", width / 2.0f, 6, 0xffffff);
-        Fonts.font35.drawCenteredString(this.searchField.getText().isEmpty() ? (LiquidBounce.fileManager.accountsConfig.getAccounts().size() + " Alts") : this.altsList.accounts.size() + " Search Results", width / 2.0f, 18, 0xffffff);
+        Fonts.font35.drawCenteredString(this.searchField.getText().isEmpty() ? (Pride.fileManager.accountsConfig.getAccounts().size() + " Alts") : this.altsList.accounts.size() + " Search Results", width / 2.0f, 18, 0xffffff);
         Fonts.font35.drawCenteredString(status, width / 2.0f, 32, 0xffffff);
         Fonts.font35.drawStringWithShadow("§7User: §a" + mc.getSession().getUsername(), 6, 6, 0xffffff);
         Fonts.font35.drawStringWithShadow("§7Type: §a" + (altService.getCurrentService() == AltService.EnumAltService.THEALTENING ? "TheAltening" : UserUtils.INSTANCE.isValidTokenOffline(mc.getSession().getToken()) ? "Premium" : "Cracked"), 6, 15, 0xffffff);
@@ -186,8 +186,8 @@ public class GuiAltManager extends GuiScreen {
                 break;
             case 2:
                 if (altsList.getSelectedSlot() != -1 && altsList.getSelectedSlot() < altsList.getSize()) {
-                    LiquidBounce.fileManager.accountsConfig.removeAccount(this.altsList.accounts.get(altsList.getSelectedSlot()));
-                    LiquidBounce.fileManager.saveConfig(LiquidBounce.fileManager.accountsConfig);
+                    Pride.fileManager.accountsConfig.removeAccount(this.altsList.accounts.get(altsList.getSelectedSlot()));
+                    Pride.fileManager.saveConfig(Pride.fileManager.accountsConfig);
                     status = "§aThe account has been removed.";
 
                     this.altsList.updateAccounts(searchField.getText());
@@ -251,11 +251,11 @@ public class GuiAltManager extends GuiScreen {
                 while ((line = bufferedReader.readLine()) != null) {
                     final String[] accountData = line.split(":", 2);
 
-                    if (!LiquidBounce.fileManager.accountsConfig.accountExists(accountData[0])) {
+                    if (!Pride.fileManager.accountsConfig.accountExists(accountData[0])) {
                         if (accountData.length > 1)
-                            LiquidBounce.fileManager.accountsConfig.addAccount(accountData[0], accountData[1]);
+                            Pride.fileManager.accountsConfig.addAccount(accountData[0], accountData[1]);
                         else
-                            LiquidBounce.fileManager.accountsConfig.addAccount(accountData[0]);
+                            Pride.fileManager.accountsConfig.addAccount(accountData[0]);
                     }
                 }
 
@@ -263,7 +263,7 @@ public class GuiAltManager extends GuiScreen {
                 bufferedReader.close();
 
                 this.altsList.updateAccounts(searchField.getText());
-                LiquidBounce.fileManager.saveConfig(LiquidBounce.fileManager.accountsConfig);
+                Pride.fileManager.saveConfig(Pride.fileManager.accountsConfig);
                 status = "§aThe accounts were imported successfully.";
                 break;
             case 8:
@@ -291,7 +291,7 @@ public class GuiAltManager extends GuiScreen {
                 mc.displayGuiScreen((new GuiDonatorCape(this)));
                 break;
             case 12:
-                if (LiquidBounce.fileManager.accountsConfig.getAccounts().size() == 0) {
+                if (Pride.fileManager.accountsConfig.getAccounts().size() == 0) {
                     status = "§cThe list is empty.";
                     return;
                 }
@@ -307,7 +307,7 @@ public class GuiAltManager extends GuiScreen {
 
                     final FileWriter fileWriter = new FileWriter(selectedFile);
 
-                    for (MinecraftAccount account : LiquidBounce.fileManager.accountsConfig.getAccounts()) {
+                    for (MinecraftAccount account : Pride.fileManager.accountsConfig.getAccounts()) {
                         if (account.isCracked()) {
                             fileWriter.write(account.getName() + "\r\n");
                         } else {
@@ -399,7 +399,7 @@ public class GuiAltManager extends GuiScreen {
 
         private void updateAccounts(String search) {
             if (search == null || search.isEmpty()) {
-                this.accounts = LiquidBounce.fileManager.accountsConfig.getAccounts();
+                this.accounts = Pride.fileManager.accountsConfig.getAccounts();
                 return;
             }
 
@@ -407,7 +407,7 @@ public class GuiAltManager extends GuiScreen {
 
             this.accounts = new ArrayList<>();
 
-            for (MinecraftAccount account : LiquidBounce.fileManager.accountsConfig.getAccounts()) {
+            for (MinecraftAccount account : Pride.fileManager.accountsConfig.getAccounts()) {
                 if (account.getName() != null && account.getName().toLowerCase().contains(search)
                         || account.getAccountName() != null && account.getAccountName().toLowerCase().contains(search)) {
                     this.accounts.add(account);

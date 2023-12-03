@@ -1,7 +1,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.LiquidBounce
-import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
+import net.ccbluex.liquidbounce.Pride
+import net.ccbluex.liquidbounce.Pride.CLIENT_NAME
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
@@ -32,8 +32,8 @@ class AutoGG : Module() {
     private val timer = MSTimer()
 
     private fun gg() {
-        LiquidBounce.hud.addNotification(Notification("AutoGG", "You won the game! GG!", NotifyType.SUCCESS, 4000, 700))
-        if (ggValue.get()) LiquidBounce.hud.addNotification(
+        Pride.hud.addNotification(Notification("AutoGG", "You won the game! GG!", NotifyType.SUCCESS, 4000, 700))
+        if (ggValue.get()) Pride.hud.addNotification(
             Notification(
                 "AutoGG",
                 "Sent",

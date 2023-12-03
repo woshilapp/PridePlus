@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.features.module.Module
@@ -50,7 +50,7 @@ object FollowTargetHud : Module() {
     private fun renderNameTag(entity: EntityLivingBase, tag: String) {
         xChange = translateX.get() * 20
 
-        val killAura = LiquidBounce.moduleManager.getModule(KillAura::class.java) as KillAura
+        val killAura = Pride.moduleManager.getModule(KillAura::class.java) as KillAura
         if (entity != killAura.target) {
             return
         } else if ( entity == killAura.target) {

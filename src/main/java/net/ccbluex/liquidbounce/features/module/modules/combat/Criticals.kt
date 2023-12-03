@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.AttackEvent
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
@@ -42,7 +42,7 @@ class Criticals : Module() {
 
             if (!player.onGround || player.isOnLadder || player.isInWeb || player.isInWater ||
                 player.isInLava || player.ridingEntity != null || entity.hurtTime > hurtTimeValue.get() ||
-                LiquidBounce.moduleManager[Fly::class.java].state || !msTimer.hasTimePassed(delayValue.get().toLong()))
+                Pride.moduleManager[Fly::class.java].state || !msTimer.hasTimePassed(delayValue.get().toLong()))
                 return
 
             val x = player.posX

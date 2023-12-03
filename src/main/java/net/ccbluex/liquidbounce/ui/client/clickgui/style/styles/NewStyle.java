@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI;
 import net.ccbluex.liquidbounce.features.value.*;
 import net.ccbluex.liquidbounce.ui.client.clickgui.Panel;
@@ -45,7 +45,7 @@ public class NewStyle extends Style {
 
         if(panel.getScrollbar() && panel.getFade() > 0) {
             RenderUtils.drawRect((float) (panel.getX() - 2), (float) (panel.getY() + 21), (float) panel.getX(), (float) (panel.getY() + 16 + panel.getFade()), Integer.MAX_VALUE);
-            RenderUtils.drawRect((float) (panel.getX() - 2), (float) (panel.getY() + 30) + ((float) panel.getFade() - 24.0F) / (float) (panel.getElements().size() - ((ClickGUI) Objects.requireNonNull(LiquidBounce.moduleManager.getModule(ClickGUI.class))).maxElementsValue.get()) * (float) panel.getDragged() - 10.0F, (float) panel.getX(), (float) (panel.getY() + 40) + ((float) panel.getFade() - 24.0F) / (float) (panel.getElements().size() - ((ClickGUI) Objects.requireNonNull(LiquidBounce.moduleManager.getModule(ClickGUI.class))).maxElementsValue.get()) * (float) panel.getDragged(), Integer.MIN_VALUE);
+            RenderUtils.drawRect((float) (panel.getX() - 2), (float) (panel.getY() + 30) + ((float) panel.getFade() - 24.0F) / (float) (panel.getElements().size() - ((ClickGUI) Objects.requireNonNull(Pride.moduleManager.getModule(ClickGUI.class))).maxElementsValue.get()) * (float) panel.getDragged() - 10.0F, (float) panel.getX(), (float) (panel.getY() + 40) + ((float) panel.getFade() - 24.0F) / (float) (panel.getElements().size() - ((ClickGUI) Objects.requireNonNull(Pride.moduleManager.getModule(ClickGUI.class))).maxElementsValue.get()) * (float) panel.getDragged(), Integer.MIN_VALUE);
 //            RenderUtils.drawRect(panel.getX() - 2, panel.getY() + 21, panel.getX(), panel.getY() + 16 + panel.getFade(), Integer.MAX_VALUE);
 //            RenderUtils.drawRect(panel.getX() - 2, panel.getY() + 30 + (panel.getFade() - 24F) / (panel.getElements().size() - ((ClickGUI) LiquidBounce.moduleManager.getModule(ClickGUI.class)).maxElementsValue.get()) * panel.getDragged() - 10.0f, panel.getX(), panel.getY() + 40 + (panel.getFade() - 24.0f) / (panel.getElements().size() - ((ClickGUI) LiquidBounce.moduleManager.getModule(ClickGUI.class)).maxElementsValue.get()) * panel.getDragged(), Integer.MIN_VALUE);
    RenderUtils.drawBorderedRect((float) panel.getX(), (float) panel.getY() + 17.0F, (float) panel.getX() + (float) panel.getWidth(), (float) (panel.getY() + 19 + panel.getFade()), 3.0F, (new Color(33, 33, 33, 65)).getRGB(), (new Color(29, 29, 29, 86)).getRGB());

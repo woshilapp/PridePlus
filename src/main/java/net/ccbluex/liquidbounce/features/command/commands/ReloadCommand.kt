@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.command.commands
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
@@ -18,34 +18,34 @@ class ReloadCommand : Command("reload", "configreload") {
     override fun execute(args: Array<String>) {
         chat("Reloading...")
         chat("§c§lReloading commands...")
-        LiquidBounce.commandManager = CommandManager()
-        LiquidBounce.commandManager.registerCommands()
-        LiquidBounce.isStarting = true
-        LiquidBounce.scriptManager.disableScripts()
-        LiquidBounce.scriptManager.unloadScripts()
-        for(module in LiquidBounce.moduleManager.modules)
-            LiquidBounce.moduleManager.generateCommand(module)
+        Pride.commandManager = CommandManager()
+        Pride.commandManager.registerCommands()
+        Pride.isStarting = true
+        Pride.scriptManager.disableScripts()
+        Pride.scriptManager.unloadScripts()
+        for(module in Pride.moduleManager.modules)
+            Pride.moduleManager.generateCommand(module)
         chat("§c§lReloading scripts...")
-        LiquidBounce.scriptManager.reloadScripts()
+        Pride.scriptManager.reloadScripts()
         chat("§c§lReloading fonts...")
         Fonts.loadFonts()
         chat("§c§lReloading modules...")
-        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.modulesConfig)
-        LiquidBounce.isStarting = false
+        Pride.fileManager.loadConfig(Pride.fileManager.modulesConfig)
+        Pride.isStarting = false
         chat("§c§lReloading values...")
-        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.valuesConfig)
+        Pride.fileManager.loadConfig(Pride.fileManager.valuesConfig)
         chat("§c§lReloading accounts...")
-        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.accountsConfig)
+        Pride.fileManager.loadConfig(Pride.fileManager.accountsConfig)
         chat("§c§lReloading friends...")
-        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.friendsConfig)
+        Pride.fileManager.loadConfig(Pride.fileManager.friendsConfig)
         chat("§c§lReloading xray...")
-        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.xrayConfig)
+        Pride.fileManager.loadConfig(Pride.fileManager.xrayConfig)
         chat("§c§lReloading HUD...")
-        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.hudConfig)
+        Pride.fileManager.loadConfig(Pride.fileManager.hudConfig)
         chat("§c§lReloading ClickGUI...")
-        LiquidBounce.clickGui = ClickGui()
-        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.clickGuiConfig)
-        LiquidBounce.isStarting = false
+        Pride.clickGui = ClickGui()
+        Pride.fileManager.loadConfig(Pride.fileManager.clickGuiConfig)
+        Pride.isStarting = false
         chat("Reloaded.")
     }
 }

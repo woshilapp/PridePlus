@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.utils
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.module.modules.combat.NoFriends
 import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
 import net.ccbluex.liquidbounce.features.module.modules.misc.Teams
@@ -46,11 +46,11 @@ object EntityUtils : MinecraftInstance() {
                         if (isBot(entityPlayer))
                             return false
 
-                        if (entityPlayer.isClientFriend() && !LiquidBounce.moduleManager.getModule(NoFriends::class.java).state)
+                        if (entityPlayer.isClientFriend() && !Pride.moduleManager.getModule(NoFriends::class.java).state)
                             return false
 
                         if (entityPlayer.isSpectator) return false
-                        val teams = LiquidBounce.moduleManager.getModule(Teams::class.java) as Teams
+                        val teams = Pride.moduleManager.getModule(Teams::class.java) as Teams
                         return !teams.state || !teams.isInYourTeam(entityPlayer)
                     }
                     return true
@@ -62,7 +62,7 @@ object EntityUtils : MinecraftInstance() {
         return false
     }
     fun isFriend(entity: Entity): Boolean {
-        return entity is EntityPlayer && LiquidBounce.fileManager.friendsConfig.isFriend(stripColor(entity.name))
+        return entity is EntityPlayer && Pride.fileManager.friendsConfig.isFriend(stripColor(entity.name))
     }
     fun getPing(entityPlayer: EntityPlayer?): Int {
         if (entityPlayer == null) return 0

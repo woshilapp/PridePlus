@@ -10,7 +10,7 @@ import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.authlib.yggdrasil.YggdrasilUserAuthentication;
 import com.thealtening.AltService;
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager;
 import net.ccbluex.liquidbounce.ui.elements.GuiPasswordField;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
@@ -85,7 +85,7 @@ public class GuiAdd extends GuiScreen {
                 mc.displayGuiScreen(prevGui);
                 break;
             case 1:
-                if (LiquidBounce.fileManager.accountsConfig.accountExists(username.getText())) {
+                if (Pride.fileManager.accountsConfig.accountExists(username.getText())) {
                     status = "§cThe account has already been added.";
                     break;
                 }
@@ -155,7 +155,7 @@ public class GuiAdd extends GuiScreen {
     }
 
     private void addAccount(final String name, final String password) {
-        if (LiquidBounce.fileManager.accountsConfig.accountExists(name)) {
+        if (Pride.fileManager.accountsConfig.accountExists(name)) {
             status = "§cThe account has already been added.";
             return;
         }
@@ -197,8 +197,8 @@ public class GuiAdd extends GuiScreen {
             }
 
 
-            LiquidBounce.fileManager.accountsConfig.getAccounts().add(account);
-            LiquidBounce.fileManager.saveConfig(LiquidBounce.fileManager.accountsConfig);
+            Pride.fileManager.accountsConfig.getAccounts().add(account);
+            Pride.fileManager.saveConfig(Pride.fileManager.accountsConfig);
 
             status = "§aThe account has been added.";
             prevGui.status = status;

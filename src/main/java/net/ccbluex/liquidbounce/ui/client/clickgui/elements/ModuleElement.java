@@ -5,10 +5,8 @@
  */
 package net.ccbluex.liquidbounce.ui.client.clickgui.elements;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.features.module.Module;
-import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
@@ -34,7 +32,7 @@ public class ModuleElement extends ButtonElement {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float button) {
-        LiquidBounce.clickGui.style.drawModuleElement(mouseX, mouseY, this);
+        Pride.clickGui.style.drawModuleElement(mouseX, mouseY, this);
     }
 
     @Override

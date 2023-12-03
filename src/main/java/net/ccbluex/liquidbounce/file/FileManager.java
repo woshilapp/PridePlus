@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.file;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.file.configs.*;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.ccbluex.liquidbounce.utils.MinecraftInstance;
@@ -171,7 +171,7 @@ public class FileManager extends MinecraftInstance {
      * @param ignoreStarting check starting
      */
     private void saveConfig(final FileConfig config, final boolean ignoreStarting) {
-        if (!ignoreStarting && LiquidBounce.INSTANCE.isStarting())
+        if (!ignoreStarting && Pride.INSTANCE.isStarting())
             return;
 
         try {
@@ -197,8 +197,8 @@ public class FileManager extends MinecraftInstance {
                 if(bufferedImage == null)
                     return;
 
-                LiquidBounce.INSTANCE.setBackground(new ResourceLocation("pride/background.png"));
-                mc.getTextureManager().loadTexture(LiquidBounce.INSTANCE.getBackground(), new DynamicTexture(bufferedImage));
+                Pride.INSTANCE.setBackground(new ResourceLocation("pride/background.png"));
+                mc.getTextureManager().loadTexture(Pride.INSTANCE.getBackground(), new DynamicTexture(bufferedImage));
                 ClientUtils.getLogger().info("[FileManager] Loaded background.");
             }catch(final Exception e) {
                 ClientUtils.getLogger().error("[FileManager] Failed to load background.", e);

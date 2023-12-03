@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speeds.vulcan;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.event.EventState;
 import net.ccbluex.liquidbounce.event.MotionEvent;
 import net.ccbluex.liquidbounce.event.MoveEvent;
@@ -27,7 +27,7 @@ public class VulcanHop2 extends SpeedMode {
 
     @Override
     public void onMotion(@NotNull MotionEvent event) {
-        final Speed speed = (Speed) LiquidBounce.moduleManager.getModule(Speed.class);
+        final Speed speed = (Speed) Pride.moduleManager.getModule(Speed.class);
 
         if(speed == null || event.getEventState() != EventState.PRE)
             return;

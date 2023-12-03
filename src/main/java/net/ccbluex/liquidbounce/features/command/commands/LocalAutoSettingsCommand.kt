@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.command.commands
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
@@ -24,7 +24,7 @@ class LocalAutoSettingsCommand : Command("localautosettings", "localsetting", "l
             when {
                 args[1].equals("load", ignoreCase = true) -> {
                     if (args.size > 2) {
-                        val scriptFile = File(LiquidBounce.fileManager.settingsDir, args[2])
+                        val scriptFile = File(Pride.fileManager.settingsDir, args[2])
 
                         if (scriptFile.exists()) {
                             try {
@@ -33,7 +33,7 @@ class LocalAutoSettingsCommand : Command("localautosettings", "localsetting", "l
                                 chat("§9Set settings...")
                                 SettingsUtils.executeScript(settings)
                                 chat("§6Settings applied successfully.")
-                                LiquidBounce.hud.addNotification(Notification("Updated Settings","Updated Settings", NotifyType.INFO))
+                                Pride.hud.addNotification(Notification("Updated Settings","Updated Settings", NotifyType.INFO))
                                 playEdit()
                             } catch (e: IOException) {
                                 e.printStackTrace()
@@ -52,7 +52,7 @@ class LocalAutoSettingsCommand : Command("localautosettings", "localsetting", "l
 
                 args[1].equals("save", ignoreCase = true) -> {
                     if (args.size > 2) {
-                        val scriptFile = File(LiquidBounce.fileManager.settingsDir, args[2])
+                        val scriptFile = File(Pride.fileManager.settingsDir, args[2])
 
                         try {
                             if (scriptFile.exists())
@@ -86,7 +86,7 @@ class LocalAutoSettingsCommand : Command("localautosettings", "localsetting", "l
 
                 args[1].equals("delete", ignoreCase = true) -> {
                     if (args.size > 2) {
-                        val scriptFile = File(LiquidBounce.fileManager.settingsDir, args[2])
+                        val scriptFile = File(Pride.fileManager.settingsDir, args[2])
 
                         if (scriptFile.exists()) {
                             scriptFile.delete()
@@ -137,5 +137,5 @@ class LocalAutoSettingsCommand : Command("localautosettings", "localsetting", "l
         }
     }
 
-    private fun getLocalSettings(): Array<File>? = LiquidBounce.fileManager.settingsDir.listFiles()
+    private fun getLocalSettings(): Array<File>? = Pride.fileManager.settingsDir.listFiles()
 }

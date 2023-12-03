@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiChat;
@@ -43,10 +43,10 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
 
     @Inject(method = "keyTyped", at = @At("RETURN"))
     private void updateLength(CallbackInfo callbackInfo) {
-        if (!inputField.getText().startsWith(String.valueOf(LiquidBounce.commandManager.getPrefix()))) return;
-        LiquidBounce.commandManager.autoComplete(inputField.getText());
+        if (!inputField.getText().startsWith(String.valueOf(Pride.commandManager.getPrefix()))) return;
+        Pride.commandManager.autoComplete(inputField.getText());
 
-        if (!inputField.getText().startsWith(LiquidBounce.commandManager.getPrefix() + "lc"))
+        if (!inputField.getText().startsWith(Pride.commandManager.getPrefix() + "lc"))
             inputField.setMaxStringLength(10000);
         else
             inputField.setMaxStringLength(100);
@@ -74,8 +74,8 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
         Gui.drawRect(2, this.height - (int) fade, this.width - 2, this.height, Integer.MIN_VALUE);
         this.inputField.drawTextBox();
 
-        if (LiquidBounce.commandManager.getLatestAutoComplete().length > 0 && !inputField.getText().isEmpty() && inputField.getText().startsWith(String.valueOf(LiquidBounce.commandManager.getPrefix()))) {
-            String[] latestAutoComplete = LiquidBounce.commandManager.getLatestAutoComplete();
+        if (Pride.commandManager.getLatestAutoComplete().length > 0 && !inputField.getText().isEmpty() && inputField.getText().startsWith(String.valueOf(Pride.commandManager.getPrefix()))) {
+            String[] latestAutoComplete = Pride.commandManager.getLatestAutoComplete();
             String[] textArray = inputField.getText().split(" ");
             String trimmedString = latestAutoComplete[0].replaceFirst("(?i)" + textArray[textArray.length - 1], "");
 

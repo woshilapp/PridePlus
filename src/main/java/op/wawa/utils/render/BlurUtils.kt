@@ -9,7 +9,7 @@ package op.wawa.utils.render
 
 import me.utils.render.GaussianBlur
 import me.utils.render.StencilUtil
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.module.modules.render.HUD
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
@@ -45,7 +45,7 @@ object BlurUtils {
 
 
     fun CustomBlurRoundArea(x: Float, y: Float, width: Float, height: Float, radius: Float, BlurStrength: Float) {
-        val hud = LiquidBounce.moduleManager.getModule(
+        val hud = Pride.moduleManager.getModule(
             HUD::class.java
         ) as HUD
         StencilUtil.initStencilToWrite()

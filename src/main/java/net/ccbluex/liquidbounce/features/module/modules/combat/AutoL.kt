@@ -1,6 +1,6 @@
  package net.ccbluex.liquidbounce.features.module.modules.combat;
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
@@ -41,7 +41,7 @@ class AutoL : Module() {
     private var text = ""
     private var inCombat = false
     private val attackedEntityList = mutableListOf<Entity>()
-    private val insultFile = File(LiquidBounce.fileManager.dir, "filter.json")
+    private val insultFile = File(Pride.fileManager.dir, "filter.json")
     private var insultWords = mutableListOf<String>()
     private val ms = MSTimer()
     private val delay = MSTimer()
@@ -102,7 +102,7 @@ class AutoL : Module() {
 
     private fun showNotifications (number: Int) {
         if (showNotification.get()) {
-            LiquidBounce.hud.addNotification(
+            Pride.hud.addNotification(
                 Notification(
                     (if (number > 1) "$number Kills!" else "Kill!"),
                     ("You killed $number ${if (number > 1) "players" else "player"}"),
@@ -164,7 +164,7 @@ class AutoL : Module() {
             }
             replaceFilterWords()
             if (chatTotalKill.get()) text = ("$text | " + suffixTextBeforeRecord.get() + kill + suffixTextAfterRecord.get())
-            if (waterMark.get()) text = ("[${LiquidBounce.CLIENT_NAME}] $text")
+            if (waterMark.get()) text = ("[${Pride.CLIENT_NAME}] $text")
             if (enableHYTAtall.get()) text = ("@a$text")
             mc.player!!.sendChatMessage(text)
         }

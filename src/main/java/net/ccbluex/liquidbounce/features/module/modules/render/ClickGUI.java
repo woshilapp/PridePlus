@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.event.EventTarget;
 import net.ccbluex.liquidbounce.event.PacketEvent;
 import net.ccbluex.liquidbounce.features.module.Module;
@@ -50,28 +50,28 @@ public class ClickGUI extends Module {
     public void onEnable() {
         updateStyle();
 
-        mc.displayGuiScreen((LiquidBounce.clickGui));
+        mc.displayGuiScreen((Pride.clickGui));
     }
 
     private void updateStyle() {
         switch(styleValue.get().toLowerCase()) {
             case "liquidbounce":
-                LiquidBounce.clickGui.style = new LiquidBounceStyle();
+                Pride.clickGui.style = new LiquidBounceStyle();
                 break;
             case "null":
-                LiquidBounce.clickGui.style = new NullStyle();
+                Pride.clickGui.style = new NullStyle();
                 break;
             case "slowly":
-                LiquidBounce.clickGui.style = new SlowlyStyle();
+                Pride.clickGui.style = new SlowlyStyle();
                 break;
             case "astolfo" :
-                LiquidBounce.clickGui.style = new AstolfoStyle();
+                Pride.clickGui.style = new AstolfoStyle();
                 break;
             case "jello" :
-                LiquidBounce.clickGui.style = new JelloStyle();
+                Pride.clickGui.style = new JelloStyle();
                 break;
             case "new" :
-                LiquidBounce.clickGui.style = new NewStyle();
+                Pride.clickGui.style = new NewStyle();
                 break;
         }
     }

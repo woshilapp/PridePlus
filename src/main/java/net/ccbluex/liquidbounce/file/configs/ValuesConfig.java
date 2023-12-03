@@ -9,7 +9,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.special.AntiForge;
 import net.ccbluex.liquidbounce.features.special.AutoReconnect;
@@ -56,7 +56,7 @@ public class ValuesConfig extends FileConfig {
             final Map.Entry<String, JsonElement> entry = iterator.next();
 
             if (entry.getKey().equalsIgnoreCase("CommandPrefix")) {
-                LiquidBounce.commandManager.setPrefix(entry.getValue().getAsCharacter());
+                Pride.commandManager.setPrefix(entry.getValue().getAsCharacter());
             } else if (entry.getKey().equalsIgnoreCase("targets")) {
                 JsonObject jsonValue = (JsonObject) entry.getValue();
 
@@ -107,7 +107,7 @@ public class ValuesConfig extends FileConfig {
                 if (jsonValue.has("Particles"))
                     GuiBackground.Companion.setParticles(jsonValue.get("Particles").getAsBoolean());
             } else {
-                final Module module = LiquidBounce.moduleManager.getModule(entry.getKey());
+                final Module module = Pride.moduleManager.getModule(entry.getKey());
 
                 if(module != null) {
                     final JsonObject jsonModule = (JsonObject) entry.getValue();
@@ -131,7 +131,7 @@ public class ValuesConfig extends FileConfig {
     protected void saveConfig() throws IOException {
         final JsonObject jsonObject = new JsonObject();
 
-        jsonObject.addProperty("CommandPrefix", LiquidBounce.commandManager.getPrefix());
+        jsonObject.addProperty("CommandPrefix", Pride.commandManager.getPrefix());
 
         final JsonObject jsonTargets = new JsonObject();
         jsonTargets.addProperty("TargetPlayer", EntityUtils.targetPlayer);
@@ -164,7 +164,7 @@ public class ValuesConfig extends FileConfig {
         backgroundObject.addProperty("Particles", GuiBackground.Companion.getParticles());
         jsonObject.add("Background", backgroundObject);
 
-        LiquidBounce.moduleManager.getModules().stream().filter(module -> !module.getValues().isEmpty()).forEach(module -> {
+        Pride.moduleManager.getModules().stream().filter(module -> !module.getValues().isEmpty()).forEach(module -> {
             final JsonObject jsonModule = new JsonObject();
             module.getValues().forEach(value -> jsonModule.add(value.getName(), value.toJson()));
             jsonObject.add(module.getName(), jsonModule);

@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.event.EventTarget;
 import net.ccbluex.liquidbounce.event.UpdateEvent;
 import net.ccbluex.liquidbounce.features.module.Module;
@@ -46,7 +46,7 @@ public class Spammer extends Module {
         }
     };
 
-    private final TextValue messageValue = new TextValue("Message", LiquidBounce.INSTANCE.getCLIENT_NAME() + " Client | liquidbounce(.net) | CCBlueX on yt");
+    private final TextValue messageValue = new TextValue("Message", Pride.INSTANCE.getCLIENT_NAME() + " Client | liquidbounce(.net) | CCBlueX on yt");
     private final BoolValue customValue = new BoolValue("Custom", false);
 
     private final MSTimer msTimer = new MSTimer();

@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.ui.font
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.TextEvent
 import net.ccbluex.liquidbounce.features.module.modules.render.HUD
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
@@ -57,7 +57,7 @@ class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameS
         var currentText = text
 
         val event = TextEvent(currentText)
-        LiquidBounce.eventManager.callEvent(event)
+        Pride.eventManager.callEvent(event)
         currentText = event.text ?: return 0
 
         val currY = y - 3F
@@ -67,7 +67,7 @@ class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameS
         if (shadow) {
             glUseProgram(0)
 
-            val HUD = LiquidBounce.moduleManager[HUD::class.java]!! as HUD
+            val HUD = Pride.moduleManager[HUD::class.java]!! as HUD
             if (HUD == null) {
                 drawText(currentText, x + 1f, currY + 1f, Color(0, 0, 0, 150).rgb, true)
             } else {
@@ -221,7 +221,7 @@ class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameS
         var currentText = text
 
         val event = TextEvent(currentText)
-        LiquidBounce.eventManager.callEvent(event)
+        Pride.eventManager.callEvent(event)
         currentText = event.text ?: return 0
 
         return if (currentText.contains("§")) {

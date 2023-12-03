@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.Render3DEvent
@@ -150,7 +150,7 @@ class ChestStealer : Module() {
             return
 
         // inventory cleaner
-        val invManager = LiquidBounce.moduleManager[InvManager::class.java] as InvManager
+        val invManager = Pride.moduleManager[InvManager::class.java] as InvManager
 
         // Is empty?
         if (!isEmpty(screen) && (!closeOnFullValue.get() || !fullInventory)) {
@@ -202,7 +202,7 @@ class ChestStealer : Module() {
         } else if (screen.inventorySlots!!.windowId == contentReceived && autoCloseTimer.hasTimePassed(nextCloseDelay) && autoCloseValue.get()) {
             player.closeScreen()
             if (silentValue.get()) {
-                LiquidBounce.hud.addNotification(Notification(this.name, "Closed Chest.", NotifyType.INFO))
+                Pride.hud.addNotification(Notification(this.name, "Closed Chest.", NotifyType.INFO))
             }
             stealing = false
             nextCloseDelay = TimeUtils.randomDelay(autoCloseMinDelayValue.get(), autoCloseMaxDelayValue.get())
@@ -290,7 +290,7 @@ class ChestStealer : Module() {
     }
 
     private fun isEmpty(chest: GuiChest): Boolean {
-        val invManager = LiquidBounce.moduleManager[InvManager::class.java] as InvManager
+        val invManager = Pride.moduleManager[InvManager::class.java] as InvManager
 
         for (i in 0 until chest.inventoryRows * 9) {
             val slot = chest.inventorySlots!!.getSlot(i)

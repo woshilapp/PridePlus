@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.command.commands
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.command.CommandManager
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
@@ -31,10 +31,10 @@ class ScriptManagerCommand : Command("scriptmanager", "scripts") {
                         val fileName = file.name
 
                         if (fileName.endsWith(".js")) {
-                            LiquidBounce.scriptManager.importScript(file)
+                            Pride.scriptManager.importScript(file)
 
-                            LiquidBounce.clickGui = ClickGui()
-                            LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.clickGuiConfig)
+                            Pride.clickGui = ClickGui()
+                            Pride.fileManager.loadConfig(Pride.fileManager.clickGuiConfig)
 
                             chat("Successfully imported script.")
                             return
@@ -46,7 +46,7 @@ class ScriptManagerCommand : Command("scriptmanager", "scripts") {
                             while (entries.hasMoreElements()) {
                                 val entry = entries.nextElement()
                                 val entryName = entry.name
-                                val entryFile = File(LiquidBounce.scriptManager.scriptsFolder, entryName)
+                                val entryFile = File(Pride.scriptManager.scriptsFolder, entryName)
 
                                 if (entry.isDirectory) {
                                     entryFile.mkdir()
@@ -64,11 +64,11 @@ class ScriptManagerCommand : Command("scriptmanager", "scripts") {
                                     scriptFiles.add(entryFile)
                             }
 
-                            scriptFiles.forEach { scriptFile -> LiquidBounce.scriptManager.loadScript(scriptFile) }
+                            scriptFiles.forEach { scriptFile -> Pride.scriptManager.loadScript(scriptFile) }
 
-                            LiquidBounce.clickGui = ClickGui()
-                            LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.clickGuiConfig)
-                            LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.hudConfig)
+                            Pride.clickGui = ClickGui()
+                            Pride.fileManager.loadConfig(Pride.fileManager.clickGuiConfig)
+                            Pride.fileManager.loadConfig(Pride.fileManager.hudConfig)
 
                             chat("Successfully imported script.")
                             return
@@ -89,7 +89,7 @@ class ScriptManagerCommand : Command("scriptmanager", "scripts") {
                         }
 
                         val scriptIndex = args[2].toInt()
-                        val scripts = LiquidBounce.scriptManager.scripts
+                        val scripts = Pride.scriptManager.scripts
 
                         if (scriptIndex >= scripts.size) {
                             chat("Index $scriptIndex is too high.")
@@ -98,11 +98,11 @@ class ScriptManagerCommand : Command("scriptmanager", "scripts") {
 
                         val script = scripts[scriptIndex]
 
-                        LiquidBounce.scriptManager.deleteScript(script)
+                        Pride.scriptManager.deleteScript(script)
 
-                        LiquidBounce.clickGui = ClickGui()
-                        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.clickGuiConfig)
-                        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.hudConfig)
+                        Pride.clickGui = ClickGui()
+                        Pride.fileManager.loadConfig(Pride.fileManager.clickGuiConfig)
+                        Pride.fileManager.loadConfig(Pride.fileManager.hudConfig)
                         chat("Successfully deleted script.")
                     } catch (numberFormat: NumberFormatException) {
                         chatSyntaxError()
@@ -114,20 +114,20 @@ class ScriptManagerCommand : Command("scriptmanager", "scripts") {
 
                 args[1].equals("reload", true) -> {
                     try {
-                        LiquidBounce.commandManager = CommandManager()
-                        LiquidBounce.commandManager.registerCommands()
-                        LiquidBounce.isStarting = true
-                        LiquidBounce.scriptManager.disableScripts()
-                        LiquidBounce.scriptManager.unloadScripts()
-                        for(module in LiquidBounce.moduleManager.modules)
-                            LiquidBounce.moduleManager.generateCommand(module)
-                        LiquidBounce.scriptManager.loadScripts()
-                        LiquidBounce.scriptManager.enableScripts()
-                        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.modulesConfig)
-                        LiquidBounce.isStarting = false
-                        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.valuesConfig)
-                        LiquidBounce.clickGui = ClickGui()
-                        LiquidBounce.fileManager.loadConfig(LiquidBounce.fileManager.clickGuiConfig)
+                        Pride.commandManager = CommandManager()
+                        Pride.commandManager.registerCommands()
+                        Pride.isStarting = true
+                        Pride.scriptManager.disableScripts()
+                        Pride.scriptManager.unloadScripts()
+                        for(module in Pride.moduleManager.modules)
+                            Pride.moduleManager.generateCommand(module)
+                        Pride.scriptManager.loadScripts()
+                        Pride.scriptManager.enableScripts()
+                        Pride.fileManager.loadConfig(Pride.fileManager.modulesConfig)
+                        Pride.isStarting = false
+                        Pride.fileManager.loadConfig(Pride.fileManager.valuesConfig)
+                        Pride.clickGui = ClickGui()
+                        Pride.fileManager.loadConfig(Pride.fileManager.clickGuiConfig)
                         chat("Successfully reloaded all scripts.")
                     } catch (t: Throwable) {
                         ClientUtils.getLogger().error("Something went wrong while reloading all scripts.", t)
@@ -137,7 +137,7 @@ class ScriptManagerCommand : Command("scriptmanager", "scripts") {
 
                 args[1].equals("folder", true) -> {
                     try {
-                        Desktop.getDesktop().open(LiquidBounce.scriptManager.scriptsFolder)
+                        Desktop.getDesktop().open(Pride.scriptManager.scriptsFolder)
                         chat("Successfully opened scripts folder.")
                     } catch (t: Throwable) {
                         ClientUtils.getLogger().error("Something went wrong while trying to open your scripts folder.", t)
@@ -149,7 +149,7 @@ class ScriptManagerCommand : Command("scriptmanager", "scripts") {
             return
         }
 
-        val scriptManager = LiquidBounce.scriptManager
+        val scriptManager = Pride.scriptManager
 
         if (scriptManager.scripts.isNotEmpty()) {
             chat("§c§lScripts")

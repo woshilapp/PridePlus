@@ -1,10 +1,5 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.splash;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
-import net.ccbluex.liquidbounce.ui.cnfont.FontDrawer;
-import net.ccbluex.liquidbounce.ui.cnfont.FontLoaders;
-import net.ccbluex.liquidbounce.ui.font.Fonts;
-import net.ccbluex.liquidbounce.ui.font.GameFontRenderer;
 import net.ccbluex.liquidbounce.utils.render.AnimatedValue;
 import net.ccbluex.liquidbounce.utils.render.EaseUtils;
 import net.ccbluex.liquidbounce.utils.render.RenderUtils;
@@ -21,7 +16,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.Objects;
 

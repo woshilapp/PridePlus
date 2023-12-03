@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.event.AttackEvent;
 import net.ccbluex.liquidbounce.event.ClickWindowEvent;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.AbortBreaking;
@@ -39,12 +39,12 @@ public class MixinPlayerControllerMP {
 
     @Inject(method = "attackEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/PlayerControllerMP;syncCurrentPlayItem()V"))
     private void attackEntity(EntityPlayer entityPlayer, Entity targetEntity, CallbackInfo callbackInfo) {
-        LiquidBounce.eventManager.callEvent(new AttackEvent(targetEntity));
+        Pride.eventManager.callEvent(new AttackEvent(targetEntity));
     }
 
     @Inject(method = "getIsHittingBlock", at = @At("HEAD"), cancellable = true)
     private void getIsHittingBlock(CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
-        if (LiquidBounce.moduleManager.getModule(AbortBreaking.class).getState())
+        if (Pride.moduleManager.getModule(AbortBreaking.class).getState())
             callbackInfoReturnable.setReturnValue(false);
     }
 
@@ -55,7 +55,7 @@ public class MixinPlayerControllerMP {
     public ItemStack windowClick(int windowId, int slotId, int mouseButton, ClickType type, EntityPlayer player)
     {
         final ClickWindowEvent event = new ClickWindowEvent(windowId, slotId, mouseButton, toInt(type));
-        LiquidBounce.eventManager.callEvent(event);
+        Pride.eventManager.callEvent(event);
 
         if (event.isCancelled())
             return null;
@@ -65,7 +65,7 @@ public class MixinPlayerControllerMP {
         ItemStack itemstack = player.openContainer.slotClick(slotId, mouseButton, type, player);
 
 
-        if (LiquidBounce.moduleManager.get(PostDisabler.class).getState())
+        if (Pride.moduleManager.get(PostDisabler.class).getState())
             this.connection.sendPacket(new CPacketConfirmTransaction(windowId, (short) 1, true));
 
         this.connection.sendPacket(new CPacketClickWindow(windowId, slotId, mouseButton, type, itemstack, short1));

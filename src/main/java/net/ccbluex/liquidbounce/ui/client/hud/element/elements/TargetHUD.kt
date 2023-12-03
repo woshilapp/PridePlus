@@ -3,7 +3,7 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 import com.mojang.realmsclient.gui.ChatFormatting
 import me.utils.render.BlurBuffer
 import me.utils.render.ShadowUtils
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
@@ -51,7 +51,7 @@ class TargetHUD : Element(-46.0,-40.0,1F,Side(Side.Horizontal.MIDDLE,Side.Vertic
         return if(entity==null || entity.isDead){ 0f }else{ entity.health }
     }
     override fun drawElement(): Border? {
-        var target=(LiquidBounce.moduleManager[KillAura::class.java] as KillAura).target
+        var target=(Pride.moduleManager[KillAura::class.java] as KillAura).target
         val time=System.currentTimeMillis()
         val pct = (time - lastUpdate) / (switchAnimSpeedValue.get()*50f)
         lastUpdate=System.currentTimeMillis()

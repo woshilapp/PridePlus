@@ -2,7 +2,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.features.module.modules.player.InvManager;
 import op.wawa.utils.animation.EaseUtils;
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.render.Animations;
 import net.ccbluex.liquidbounce.features.module.modules.world.ChestStealer;
@@ -52,7 +52,7 @@ public abstract class MixinGuiContainer extends MixinGuiScreen implements IMixin
 
     @Inject(method = {"drawScreen"}, at = {@At("HEAD")},cancellable = true)
     protected void drawScreenHead(CallbackInfo callbackInfo) {
-        final Animations animMod = (Animations) LiquidBounce.moduleManager.getModule(Animations.class);
+        final Animations animMod = (Animations) Pride.moduleManager.getModule(Animations.class);
         if (progress >= 1F) progress = 1F;
         else progress = (float)(System.currentTimeMillis() - lastMS) / (float) Animations.animTimeValue.get();
         double trueAnim = EaseUtils.easeOutQuart(progress);
@@ -91,8 +91,8 @@ public abstract class MixinGuiContainer extends MixinGuiScreen implements IMixin
 
     @Inject(method = "drawScreen", at = @At("RETURN"))
     public void drawScreenReturn(CallbackInfo callbackInfo) {
-        final Animations animMod = (Animations) LiquidBounce.moduleManager.getModule(Animations.class);
-        ChestStealer chestStealer = (ChestStealer) LiquidBounce.moduleManager.getModule(ChestStealer.class);
+        final Animations animMod = (Animations) Pride.moduleManager.getModule(Animations.class);
+        ChestStealer chestStealer = (ChestStealer) Pride.moduleManager.getModule(ChestStealer.class);
         final Minecraft mc = Minecraft.getMinecraft();
 
         if (animMod != null && animMod.getState())
@@ -104,13 +104,13 @@ public abstract class MixinGuiContainer extends MixinGuiScreen implements IMixin
         for (Object aButtonList : this.buttonList) {
             GuiButton var52 = (GuiButton) aButtonList;
             if (var52.mousePressed(this.mc, mouseX, mouseY) && var52.id == 1024576) {
-                LiquidBounce.moduleManager.getModule(KillAura.class).setState(false);
+                Pride.moduleManager.getModule(KillAura.class).setState(false);
             }
             if (var52.mousePressed(this.mc, mouseX, mouseY) && var52.id == 321123) {
-                LiquidBounce.moduleManager.getModule(InvManager.class).setState(false);
+                Pride.moduleManager.getModule(InvManager.class).setState(false);
             }
             if (var52.mousePressed(this.mc, mouseX, mouseY) && var52.id == 727) {
-                LiquidBounce.moduleManager.getModule(ChestStealer.class).setState(false);
+                Pride.moduleManager.getModule(ChestStealer.class).setState(false);
             }
         }
     }

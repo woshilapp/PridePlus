@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.features.module.modules.render.Animations;
 import net.ccbluex.liquidbounce.features.module.modules.render.HUD;
 import net.ccbluex.liquidbounce.ui.client.clickgui.AnimationUtil;
@@ -25,7 +25,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static net.ccbluex.liquidbounce.utils.MinecraftInstance.mc;
 import static net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType.PLAYER_LIST;
 
 @Mixin(GuiIngameForge.class)
@@ -63,7 +62,7 @@ public abstract class MixinGuiIngameForge extends MixinGuiInGame {
 
     @Inject(method = { "renderExperience"}, at = @At("HEAD"), cancellable = true, remap = false)
     private void renderExperience(int width, int height, CallbackInfo ci) {
-        HUD hud = (HUD) LiquidBounce.moduleManager.getModule(HUD.class);
+        HUD hud = (HUD) Pride.moduleManager.getModule(HUD.class);
 
         if (!((Boolean) hud.getHotbar().get())) {
             ci.cancel();
@@ -73,7 +72,7 @@ public abstract class MixinGuiIngameForge extends MixinGuiInGame {
 
     @Inject(method = { "renderToolHighlight"}, at =@At("HEAD"), cancellable = true, remap = false)
     protected void renderToolHighlight(ScaledResolution res, CallbackInfo ci) {
-        HUD hud = (HUD) LiquidBounce.moduleManager.getModule(HUD.class);
+        HUD hud = (HUD) Pride.moduleManager.getModule(HUD.class);
         if (!((Boolean) hud.getHotbar().get())) {
             ci.cancel();
         }
@@ -81,7 +80,7 @@ public abstract class MixinGuiIngameForge extends MixinGuiInGame {
 
     @Inject(method = { "renderFood"}, at = @At("HEAD"), cancellable = true, remap = false)
     private void renderPlayerStats(int width, int height, CallbackInfo ci) {
-        HUD hud = (HUD) LiquidBounce.moduleManager.getModule(HUD.class);
+        HUD hud = (HUD) Pride.moduleManager.getModule(HUD.class);
         if (!((Boolean) hud.getHotbar().get())) {
             ci.cancel();
         }
@@ -89,7 +88,7 @@ public abstract class MixinGuiIngameForge extends MixinGuiInGame {
 
     @Inject(method = { "renderHealth"}, at = @At("HEAD"), cancellable = true, remap = false)
     private void renderHealth(int width, int height, CallbackInfo ci) {
-        HUD hud = (HUD) LiquidBounce.moduleManager.getModule(HUD.class);
+        HUD hud = (HUD) Pride.moduleManager.getModule(HUD.class);
         if (!((Boolean) hud.getHotbar().get())) {
             ci.cancel();
         }
@@ -97,7 +96,7 @@ public abstract class MixinGuiIngameForge extends MixinGuiInGame {
 
     @Inject(method = { "renderArmor"}, at = @At("HEAD"), cancellable = true, remap = false)
     private void renderArmor(int width, int height, CallbackInfo ci) {
-        HUD hud = (HUD) LiquidBounce.moduleManager.getModule(HUD.class);
+        HUD hud = (HUD) Pride.moduleManager.getModule(HUD.class);
         if (!((Boolean) hud.getHotbar().get())) {
             ci.cancel();
         }

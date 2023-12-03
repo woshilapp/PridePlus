@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.ccbluex.liquidbounce.features.module.Module
@@ -30,15 +30,15 @@ class MidClick : Module() {
 
             if (entity is EntityPlayer) {
                 val playerName = stripColor(entity.name)
-                val friendsConfig = LiquidBounce.fileManager.friendsConfig
+                val friendsConfig = Pride.fileManager.friendsConfig
 
                 if (!friendsConfig.isFriend(playerName)) {
                     friendsConfig.addFriend(playerName)
-                    LiquidBounce.fileManager.saveConfig(friendsConfig)
+                    Pride.fileManager.saveConfig(friendsConfig)
                     ClientUtils.displayChatMessage("§a§l$playerName§c was added to your friends.")
                 } else {
                     friendsConfig.removeFriend(playerName)
-                    LiquidBounce.fileManager.saveConfig(friendsConfig)
+                    Pride.fileManager.saveConfig(friendsConfig)
                     ClientUtils.displayChatMessage("§a§l$playerName§c was removed from your friends.")
                 }
 

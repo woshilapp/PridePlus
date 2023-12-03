@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
@@ -105,7 +105,7 @@ object AntiKnockback : Module() {
             return
         }
 
-        if (onlyCombatValue.get() && !LiquidBounce.combatManager.inCombat) {
+        if (onlyCombatValue.get() && !Pride.combatManager.inCombat) {
             return
         }
         if (noFireValue.get() && mc.player.isBurning) return
@@ -138,7 +138,7 @@ object AntiKnockback : Module() {
         if ((OnlyMove.get() && !MovementUtils.isMoving) || (OnlyGround.get() && !mc.player.onGround))
             return
         mode.onPacket(event)
-        if (onlyCombatValue.get() && !LiquidBounce.combatManager.inCombat) {
+        if (onlyCombatValue.get() && !Pride.combatManager.inCombat) {
             return
         }
 

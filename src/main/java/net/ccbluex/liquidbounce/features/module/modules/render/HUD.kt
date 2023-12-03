@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import com.mojang.realmsclient.gui.ChatFormatting
 import me.utils.render.VisualUtils
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
@@ -225,17 +225,17 @@ class HUD : Module() {
         if (mc.currentScreen is GuiHudDesigner)
             return
 
-        LiquidBounce.hud.render(false)
+        Pride.hud.render(false)
     }
 
     @EventTarget
     fun onUpdate(event: UpdateEvent?) {
-        LiquidBounce.hud.update()
+        Pride.hud.update()
     }
 
     @EventTarget
     fun onKey(event: KeyEvent) {
-        LiquidBounce.hud.handleKey('a', event.key)
+        Pride.hud.handleKey('a', event.key)
     }
 
     @EventTarget(ignoreCondition = true)

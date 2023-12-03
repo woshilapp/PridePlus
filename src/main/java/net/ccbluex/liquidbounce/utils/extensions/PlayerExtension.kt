@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.utils.extensions
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.mc
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
 import net.minecraft.client.Minecraft
@@ -72,5 +72,5 @@ fun Entity.isMob(): Boolean {
 fun EntityPlayer.isClientFriend(): Boolean {
     val entityName = name ?: return false
 
-    return LiquidBounce.fileManager.friendsConfig.isFriend(stripColor(entityName))
+    return Pride.fileManager.friendsConfig.isFriend(stripColor(entityName))
 }

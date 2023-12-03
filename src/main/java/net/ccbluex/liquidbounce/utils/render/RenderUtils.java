@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.utils.render;
 
 import me.CustomUI;
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.features.module.modules.render.HUD;
 import net.ccbluex.liquidbounce.ui.font.Fonts;
 import net.ccbluex.liquidbounce.utils.ImageUtils;
@@ -1278,7 +1278,7 @@ public final class RenderUtils extends MinecraftInstance {
     }
 
     public static void drawGidentOutlinedRoundedRect(double x, double y, double width, double height, double radius, float linewidth) {
-        HUD hud = (HUD) LiquidBounce.moduleManager.getModule(HUD.class);
+        HUD hud = (HUD) Pride.moduleManager.getModule(HUD.class);
         //大神渐变方向
         GlStateManager.enableBlend();
         GlStateManager.disableTexture2D();

@@ -1,12 +1,11 @@
 package net.ccbluex.liquidbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.render.HUD
 import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
@@ -68,7 +67,7 @@ class ChinaHat : Module() {
         GL11.glBegin(GL11.GL_TRIANGLE_FAN)
         GL11.glVertex3d(0.0, heightValue.get().toDouble(), 0.0)
         val radius = radiusValue.get().toDouble()
-        val HUD = LiquidBounce.moduleManager.getModule(HUD::class.java) as HUD
+        val HUD = Pride.moduleManager.getModule(HUD::class.java) as HUD
         for(i in 0..360 step 5) {
             if(colorRainbow.get()) {
                 RenderUtils.glColor(Color.getHSBColor(if (i <180) { HUD.rainbowStart.get() + (HUD.rainbowStop.get() - HUD.rainbowStart.get()) * (i / 180f) } else { HUD.rainbowStart.get() + (HUD.rainbowStop.get() - HUD.rainbowStart.get()) * (-(i-360) / 180f) }, 0.7f, 1.0f),

@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.event.*;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.AntiHunger;
@@ -152,13 +152,13 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
      */
     @Overwrite
     public void onUpdateWalkingPlayer() {
-        final StrafeFix strafeFix = (StrafeFix) LiquidBounce.moduleManager.getModule(StrafeFix.class);
+        final StrafeFix strafeFix = (StrafeFix) Pride.moduleManager.getModule(StrafeFix.class);
         strafeFix.updateOverwrite();
-        LiquidBounce.eventManager.callEvent(new MotionEvent(EventState.PRE));
+        Pride.eventManager.callEvent(new MotionEvent(EventState.PRE));
 
-        final InventoryMove inventoryMove = (InventoryMove) LiquidBounce.moduleManager.getModule(InventoryMove.class);
-        final Sneak sneak = (Sneak) LiquidBounce.moduleManager.getModule(Sneak.class);
-        final boolean fakeSprint = (inventoryMove.getState() && inventoryMove.getAacAdditionProValue().get()) || LiquidBounce.moduleManager.getModule(AntiHunger.class).getState() || (sneak.getState() && (!MovementUtils.isMoving() || !sneak.stopMoveValue.get()) && sneak.modeValue.get().equalsIgnoreCase("MineSecure"));
+        final InventoryMove inventoryMove = (InventoryMove) Pride.moduleManager.getModule(InventoryMove.class);
+        final Sneak sneak = (Sneak) Pride.moduleManager.getModule(Sneak.class);
+        final boolean fakeSprint = (inventoryMove.getState() && inventoryMove.getAacAdditionProValue().get()) || Pride.moduleManager.getModule(AntiHunger.class).getState() || (sneak.getState() && (!MovementUtils.isMoving() || !sneak.stopMoveValue.get()) && sneak.modeValue.get().equalsIgnoreCase("MineSecure"));
 
         boolean clientSprintState = this.isSprinting() && !fakeSprint;
 
@@ -237,12 +237,12 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             this.autoJumpEnabled = this.mc.gameSettings.autoJump;
         }
 
-        LiquidBounce.eventManager.callEvent(new MotionEvent(EventState.POST));
+        Pride.eventManager.callEvent(new MotionEvent(EventState.POST));
     }
 
     @Inject(method = "swingArm", at = @At("HEAD"), cancellable = true)
     private void swingItem(EnumHand hand, CallbackInfo callbackInfo) {
-        final NoSwing noSwing = (NoSwing) LiquidBounce.moduleManager.getModule(NoSwing.class);
+        final NoSwing noSwing = (NoSwing) Pride.moduleManager.getModule(NoSwing.class);
 
         if (noSwing.getState()) {
             callbackInfo.cancel();
@@ -256,7 +256,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
     private void onPushOutOfBlocks(CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
         PushOutEvent event = new PushOutEvent();
         if (this.noClip) event.cancelEvent();
-        LiquidBounce.eventManager.callEvent(event);
+        Pride.eventManager.callEvent(event);
 
         if (event.isCancelled())
             callbackInfoReturnable.setReturnValue(false);
@@ -268,7 +268,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
     @Overwrite
     public void onLivingUpdate() {
         try {
-            LiquidBounce.eventManager.callEvent(new UpdateEvent());
+            Pride.eventManager.callEvent(new UpdateEvent());
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -281,7 +281,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         this.prevTimeInPortal = this.timeInPortal;
 
         if (this.inPortal) {
-            if (this.mc.currentScreen != null && !this.mc.currentScreen.doesGuiPauseGame() && !LiquidBounce.moduleManager.getModule(PortalMenu.class).getState()) {
+            if (this.mc.currentScreen != null && !this.mc.currentScreen.doesGuiPauseGame() && !Pride.moduleManager.getModule(PortalMenu.class).getState()) {
                 if (this.mc.currentScreen instanceof GuiContainer) {
                     this.closeScreen();
                 }
@@ -326,15 +326,15 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         boolean flag2 = this.movementInput.moveForward >= 0.8F;
         this.movementInput.updatePlayerMoveState();
 
-        final NoSlow noSlow = (NoSlow) LiquidBounce.moduleManager.getModule(NoSlow.class);
-        final KillAura killAura = (KillAura) LiquidBounce.moduleManager.getModule(KillAura.class);
+        final NoSlow noSlow = (NoSlow) Pride.moduleManager.getModule(NoSlow.class);
+        final KillAura killAura = (KillAura) Pride.moduleManager.getModule(KillAura.class);
 
         ForgeHooksClient.onInputUpdate((EntityPlayerSP) (Object) this, this.movementInput);
         this.mc.getTutorial().handleMovement(this.movementInput);
 
         if (this.isHandActive() || (getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSword && killAura.getBlockingStatus()) && !this.isRiding()) {
             final SlowDownEvent slowDownEvent = new SlowDownEvent(0.2F, 0.2F);
-            LiquidBounce.eventManager.callEvent(slowDownEvent);
+            Pride.eventManager.callEvent(slowDownEvent);
             this.movementInput.moveStrafe *= slowDownEvent.getStrafe();
             this.movementInput.moveForward *= slowDownEvent.getForward();
             this.sprintToggleTimer = 0;
@@ -358,7 +358,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             this.pushOutOfBlocks(this.posX + (double) this.width * 0.35D, axisalignedbb.minY + 0.5D, this.posZ + (double) this.width * 0.35D);
         }
 
-        final Sprint sprint = (Sprint) LiquidBounce.moduleManager.getModule(Sprint.class);
+        final Sprint sprint = (Sprint) Pride.moduleManager.getModule(Sprint.class);
 
         boolean flag4 = !sprint.foodValue.get() || (float) this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying;
 
@@ -463,7 +463,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
     @Overwrite
     public void move(MoverType type, double x, double y, double z) {
         MoveEvent moveEvent = new MoveEvent(x, y, z);
-        LiquidBounce.eventManager.callEvent(moveEvent);
+        Pride.eventManager.callEvent(moveEvent);
 
         if (moveEvent.isCancelled())
             return;
@@ -621,7 +621,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
             if (this.stepHeight > 0.0F && flag && (d2 != x || d4 != z)) {
                 StepEvent stepEvent = new StepEvent(this.stepHeight);
-                LiquidBounce.eventManager.callEvent(stepEvent);
+                Pride.eventManager.callEvent(stepEvent);
 
                 double d14 = x;
                 double d6 = y;
@@ -710,7 +710,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
                     z = d7;
                     this.setEntityBoundingBox(axisalignedbb1);
                 } else {
-                    LiquidBounce.eventManager.callEvent(new StepConfirmEvent());
+                    Pride.eventManager.callEvent(new StepConfirmEvent());
                 }
             }
 

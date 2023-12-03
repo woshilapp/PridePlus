@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.block;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
+import net.ccbluex.liquidbounce.Pride;
 import net.ccbluex.liquidbounce.features.module.modules.render.XRay;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.BlockModelRenderer;
@@ -25,7 +25,7 @@ public class MixinBlockModelRenderer {
 
     @Inject(method = "renderModelSmooth", at = @At("HEAD"), cancellable = true)
     public void renderModelSmooth(IBlockAccess worldIn, IBakedModel modelIn, IBlockState stateIn, BlockPos posIn, BufferBuilder buffer, boolean checkSides, long rand, CallbackInfoReturnable<Boolean> cir) {
-        final XRay xray = (XRay) LiquidBounce.moduleManager.getModule(XRay.class);
+        final XRay xray = (XRay) Pride.moduleManager.getModule(XRay.class);
 
         if (Objects.requireNonNull(xray).getState() && !xray.getXrayBlocks().contains(stateIn.getBlock()))
             cir.setReturnValue(false);
@@ -33,7 +33,7 @@ public class MixinBlockModelRenderer {
 
     @Inject(method = "renderModelFlat", at = @At("HEAD"), cancellable = true)
     private void renderModelStandard(IBlockAccess worldIn, IBakedModel modelIn, IBlockState stateIn, BlockPos posIn, BufferBuilder buffer, boolean checkSides, long rand, final CallbackInfoReturnable<Boolean> booleanCallbackInfoReturnable) {
-        final XRay xray = (XRay) LiquidBounce.moduleManager.getModule(XRay.class);
+        final XRay xray = (XRay) Pride.moduleManager.getModule(XRay.class);
 
         if (Objects.requireNonNull(xray).getState() && !xray.getXrayBlocks().contains(stateIn.getBlock()))
             booleanCallbackInfoReturnable.setReturnValue(false);

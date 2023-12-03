@@ -50,27 +50,13 @@ import java.awt.TrayIcon
 import java.util.*
 import javax.imageio.ImageIO
 
-object LiquidBounce {
+object Pride {
 
     // Client information
     var CLIENT_NAME = "PridePlus"
     const val CLIENT_VERSION = "NextGen1.0"
     const val CLIENT_CREATOR = "WaWa"
     const val CLIENT_CLOUD = "https://cloud.liquidbounce.net/LiquidBounce"
-    @JvmField
-    val CLIENT_TITLE = listOf(
-        "你玩原神吗？",
-        "RainyFaLL233",
-        "Reborn",
-        "不行我得拷打你",
-        "LangYa233",
-        "Bi an Fl0w0w",
-        "Paim0n233",
-        "imCzf",
-        "崩坏：星穹铁道",
-        "Honkai: Star Rail",
-        "小职我超你马"
-    ).random()
 
     var isStarting = false
 

@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.utils.render;
 
-import net.ccbluex.liquidbounce.LiquidBounce;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 

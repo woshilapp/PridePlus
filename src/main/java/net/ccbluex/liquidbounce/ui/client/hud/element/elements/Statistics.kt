@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import me.utils.render.BlurBuffer
 import me.utils.render.ShadowUtils
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
@@ -114,7 +114,7 @@ class Statistics(
                 Fonts.icon80.drawString("B",7f,Fonts.posterama30.fontHeight * 2f + 9.3f,Color(0,0,0,255).rgb)
                 Fonts.posterama40.drawString("Time:${DATE_FORMAT.format(Date(System.currentTimeMillis() - Recorder.startTime - 8000L * 3600L))}", 30f, Fonts.posterama30.fontHeight * 2f + 8f, Color.WHITE.rgb)
                 Fonts.icon80.drawString("F",7f,Fonts.posterama30.fontHeight * 4.5f + 9.3f,Color(0,0,0,255).rgb)
-                Fonts.posterama40.drawString("Kill:" + LiquidBounce.combatManager.kill.toString(),30f, Fonts.posterama30.fontHeight * 4.5f + 8f, Color.WHITE.rgb)
+                Fonts.posterama40.drawString("Kill:" + Pride.combatManager.kill.toString(),30f, Fonts.posterama30.fontHeight * 4.5f + 8f, Color.WHITE.rgb)
                 Fonts.icon80.drawString("E",7f,Fonts.posterama30.fontHeight * 7f + 9.3f,Color(0,0,0,255).rgb)
                 Fonts.posterama40.drawString("FPS:"+ Minecraft.getDebugFPS(),30f, Fonts.posterama30.fontHeight * 7f + 8f, Color.WHITE.rgb)
                 if (bV.get()) {
@@ -137,7 +137,7 @@ class Statistics(
                 Fonts.icon80.drawString("B",7f,Fonts.posterama30.fontHeight * 2f + 9.3f,Color(0,0,0,255).rgb)
                 Fonts.posterama40.drawString("Time:${DATE_FORMAT.format(Date(System.currentTimeMillis() - Recorder.startTime - 8000L * 3600L))}", 30f, Fonts.posterama30.fontHeight * 2f + 8f, Color.WHITE.rgb)
                 Fonts.icon80.drawString("F",7f,Fonts.posterama30.fontHeight * 4.5f + 9.3f,Color(0,0,0,255).rgb)
-                Fonts.posterama40.drawString("Kill:" + LiquidBounce.combatManager.kill.toString(),30f, Fonts.posterama30.fontHeight * 4.5f + 8f, Color.WHITE.rgb)
+                Fonts.posterama40.drawString("Kill:" + Pride.combatManager.kill.toString(),30f, Fonts.posterama30.fontHeight * 4.5f + 8f, Color.WHITE.rgb)
                 Fonts.icon80.drawString("E",7f,Fonts.posterama30.fontHeight * 7f + 9.3f,Color(0,0,0,255).rgb)
                 Fonts.posterama40.drawString("FPS:"+ Minecraft.getDebugFPS(),30f, Fonts.posterama30.fontHeight * 7f + 8f, Color.WHITE.rgb)
                 //shadow
@@ -233,11 +233,11 @@ class Statistics(
 
                 // Kills
                 FontLoaders.F16.drawString("Kills", 5.0F, 20.0F, Color(textR.get(), textG.get(), textB.get(),textAlpha.get()).rgb)
-                FontLoaders.F16.drawString(LiquidBounce.combatManager.kill.toString(), 135F - FontLoaders.F16.getStringWidth(LiquidBounce.combatManager.kill.toString()), 20.0f, Color(infoR.get(), infoG.get(), infoB.get(),infoAlpha.get()).rgb)
+                FontLoaders.F16.drawString(Pride.combatManager.kill.toString(), 135F - FontLoaders.F16.getStringWidth(Pride.combatManager.kill.toString()), 20.0f, Color(infoR.get(), infoG.get(), infoB.get(),infoAlpha.get()).rgb)
 
                 // Deaths
                 FontLoaders.F16.drawString("Deaths", 5.0F, 30.0F, Color(textR.get(), textG.get(), textB.get(),textAlpha.get()).rgb)
-                FontLoaders.F16.drawString(LiquidBounce.combatManager.death.toString(), 135F - FontLoaders.F16.getStringWidth(LiquidBounce.combatManager.death.toString()), 30.0f, Color(infoR.get(), infoG.get(), infoB.get(),infoAlpha.get()).rgb)
+                FontLoaders.F16.drawString(Pride.combatManager.death.toString(), 135F - FontLoaders.F16.getStringWidth(Pride.combatManager.death.toString()), 30.0f, Color(infoR.get(), infoG.get(), infoB.get(),infoAlpha.get()).rgb)
                 GL11.glPopMatrix()
             }
             "skid" -> {

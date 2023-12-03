@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.features.command.commands
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
@@ -41,7 +41,7 @@ class AutoSettingsCommand : Command("autosettings", "setting", "settings", "conf
                 val url = if (args[2].startsWith("http"))
                     args[2]
                 else
-                    "${LiquidBounce.CLIENT_CLOUD}/settings/${args[2].toLowerCase()}"
+                    "${Pride.CLIENT_CLOUD}/settings/${args[2].toLowerCase()}"
 
                 chat("Loading settings...")
 
@@ -53,7 +53,7 @@ class AutoSettingsCommand : Command("autosettings", "setting", "settings", "conf
                         chat("Applying settings...")
                         SettingsUtils.executeScript(settings)
                         chat("§6Settings applied successfully")
-                        LiquidBounce.hud.addNotification(Notification("Updated Settings","Updated Settings", NotifyType.INFO))
+                        Pride.hud.addNotification(Notification("Updated Settings","Updated Settings", NotifyType.INFO))
                         playEdit()
                     } catch (exception: Exception) {
                         exception.printStackTrace()

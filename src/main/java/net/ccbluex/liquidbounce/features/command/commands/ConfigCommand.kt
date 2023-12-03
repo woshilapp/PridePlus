@@ -4,7 +4,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.Pride
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.special.AntiForge
@@ -53,7 +53,7 @@ class ConfigCommand : Command("config") {
                             while (iterator.hasNext()) {
                                 val (key, value) = iterator.next()
                                 if (key.equals("CommandPrefix", ignoreCase = true)) {
-                                    LiquidBounce.commandManager.prefix = value.asCharacter
+                                    Pride.commandManager.prefix = value.asCharacter
                                 } else if (key.equals("targets", ignoreCase = true)) {
                                     val jsonValue = value as JsonObject
                                     if (jsonValue.has("TargetPlayer")) EntityUtils.targetPlayer =
@@ -94,7 +94,7 @@ class ConfigCommand : Command("config") {
                                     if (jsonValue.has("Enabled")) enabled = jsonValue["Enabled"].asBoolean
                                     if (jsonValue.has("Particles")) particles = jsonValue["Particles"].asBoolean
                                 } else {
-                                    val module = LiquidBounce.moduleManager.getModule(key)
+                                    val module = Pride.moduleManager.getModule(key)
                                     if (module != null) {
                                         val jsonModule = value as JsonObject
                                         for (moduleValue in module.values) {
@@ -136,7 +136,7 @@ class ConfigCommand : Command("config") {
 
                 "delete" -> {
                     if (args.size > 2) {
-                        val file = File(LiquidBounce.fileManager.configsDir, "${args[2]}.json")
+                        val file = File(Pride.fileManager.configsDir, "${args[2]}.json")
                         if (file.exists()) {
                             try {
                                 FileUtils.forceDelete(file)
@@ -155,7 +155,7 @@ class ConfigCommand : Command("config") {
 
                 "load" -> {
                     if (args.size > 2) {
-                        val file = File(LiquidBounce.fileManager.configsDir, "${args[2]}.json")
+                        val file = File(Pride.fileManager.configsDir, "${args[2]}.json")
                         if (file.exists()) {
                             val jsonElement = JsonParser().parse(BufferedReader(FileReader(file)))
                             try {
@@ -170,7 +170,7 @@ class ConfigCommand : Command("config") {
                                 while (iterator.hasNext()) {
                                     val (key, value) = iterator.next()
                                     if (key.equals("CommandPrefix", ignoreCase = true)) {
-                                        LiquidBounce.commandManager.prefix = value.asCharacter
+                                        Pride.commandManager.prefix = value.asCharacter
                                     } else if (key.equals("targets", ignoreCase = true)) {
                                         val jsonValue = value as JsonObject
                                         if (jsonValue.has("TargetPlayer")) EntityUtils.targetPlayer =
@@ -211,7 +211,7 @@ class ConfigCommand : Command("config") {
                                         if (jsonValue.has("Enabled")) enabled = jsonValue["Enabled"].asBoolean
                                         if (jsonValue.has("Particles")) particles = jsonValue["Particles"].asBoolean
                                     } else {
-                                        val module = LiquidBounce.moduleManager.getModule(key)
+                                        val module = Pride.moduleManager.getModule(key)
                                         if (module != null) {
                                             val jsonModule = value as JsonObject
                                             for (moduleValue in module.values) {
@@ -248,7 +248,7 @@ class ConfigCommand : Command("config") {
 
                             val jsonObject = JsonObject()
 
-                            jsonObject.addProperty("CommandPrefix", LiquidBounce.commandManager.prefix)
+                            jsonObject.addProperty("CommandPrefix", Pride.commandManager.prefix)
 
                             val jsonTargets = JsonObject()
                             jsonTargets.addProperty("TargetPlayer", EntityUtils.targetPlayer)
@@ -271,7 +271,7 @@ class ConfigCommand : Command("config") {
                             theAlteningObject.addProperty("API-Key", apiKey)
                             jsonObject.add("thealtening", theAlteningObject)
 
-                            LiquidBounce.moduleManager.modules.stream()
+                            Pride.moduleManager.modules.stream()
                                 .forEach { module: Module ->
                                     val jsonModule = JsonObject()
                                     jsonModule.addProperty("State", module.state)
@@ -288,7 +288,7 @@ class ConfigCommand : Command("config") {
                                 }
 
                             val printWriter =
-                                PrintWriter(FileWriter(File(LiquidBounce.fileManager.configsDir, "${args[2]}.json")))
+                                PrintWriter(FileWriter(File(Pride.fileManager.configsDir, "${args[2]}.json")))
                             printWriter.println(FileManager.PRETTY_GSON.toJson(jsonObject))
                             printWriter.close()
                             chat(args[2] + ".json已保存.")
@@ -303,7 +303,7 @@ class ConfigCommand : Command("config") {
                 }
                 "folder" -> {
                     try {
-                        Desktop.getDesktop().open(LiquidBounce.fileManager.configsDir)
+                        Desktop.getDesktop().open(Pride.fileManager.configsDir)
                         chat("已打开配置文件夹.")
                         return
                     } catch (t: Throwable) {
@@ -338,6 +338,6 @@ class ConfigCommand : Command("config") {
         }
     }
 
-    private fun getLocalSettings(): Array<File>? = LiquidBounce.fileManager.configsDir.listFiles()
+    private fun getLocalSettings(): Array<File>? = Pride.fileManager.configsDir.listFiles()
 
 }
