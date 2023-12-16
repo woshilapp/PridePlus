@@ -135,7 +135,18 @@ object MovementUtils : MinecraftInstance() {
             if (thePlayer.moveStrafing < 0f) rotationYaw += 90f * forward
             return Math.toRadians(rotationYaw.toDouble())
         }
-
+    fun getRawDirection(): Float {
+        return getRawDirectionRotation(mc.player.rotationYaw, mc.player.moveStrafing, mc.player.moveForward)
+    }
+    fun getRawDirectionRotation(yaw: Float, pStrafe: Float, pForward: Float): Float {
+        var rotationYaw = yaw
+        if (pForward < 0f) rotationYaw += 180f
+        var forward = 1f
+        if (pForward < 0f) forward = -0.5f else if (pForward > 0f) forward = 0.5f
+        if (pStrafe > 0f) rotationYaw -= 90f * forward
+        if (pStrafe < 0f) rotationYaw += 90f * forward
+        return rotationYaw
+    }
     @JvmStatic
     fun getScaffoldRotation(yaw: Float, strafe: Float): Float {
         var rotationYaw = yaw
